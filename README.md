@@ -186,7 +186,7 @@ Currently, most of these containers (including all of the SeqWare ones) are avai
 
 ### Java
 
-You will need Java 7 to extract the workflow .zip bundles.  Please install that version for your system.
+You will need Java 8 to extract the workflow .zip bundles.  Please install that version for your system.
 
 ### SeqWare WhiteStar 
 

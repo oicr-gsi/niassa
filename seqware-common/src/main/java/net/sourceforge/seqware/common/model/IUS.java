@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,10 +30,13 @@ import org.slf4j.LoggerFactory;
 public class IUS extends PermissionsAware implements Serializable, Comparable<IUS>, ParentAccessionModel, Annotatable<IUSAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 3472028115923390568L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer iusId;
     private Lane lane;
     private Registration owner;
     private Sample sample;
+    private LimsKey limsKey;
     private String name;
     private String alias;
     private String description;
@@ -206,6 +213,24 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
     }
 
     /**
+     * Getter for the field <code>limsKey</code>.
+     *
+     * @return a {@link net.sourceforge.seqware.common.model.LimsKey} object.
+     */
+    public LimsKey getLimsKey() {
+        return limsKey;
+    }
+
+    /**
+     * Setter for the field <code>limsKey</code>.
+     *
+     * @param limsKey a {@link net.sourceforge.seqware.common.model.LimsKey} object.
+     */
+    public void setLimsKey(LimsKey limsKey) {
+        this.limsKey = limsKey;
+    }
+
+    /**
      * <p>
      * getJsonEscapeName.
      * </p>
@@ -326,6 +351,7 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
      *
      * @return a {@link java.lang.Integer} object.
      */
+    @Override
     public Integer getSwAccession() {
         return swAccession;
     }

@@ -8,6 +8,7 @@ import joptsimple.OptionSpecBuilder;
 import net.sourceforge.seqware.common.metadata.MetadataInMemory;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
@@ -15,7 +16,6 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.plugins.BundleManager;
 import net.sourceforge.seqware.pipeline.plugins.WorkflowStatusChecker;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
-import net.sourceforge.seqware.pipeline.runner.PluginRunner.ExitException;
 import org.apache.commons.io.FileUtils;
 import org.openide.util.lookup.ServiceProvider;
 

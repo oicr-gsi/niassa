@@ -75,7 +75,7 @@ public class WorkflowRunIDProcessingsResource extends BasicRestlet {
 
             JaxbObject<ProcessingList> jaxbTool = new JaxbObject<>();
 
-            Document doc = XmlTools.marshalToDocument(jaxbTool, list);
+            Document doc = XmlTools.marshalToDocument(jaxbTool, list, ProcessingList.class);
 
             response.setEntity(XmlTools.getRepresentation(doc));
         } catch (SQLException ex) {

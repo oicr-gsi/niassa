@@ -3,6 +3,7 @@ package net.sourceforge.seqware.common.business;
 import java.util.List;
 import java.util.SortedSet;
 import net.sourceforge.seqware.common.dao.IUSDAO;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Registration;
@@ -86,6 +87,17 @@ public interface IUSService {
      * @param deleteRealFiles
      */
     void delete(IUS ius, boolean deleteRealFiles);
+
+    /**
+     * <p>
+     * Delete IUS - all links to workflow runs, processings, sample, lane, and/or lims key must be removed first.
+     * </p>
+     *
+     * @param ius
+     *
+     * @throws net.sourceforge.seqware.common.err.DataIntegrityException
+     */
+    public void delete(IUS ius) throws DataIntegrityException;
 
     /**
      * <p>

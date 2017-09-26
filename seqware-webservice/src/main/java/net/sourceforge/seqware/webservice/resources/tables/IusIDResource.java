@@ -18,25 +18,34 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import java.io.IOException;
 import java.util.Set;
-import net.sf.beanlib.CollectionPropertyName;
-import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
-import net.sourceforge.seqware.common.business.IUSService;
-import net.sourceforge.seqware.common.business.RegistrationService;
-import net.sourceforge.seqware.common.business.SampleService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.model.IUS;
-import net.sourceforge.seqware.common.model.IUSAttribute;
-import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.model.Sample;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import net.sf.beanlib.CollectionPropertyName;
+import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
+import net.sourceforge.seqware.common.business.IUSService;
+import net.sourceforge.seqware.common.business.LaneService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
+import net.sourceforge.seqware.common.business.RegistrationService;
+import net.sourceforge.seqware.common.business.SampleService;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
+import net.sourceforge.seqware.common.factory.BeanFactory;
+import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.IUSAttribute;
+import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.common.model.Processing;
+import net.sourceforge.seqware.common.model.Registration;
+import net.sourceforge.seqware.common.model.Sample;
+import net.sourceforge.seqware.common.model.WorkflowRun;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 
 /**
  * <p>
@@ -68,14 +77,25 @@ public class IusIDResource extends DatabaseIDResource {
         IUSService ss = BeanFactory.getIUSServiceBean();
         IUS ius = testIfNull(ss.findBySWAccession(getId()));
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-        JaxbObject<IUS> jaxbTool = new JaxbObject<>();
+        if (getRequestAttributes().containsKey("object")) {
+            if (getRequestAttributes().get("object").equals("limskey")) {
+                LimsKey limsKey = ius.getLimsKey().asDetached();
+                JaxbObject<LimsKey> jaxbTool = new JaxbObject<>();
+                Document line = XmlTools.marshalToDocument(jaxbTool, limsKey, LimsKey.class);
+                getResponse().setEntity(XmlTools.getRepresentation(line));
+            } else {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Object type not supported");
+            }
+        } else {
+            JaxbObject<IUS> jaxbTool = new JaxbObject<>();
 
-        CollectionPropertyName<IUS>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(IUS.class,
-                new String[] { "iusAttributes" });
-        IUS dto = copier.hibernate2dto(IUS.class, ius, new Class<?>[] {}, createCollectionPropertyNames);
+            CollectionPropertyName<IUS>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(IUS.class,
+                    new String[]{"iusAttributes"});
+            IUS dto = copier.hibernate2dto(IUS.class, ius, new Class<?>[]{}, createCollectionPropertyNames);
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
-        getResponse().setEntity(XmlTools.getRepresentation(line));
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, IUS.class);
+            getResponse().setEntity(XmlTools.getRepresentation(line));
+        }
     }
 
     /**
@@ -91,7 +111,7 @@ public class IusIDResource extends DatabaseIDResource {
         JaxbObject<IUS> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            newIUS = (IUS) XmlTools.unMarshal(jo, new IUS(), text);
+            newIUS = (IUS) XmlTools.unMarshal(jo, IUS.class, text);
         } catch (SAXException | IOException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -108,6 +128,10 @@ public class IusIDResource extends DatabaseIDResource {
 
             // foreign keys
             Sample sample = newIUS.getSample();
+            Lane lane = newIUS.getLane();
+            LimsKey limsKey = newIUS.getLimsKey();
+            Set<WorkflowRun> workflowRuns = newIUS.getWorkflowRuns();
+            Set<Processing> processings = newIUS.getProcessings();
             Registration owner = newIUS.getOwner();
 
             Set<IUSAttribute> newAttributes = newIUS.getIusAttributes();
@@ -117,13 +141,45 @@ public class IusIDResource extends DatabaseIDResource {
             ius.setSkip(skip);
             ius.setTag(tags);
 
-            if (sample != null) {
+            if (sample == null) {
+                //do not modify IUS samples
+            } else if (sample.getSwAccession() == null && sample.getSampleId() == null) {
+                ius.setSample(null);
+            } else {
                 SampleService ss = BeanFactory.getSampleServiceBean();
                 Sample newSample = ss.findByID(sample.getSampleId());
                 if (newSample != null && newSample.givesPermission(registration)) {
                     ius.setSample(newSample);
                 } else if (newSample == null) {
                     Log.info("Could not be found " + sample);
+                }
+            }
+
+            if (lane == null) {
+                //do not modify IUS lanes
+            } else if (lane.getSwAccession() == null && lane.getLaneId() == null) {
+                ius.setLane(null);
+            } else {
+                LaneService laneService = BeanFactory.getLaneServiceBean();
+                Lane newLane = laneService.findByID(lane.getLaneId());
+                if (newLane != null) {
+                    ius.setLane(newLane);
+                } else if (newLane == null) {
+                    Log.info("Could not be found " + lane);
+                }
+            }
+
+            if (limsKey == null) {
+                //do not modify IUS lims keys
+            } else if (limsKey.getSwAccession() == null && limsKey.getLimsKeyId() == null) {
+                ius.setLimsKey(null);
+            } else {
+                LimsKeyService limsKeyService = BeanFactory.getLimsKeyServiceBean();
+                LimsKey newLimsKey = limsKeyService.findByID(limsKey.getLimsKeyId());
+                if (newLimsKey != null) {
+                    ius.setLimsKey(newLimsKey);
+                } else if (newLimsKey == null) {
+                    Log.info("Could not be found " + limsKey);
                 }
             }
 
@@ -148,7 +204,7 @@ public class IusIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             IUS detachedIUS = copier.hibernate2dto(IUS.class, ius);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedIUS);
+            Document line = XmlTools.marshalToDocument(jo, detachedIUS, IUS.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/ius/" + detachedIUS.getSwAccession());
@@ -162,4 +218,21 @@ public class IusIDResource extends DatabaseIDResource {
 
         return representation;
     }
+
+    @Override
+    public Representation delete() {
+        authenticate();
+        Representation rep = super.delete();
+
+        IUSService service = BeanFactory.getIUSServiceBean();
+        IUS ius = (IUS) testIfNull(service.findBySWAccession(getId()));
+        try {
+            service.delete(ius);
+            getResponse().setStatus(Status.SUCCESS_OK);
+        } catch (DataIntegrityException ex) {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
+        }
+        return rep;
+    }
+
 }

@@ -85,7 +85,7 @@ public class LaneResource extends DatabaseResource {
             Lane p = (Lane) testIfNull(ss.findByID(parseClientInt(queryValues.get("id"))));
 
             Lane dto = copier.hibernate2dto(Lane.class, p);
-            line = XmlTools.marshalToDocument(jaxbTool, dto);
+            line = XmlTools.marshalToDocument(jaxbTool, dto, Lane.class);
 
         } else {
             JaxbObject<LaneList> jaxbTool = new JaxbObject<>();
@@ -94,7 +94,7 @@ public class LaneResource extends DatabaseResource {
             for (Lane l : lanes) {
                 list.add(copier.hibernate2dto(Lane.class, l));
             }
-            line = XmlTools.marshalToDocument(jaxbTool, list);
+            line = XmlTools.marshalToDocument(jaxbTool, list, LaneList.class);
 
         }
 
@@ -120,7 +120,7 @@ public class LaneResource extends DatabaseResource {
             String text = entity.getText();
             Lane o = null;
             try {
-                o = (Lane) XmlTools.unMarshal(jo, new Lane(), text);
+                o = (Lane) XmlTools.unMarshal(jo, Lane.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -170,7 +170,7 @@ public class LaneResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Lane detachedLane = copier.hibernate2dto(Lane.class, obj);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedLane);
+            Document line = XmlTools.marshalToDocument(jo, detachedLane, Lane.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/lanes/" + detachedLane.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

@@ -1,26 +1,32 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.SampleReportService;
 import net.sourceforge.seqware.common.business.SequencerRunService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.hibernate.InSessionExecutions;
 import net.sourceforge.seqware.common.model.SampleReportRow;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * SampleReportServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class SampleReportServiceImplTest {
+public class SampleReportServiceImplTest extends AbstractTestCase {
 
+    @Autowired
+    SampleReportService sampleReportService;
+
+    @Autowired
+    SequencerRunService sequencerRunService;
+    
     /**
      * <p>
      * testGetRowsForSequencerRun.
@@ -28,16 +34,9 @@ public class SampleReportServiceImplTest {
      */
     @Test
     public void testGetRowsForSequencerRun() {
-        try {
-            InSessionExecutions.bindSessionToThread();
-            SampleReportService sampleReportService = BeanFactory.getSampleReportServiceBean();
-            SequencerRunService sequencerRunService = BeanFactory.getSequencerRunServiceBean();
-            SequencerRun sr = sequencerRunService.findByID(1);
-            List<SampleReportRow> reportRow = sampleReportService.getRowsForSequencerRun(sr);
-            assertEquals(10, reportRow.size());
-        } finally {
-            InSessionExecutions.unBindSessionFromTheThread();
-        }
+        SequencerRun sr = sequencerRunService.findByID(1);
+        List<SampleReportRow> reportRow = sampleReportService.getRowsForSequencerRun(sr);
+        assertEquals(11, reportRow.size());
     }
 
     /**
@@ -47,14 +46,8 @@ public class SampleReportServiceImplTest {
      */
     @Test
     public void testGetRowsWithSequencerRuns() {
-        try {
-            InSessionExecutions.bindSessionToThread();
-            SampleReportService sampleReportService = BeanFactory.getSampleReportServiceBean();
-            List<SampleReportRow> reportRows = sampleReportService.getRowsWithSequencerRuns();
-            assertEquals(51, reportRows.size());
-        } finally {
-            InSessionExecutions.unBindSessionFromTheThread();
-        }
+        List<SampleReportRow> reportRows = sampleReportService.getRowsWithSequencerRuns();
+        assertEquals(52, reportRows.size());
     }
 
 }

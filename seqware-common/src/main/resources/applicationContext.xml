@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
@@ -35,7 +36,6 @@
                 <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQL92Dialect</prop>
                 <prop key="hibernate.default_entity_mode">pojo</prop>
                 <prop key="hibernate.cache.use_second_level_cache">false</prop>
-                <prop key="hibernate.connection.url">jdbc:postgresql://localhost:5432/test_seqware_meta_db</prop>
                 <prop key="hibernate.connection.driver_class">org.postgresql.Driver</prop>
             </props>
         </property>
@@ -57,6 +57,9 @@
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
     <bean id="invoiceDAO" class="net.sourceforge.seqware.common.dao.hibernate.InvoiceDAOHibernate">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    <bean id="limsKeyDAO" class="net.sourceforge.seqware.common.dao.hibernate.LimsKeyDAOHibernate">
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
     <bean id="IUSDAO" class="net.sourceforge.seqware.common.dao.hibernate.IUSDAOHibernate">
@@ -177,6 +180,27 @@
             </props>
         </property>
     </bean>
+    <!-- LimsKey Service -->
+    <bean id="limsKeyServiceTarget"
+          class="net.sourceforge.seqware.common.business.impl.LimsKeyServiceImpl">
+        <property name="limsKeyDAO" ref="limsKeyDAO"/>
+    </bean>
+    
+    <!-- Transaction declarations for LimsKey Service -->
+    <bean id="limsKeyService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="limsKeyServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="insert">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+  
 
     <!-- IUS Service -->
     <bean id="IUSServiceTarget"
@@ -954,7 +978,61 @@
         </property>
     </bean>
 
-
+    <!-- AnalysisProvenance Service -->
+    <bean id="analysisProvenanceServiceTarget"
+          class="net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl">
+        <property name="analysisProvenanceDAO" ref="analysisProvenanceDAO"/>
+        <property name="IUSDAO" ref="IUSDAO"/>
+    </bean>
+	
+    <!-- AnalysisProvenance DAO -->
+    <bean id="analysisProvenanceDAO" class="net.sourceforge.seqware.common.dao.hibernate.AnalysisProvenanceDAOHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <!-- Transaction declarations AnalysisProvenance Service -->
+    <bean id="analysisProvenanceService"
+              class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="analysisProvenanceServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- SampleProvenance Service -->
+    <bean id="sampleProvenanceServiceTarget" class="net.sourceforge.seqware.common.business.impl.SampleProvenanceServiceImpl">
+        <property name="IUSDAO" ref="IUSDAO"/>
+    </bean>
+	
+    
+    <!-- Transaction declarations SampleProvenance Service -->
+    <bean id="sampleProvenanceService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="sampleProvenanceServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- LaneProvenance Service -->
+    <bean id="laneProvenanceServiceTarget" class="net.sourceforge.seqware.common.business.impl.LaneProvenanceServiceImpl">
+        <property name="laneDAO" ref="laneDAO"/>
+    </bean>
+	
+    <!-- Transaction declarations LaneProvenance Service -->
+    <bean id="laneProvenanceService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="laneProvenanceServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
 
     <tx:annotation-driven />
 
@@ -971,6 +1049,7 @@
         <property name="studyService" ref="studyService"/>
         <property name="experimentService" ref="experimentService"/>
         <property name="fileService" ref="fileService"/>
+        <property name="limsKeyService" ref="limsKeyService"/>
         <property name="iusService" ref="IUSService"/>
         <property name="laneService" ref="laneService"/>
         <property name="processingService" ref="processingService"/>
@@ -996,6 +1075,8 @@
         <property name="librarySourceService" ref="librarySourceService"/>
         <property name="libraryStrategyService" ref="libraryStrategyService"/>
         <property name="organismService" ref="organismService"/>
+        <property name="analysisProvenanceService" ref="analysisProvenanceService"/>
+        <property name="sampleProvenanceService" ref="sampleProvenanceService"/>
     </bean>
 
 </beans>

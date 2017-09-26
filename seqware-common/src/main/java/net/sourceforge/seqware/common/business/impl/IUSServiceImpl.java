@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.dao.FileDAO;
 import net.sourceforge.seqware.common.dao.IUSDAO;
+import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Processing;
@@ -98,6 +99,22 @@ public class IUSServiceImpl implements IUSService {
         if (deleteRealFiles) {
             fileDAO.deleteAllWithFolderStore(deleteFiles);
         }
+    }
+
+    @Override
+    public void delete(IUS ius) throws DataIntegrityException {
+        if (ius.getSample() != null
+                || ius.getLane() != null
+                || ius.getLimsKey() != null
+                || !ius.getProcessings().isEmpty()
+                || !ius.getWorkflowRuns().isEmpty()) {
+            throw new DataIntegrityException("The IUS = [" + ius.getSwAccession() + "]" + "has references to other entities");
+        }
+        if (ius.getOwner() != null) {
+            ius.setOwner(null);
+        }
+
+        dao.delete(ius);
     }
 
     /**

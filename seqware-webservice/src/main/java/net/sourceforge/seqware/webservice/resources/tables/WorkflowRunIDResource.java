@@ -143,7 +143,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, WorkflowRun.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
 
     }
@@ -304,7 +304,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             try {
                 String text = entity.getText();
                 Log.debug(text);
-                newWR = (WorkflowRun) XmlTools.unMarshal(jo, new WorkflowRun(), text);
+                newWR = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
             } catch (SAXException | IOException ex) {
                 Log.fatal(ex, ex);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -314,7 +314,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 WorkflowRun wr = updateWorkflowRun(newWR);
 
                 Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(wr));
+                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(wr), WorkflowRun.class);
                 toreturn = XmlTools.getRepresentation(line);
                 getResponse().setEntity(toreturn);
                 getResponse().setLocationRef(getRequest().getRootRef() + "/workflowruns/" + newWR.getSwAccession());

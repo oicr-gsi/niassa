@@ -62,7 +62,7 @@ public class WorkflowRunResourceTest extends DatabaseResourceTest {
             wr.setWorkflow(workflow);
             wr.setName("test test " + System.currentTimeMillis());
 
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<WorkflowRun>(), wr);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<WorkflowRun>(), wr, WorkflowRun.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
             rep.exhaust();
             rep.release();

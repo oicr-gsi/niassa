@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 //Generated 09.12.2011 15:01:20 by Hibernate Tools 3.2.4.GA
 
 /**
@@ -18,6 +22,8 @@ import java.util.TreeSet;
 public class ProcessingAttribute extends Attribute<Processing, ProcessingAttribute> implements Serializable {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int processingAttributeId;
     private Processing processing;
     private String tag;

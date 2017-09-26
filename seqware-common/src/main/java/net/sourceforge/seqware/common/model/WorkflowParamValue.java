@@ -3,6 +3,11 @@ package net.sourceforge.seqware.common.model;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import net.sourceforge.seqware.common.security.PermissionsAware;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -22,6 +27,8 @@ import org.slf4j.LoggerFactory;
 public class WorkflowParamValue extends PermissionsAware implements Serializable, Comparable<WorkflowParamValue>, Cloneable {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer workflowParamValueId;
     private Integer workflowParamId;
     private String displayName;

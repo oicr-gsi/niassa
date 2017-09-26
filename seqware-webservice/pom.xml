@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>1.2.0-alpha.1-SNAPSHOT</version>
+        <version>1.99.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -104,8 +104,8 @@
                 <configuration>
                     <!-- try this as an integration test instead -->
                     <skipTests>true</skipTests>
-                    <!-- <argLine>${argLine} -Xms512m -Xmx512m</argLine> -->
                     <forkMode>pertest</forkMode>
+		            <trimStackTrace>false</trimStackTrace>
                     <includes>
                         <include>**/WSResourceTestSuite.java</include>
                     </includes>
@@ -133,10 +133,9 @@
                 </executions>
 
                 <configuration>
-                    <!-- <argLine>${argLine} -Xms512m -Xmx512m</argLine> -->
                     <forkMode>pertest</forkMode>
                     <!-- enforce that our WSResourceTests run before the plugin tests, this sucks and our tests shouldn't have state -->
-		            <runOrder>reversealphabetical</runOrder>
+		    <runOrder>reversealphabetical</runOrder>
                     <includes>
                         <include>**/WSResourceTestSuite.java</include>
                         <include>**/plugins/*.java</include>
@@ -157,12 +156,6 @@
             <name>Public online Restlet repository</name>
             <url>http://maven.restlet.org</url>
         </repository>
-<!--        <repository>
-            <url>http://ftp.ing.umu.se/mirror/eclipse/rt/eclipselink/maven.repo</url>
-            <id>eclipselink</id>
-            <layout>default</layout>
-            <name>Repository for library Library[eclipselink]</name>
-        </repository>-->
         <repository>
             <url>https://maven.java.net/content/groups/public/</url>
             <id>restapi</id>
@@ -185,7 +178,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -225,6 +221,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+<dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+</dependency>
         <dependency>
             <groupId>com.github.seqware</groupId>
             <artifactId>seqware-pipeline</artifactId>
@@ -272,6 +272,18 @@
                 <exclusion>
                     <groupId>org.codehaus.jackson</groupId>
                     <artifactId>jackson-core-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-mapper-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-jaxrs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-xc</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -431,11 +443,6 @@
         End Hibernate test dependencies
 
         -->
-        <!-- Commented out while solving SEQWARE-848 -->
-        <!-- <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet.ext.protobuf</artifactId>
-        </dependency> -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -508,6 +515,10 @@
                     <artifactId>protobuf-java</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>javax.activation</groupId>
                     <artifactId>activation</artifactId>
                 </exclusion>
@@ -529,37 +540,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.9</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>asm</groupId>
-                    <artifactId>asm</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
 
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Validator is need for tests not running inside a web containter. -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -611,14 +602,6 @@
             <groupId>com.google.guava</groupId>
             <type>jar</type>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
@@ -627,7 +610,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.3.2</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -651,6 +633,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+<dependency>
+  <groupId>joda-time</groupId>
+  <artifactId>joda-time</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+</dependency>
+<dependency>
+  <groupId>ca.on.oicr.gsi</groupId>
+  <artifactId>provenance-api</artifactId>
+</dependency>
     </dependencies>
 
     <profiles>
@@ -669,7 +663,6 @@
                             <contextFile>target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
                             <useNaming>true</useNaming>
                         </configuration>
-
                     </plugin>
                 </plugins>
             </build>

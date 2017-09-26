@@ -4,40 +4,33 @@ import io.seqware.common.model.ProcessingStatus;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import net.sourceforge.seqware.common.BaseUnit;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.RegistrationService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.hibernate.InSessionExecutions;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.RegistrationDTO;
 import net.sourceforge.seqware.common.util.Log;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * ProcessingServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class ProcessingServiceImplTest extends BaseUnit {
+public class ProcessingServiceImplTest extends AbstractTestCase {
 
-    /**
-     * <p>
-     * Constructor for ProcessingServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public ProcessingServiceImplTest() throws Exception {
-        super();
-    }
+    @Autowired
+    ProcessingService processingService;
+
+    @Autowired
+    RegistrationService registrationService;
 
     /**
      * <p>
@@ -47,11 +40,8 @@ public class ProcessingServiceImplTest extends BaseUnit {
     @Test
     public void testProcessingWithFiles() {
         Log.info("Processing without files");
-        InSessionExecutions.bindSessionToThread();
-        ProcessingService processingService = BeanFactory.getProcessingServiceBean();
-        Processing processing = processingService.findByID(4);
-        System.out.print(processing.getFiles());
-        InSessionExecutions.unBindSessionFromTheThread();
+        Processing processing = processingService.findByID(775);
+        assertEquals(2, processing.getFiles().size());
     }
 
     /**
@@ -62,11 +52,8 @@ public class ProcessingServiceImplTest extends BaseUnit {
     @Test
     public void testProcessingWithoutFiles() {
         Log.info("Processing without files");
-        InSessionExecutions.bindSessionToThread();
-        ProcessingService processingService = BeanFactory.getProcessingServiceBean();
-        Processing processing = processingService.findByID(4);
-        System.out.print(processing.getFiles());
-        InSessionExecutions.unBindSessionFromTheThread();
+        Processing processing = processingService.findByID(3);
+        assertEquals(0, processing.getFiles().size());
     }
 
     /**
@@ -76,9 +63,7 @@ public class ProcessingServiceImplTest extends BaseUnit {
      */
     @Test
     public void testInsertProcessing() {
-        ProcessingService ss = BeanFactory.getProcessingServiceBean();
-        RegistrationService rs = BeanFactory.getRegistrationServiceBean();
-        RegistrationDTO regDto = rs.findByEmailAddressAndPassword("admin@admin.com", "admin");
+        RegistrationDTO regDto = registrationService.findByEmailAddressAndPassword("admin@admin.com", "admin");
 
         Processing newProcessing = new Processing();
         newProcessing.setOwner(regDto);
@@ -90,7 +75,7 @@ public class ProcessingServiceImplTest extends BaseUnit {
         newProcessing.setRunStopTimestamp(null);
         newProcessing.setAlgorithm("upload");
         newProcessing.setCreateTimestamp(new Date());
-        ss.insert(newProcessing);
+        processingService.insert(newProcessing);
     }
 
     /**
@@ -100,14 +85,13 @@ public class ProcessingServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        ProcessingService processingService = BeanFactory.getProcessingServiceBean();
         // find using SWID number
-        List<Processing> found = processingService.findByCriteria("14567", false);
+        List<Processing> found = processingService.findByCriteria("3819", false);
         assertEquals(1, found.size());
 
         // Case sens
         found = processingService.findByCriteria("simple", true);
-        assertEquals(10299, found.size());
+        assertEquals(1567, found.size());
 
         found = processingService.findByCriteria("SIMPLE", true);
         assertEquals(0, found.size());

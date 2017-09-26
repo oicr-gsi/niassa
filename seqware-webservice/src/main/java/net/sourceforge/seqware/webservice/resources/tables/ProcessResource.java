@@ -94,7 +94,7 @@ public class ProcessResource extends DatabaseResource {
                     Log.info("Could not be found :files");
                 }
             }
-            line = XmlTools.marshalToDocument(jaxbTool, dto);
+            line = XmlTools.marshalToDocument(jaxbTool, dto, Processing.class);
 
         } else {
             JaxbObject<ProcessingList> jaxbTool = new JaxbObject<>();
@@ -104,7 +104,7 @@ public class ProcessResource extends DatabaseResource {
                 list.add(copier.hibernate2dto(Processing.class, p));
             }
 
-            line = XmlTools.marshalToDocument(jaxbTool, list);
+            line = XmlTools.marshalToDocument(jaxbTool, list, ProcessingList.class);
 
         }
         getResponse().setEntity(XmlTools.getRepresentation(line));
@@ -126,7 +126,7 @@ public class ProcessResource extends DatabaseResource {
             String text = entity.getText();
             Processing p;
             try {
-                p = (Processing) XmlTools.unMarshal(jo, new Processing(), text);
+                p = (Processing) XmlTools.unMarshal(jo, Processing.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -142,7 +142,7 @@ public class ProcessResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Processing detachedP = copier.hibernate2dto(Processing.class, newProcessing);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedP);
+            Document line = XmlTools.marshalToDocument(jo, detachedP, Processing.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/processes/" + detachedP.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

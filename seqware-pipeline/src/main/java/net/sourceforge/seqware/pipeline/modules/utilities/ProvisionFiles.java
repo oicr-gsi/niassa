@@ -632,8 +632,7 @@ public class ProvisionFiles extends Module {
          */
         else {
             // local copy
-            if (input.startsWith("http://") || input.startsWith("https://") || input.startsWith("s3://") || options.has(forceCopySpec)
-                    || options.has(recursiveSpec)) {
+      if (options.has(forceCopySpec) || options.has(recursiveSpec)) {
                 result = filesUtil.copyToFile(reader, output, fullOutputPath, bufLen, input, decryptCipher, encryptCipher, metadata) != null;
             } else {
                 // If no "force-copy" and "recursive"

@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -32,6 +33,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.w3c.dom.Document;
+
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -46,6 +55,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Processing;
@@ -54,7 +64,6 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
@@ -63,6 +72,9 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
+import net.sourceforge.seqware.common.model.adapters.IntegerSet;
+import net.sourceforge.seqware.common.model.adapters.MapOfSetAdapter;
+import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.ExperimentLibraryDesignList;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
 import net.sourceforge.seqware.common.model.lists.ExperimentSpotDesignList;
@@ -71,14 +83,17 @@ import net.sourceforge.seqware.common.model.lists.FileList;
 import net.sourceforge.seqware.common.model.lists.IUSList;
 import net.sourceforge.seqware.common.model.lists.IntegerList;
 import net.sourceforge.seqware.common.model.lists.LaneList;
+import net.sourceforge.seqware.common.model.lists.LaneProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.LibrarySelectionList;
 import net.sourceforge.seqware.common.model.lists.LibrarySourceList;
 import net.sourceforge.seqware.common.model.lists.LibraryStrategyList;
+import net.sourceforge.seqware.common.model.lists.LimsKeyList;
 import net.sourceforge.seqware.common.model.lists.OrganismList;
 import net.sourceforge.seqware.common.model.lists.PlatformList;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
 import net.sourceforge.seqware.common.model.lists.ReturnValueList;
 import net.sourceforge.seqware.common.model.lists.SampleList;
+import net.sourceforge.seqware.common.model.lists.SampleProvenanceDtoList;
 import net.sourceforge.seqware.common.model.lists.SequencerRunList;
 import net.sourceforge.seqware.common.model.lists.StudyList;
 import net.sourceforge.seqware.common.model.lists.StudyTypeList;
@@ -87,7 +102,7 @@ import net.sourceforge.seqware.common.model.lists.WorkflowParamList;
 import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import org.w3c.dom.Document;
+import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
 
 /**
  * Convenience class for converting objects into JAXB XML.
@@ -110,6 +125,8 @@ public class JaxbObject<T> {
         try {
             if (context == null) {
                 context = JAXBContext.newInstance(
+                        AnalysisProvenanceDto.class,
+                        AnalysisProvenanceDtoList.class,
                         Experiment.class,
                         ExperimentAttribute.class,
                         ExperimentLibraryDesign.class, // ExperimentLink.class,
@@ -121,9 +138,17 @@ public class JaxbObject<T> {
                         IUSAttribute.class,
                         Lane.class,
                         LaneAttribute.class,
+                        LaneProvenanceDto.class,
+                        LaneProvenanceDtoList.class,
                         LibrarySelection.class,
                         LibrarySource.class,
                         LibraryStrategy.class,
+                        IusLimsKeyDto.class,
+                        LimsKey.class,
+                        LimsKeyDto.class,
+                        LimsKeyList.class,
+                        MapOfSetAdapter.class,
+                        MapOfSetEntryType.class,
                         Organism.class,
                         Platform.class,
                         Processing.class,
@@ -134,8 +159,9 @@ public class JaxbObject<T> {
                         Registration.class,
                         Sample.class,
                         SampleAttribute.class,
+                        SampleProvenanceDto.class,
+                        SampleProvenanceDtoList.class,
                         SequencerRun.class,
-                        SequencerRunWizardDTO.class,
                         // ShareExperiment.class, ShareFile.class, ShareLane.class,
                         // ShareProcessing.class, ShareSample.class, ShareStudy.class, ShareWorkflowRun.class,
                         Study.class, StudyAttribute.class, StudyType.class, Workflow.class, WorkflowParam.class,
@@ -145,7 +171,7 @@ public class JaxbObject<T> {
                         LibraryStrategyList.class, OrganismList.class, PlatformList.class, ProcessingList.class, ReturnValueList.class,
                         SampleList.class, SequencerRunList.class, StudyList.class, StudyTypeList.class, WorkflowList.class,
                         WorkflowRunList.class, WorkflowRunList2.class, WorkflowParamList.class, WorkflowParamValueList.class,
-                        ArrayList.class, IntegerList.class);
+                        ArrayList.class, IntegerList.class, IntegerSet.class);
             }
         } catch (JAXBException e) {
             e.printStackTrace();
@@ -161,7 +187,7 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public Document marshalToDocument(T t) throws JAXBException {
+    public Document marshalToDocument(T t, Class<T> type) throws JAXBException {
         Document doc = null;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -174,7 +200,7 @@ public class JaxbObject<T> {
             // get the XML
             // JAXBContext context = JAXBContext.newInstance(object.getClass());
             Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement(new QName(object.getClass().getSimpleName()), object.getClass(), object), doc);
+            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), doc);
 
             // try {
             // XmlTools.getDocument(output);
@@ -201,29 +227,20 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public String marshal(T t) throws JAXBException {
+    public String marshal(T t, Class<T> type) throws JAXBException {
         String output = null;
         try {
             StreamResult result = new StreamResult(new StringWriter());
             T object = t;
 
             // get the XML
-            // JAXBContext context = JAXBContext.newInstance(object.getClass());
             Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement(new QName(object.getClass().getSimpleName()), object.getClass(), object), result);
+            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), result);
 
             // convert to String
             StringWriter writer = (StringWriter) result.getWriter();
             StringBuffer buffer = writer.getBuffer();
             output = buffer.toString();
-
-            // try {
-            // XmlTools.getDocument(output);
-            // } catch (Exception ex) {
-            // Log.info("Exception while marshaling: " + ex.getMessage() + ". Trying again.");
-            // output = marshal(t);
-            // }
-
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;
@@ -242,13 +259,12 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public T unMarshal(T expectedType, Reader reader) throws JAXBException {
+    public T unMarshal(Class<T> expectedType, Reader reader) throws JAXBException {
         T object = null;
         try {
-            // JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
             Unmarshaller m = context.createUnmarshaller();
-            JAXBElement o = m.unmarshal(new StreamSource(reader), expectedType.getClass());
-            object = (T) o.getValue();
+            JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
+            object = o.getValue();
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;
@@ -267,13 +283,13 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public T unMarshal(Document d, T expectedType) throws JAXBException {
+    public T unMarshal(Document d, Class<T> expectedType) throws JAXBException {
         T object = null;
         try {
             // JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
             Unmarshaller m = context.createUnmarshaller();
-            JAXBElement o = m.unmarshal(d, expectedType.getClass());
-            object = (T) o.getValue();
+            JAXBElement<T> o = m.unmarshal(d, expectedType);
+            object = o.getValue();
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;

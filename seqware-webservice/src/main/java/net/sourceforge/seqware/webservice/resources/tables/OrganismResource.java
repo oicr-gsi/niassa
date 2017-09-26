@@ -75,14 +75,14 @@ public class OrganismResource extends DatabaseResource {
         JaxbObject<OrganismList> jaxbTool = new JaxbObject<>();
 
         OrganismList list = new OrganismList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (Organism obj : objects) {
             Organism dto = copier.hibernate2dto(Organism.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, OrganismList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

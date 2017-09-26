@@ -40,7 +40,7 @@ public class LaneResourceTest extends DatabaseResourceTest {
         try {
             Lane l = new Lane();
 
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<Lane>(), l);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<Lane>(), l, Lane.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
             rep.exhaust();
             rep.release();

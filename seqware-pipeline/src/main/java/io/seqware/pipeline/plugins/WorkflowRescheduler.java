@@ -1,27 +1,27 @@
 package io.seqware.pipeline.plugins;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.openide.util.lookup.ServiceProvider;
+
 import io.seqware.Engines;
 import io.seqware.common.model.WorkflowRunStatus;
 import io.seqware.pipeline.SqwKeys;
 import joptsimple.ArgumentAcceptingOptionSpec;
+import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
 import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.apache.commons.io.FileUtils;
-import org.openide.util.lookup.ServiceProvider;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * The Workflow Rescheduler can schedule a new workflow based on the configuration of a previously launched workflow.
@@ -40,6 +40,7 @@ public class WorkflowRescheduler extends Plugin {
     private final ArgumentAcceptingOptionSpec<String> hostSpec;
     private final ArgumentAcceptingOptionSpec<String> outFileSpec;
     private final ArgumentAcceptingOptionSpec<String> workflowRunSpec;
+  private final List<Integer> rescheduledWorkflowRunSwids = new ArrayList<>();
 
     public WorkflowRescheduler() {
         super();
@@ -54,6 +55,10 @@ public class WorkflowRescheduler extends Plugin {
         this.outFileSpec = parser.acceptsAll(Arrays.asList("out"), "Optional: Will output a workflow-run by sw_accession")
                 .withRequiredArg();
     }
+
+  public List<Integer> getRescheduledWorkflowRunSwids() {
+    return rescheduledWorkflowRunSwids;
+  }
 
     private String getEngineParam() {
         String engine = options.valueOf(workflowEngineSpec);
@@ -113,22 +118,28 @@ public class WorkflowRescheduler extends Plugin {
                 List<String> workflowRunSWIDs = options.valuesOf(this.workflowRunSpec);
                 for (String runSWID : workflowRunSWIDs) {
 
-                    WorkflowRun oldWorkflowRun = metadata.getWorkflowRun(Integer.parseInt(runSWID));
-                    // extract a workflow ini from the previous run
-                    String iniFile = oldWorkflowRun.getIniFile();
-                    Path tempFile = Files.createTempFile("workflow", "ini");
-                    Log.debug("Writing previous ini to " + tempFile.toString());
-                    Files.write(tempFile, Lists.newArrayList(iniFile), Charset.defaultCharset());
-                    // parent accessions should be already present in ini, so we do not need to extract this
+          WorkflowRun oldWorkflowRun = metadata.getWorkflowRunWithIuses(Integer.parseInt(runSWID));
+
+          if (oldWorkflowRun == null) {
+            Log.error("Workflow run SWID = [" + runSWID + "] not found.");
+            return new ReturnValue(ExitStatus.INVALIDARGUMENT);
+          }
+
+          // get IUSes that the old workflow run is linked to
+          List<Integer> linkedIusSwids = new ArrayList<>();
+          if (oldWorkflowRun.getIus() == null || oldWorkflowRun.getIus().isEmpty()) {
+            Log.warn("Workflow run [" + runSWID + "] does not have any linked IUSes.");
+          } else {
+            for (IUS ius : oldWorkflowRun.getIus()) {
+              linkedIusSwids.add(ius.getSwAccession());
+            }
+          }
                     // create a new workflow run
                     int newWorkflowRunID = this.metadata.add_workflow_run(oldWorkflowRun.getWorkflowAccession());
                     // this translation here is ugly, do we still need to do this?
                     int workflowRunAccessionInt = this.metadata.get_workflow_run_accession(newWorkflowRunID);
                     WorkflowRun newWorkflowRun = metadata.getWorkflowRun(workflowRunAccessionInt);
                     Log.stdout("Created workflow run with SWID: " + workflowRunAccessionInt);
-
-                    // here, we could reverse-engineer parent links and re-create them
-                    // but I'd rather just deprecate direct links from workflow runs to lane and ius though
 
                     // have the old workflow run mimic the new one and upload for re-launching
                     oldWorkflowRun.setWorkflowRunId(newWorkflowRunID);
@@ -141,6 +152,8 @@ public class WorkflowRescheduler extends Plugin {
                     oldWorkflowRun.setDax(null);
                     oldWorkflowRun.setStdOut(null);
                     oldWorkflowRun.setStdErr(null);
+          oldWorkflowRun.setIus(null);
+          oldWorkflowRun.setLanes(null);
 
                     // override host and engine if needed
                     if (options.has(hostSpec)) {
@@ -154,6 +167,17 @@ public class WorkflowRescheduler extends Plugin {
 
                     Log.info("You are re-scheduling workflow-run " + runSWID + " to " + workflowRunAccessionInt);
                     this.metadata.updateWorkflowRun(oldWorkflowRun);
+          rescheduledWorkflowRunSwids.add(workflowRunAccessionInt);
+
+          // link new workflow run to the old workflow run's IUSes
+          for (Integer iusSwid : linkedIusSwids) {
+            try {
+              this.metadata.linkWorkflowRunAndParent(newWorkflowRunID, iusSwid);
+            } catch (Exception e) {
+              Log.error("Could not link workflow run SWID = [" + runSWID + "] to its parents: " + linkedIusSwids.toString());
+              throw Rethrow.rethrow(e);
+            }
+          }
 
                     if (options.has(outFileSpec)) {
                         FileUtils.write(outputFile, String.valueOf(newWorkflowRun) + "\n", StandardCharsets.UTF_8,true);

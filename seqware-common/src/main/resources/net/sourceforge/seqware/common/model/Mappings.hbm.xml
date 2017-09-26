@@ -1360,100 +1360,6 @@
 
     </class>
 
-
-    <!-- ********** **************** SequencerRunWizardDTO **************** ********** -->
-    <class name="SequencerRunWizardDTO" table="sequencer_run" dynamic-insert="true" dynamic-update="true" optimistic-lock="none">
-        <meta attribute="class-description">
-            Represents a physical run of the sequencing machine.
-        </meta>
-        <meta attribute="implement-equals">true</meta>
-        <meta attribute="implement-tostring">true</meta>
-
-        <id name="sequencerRunId" type="integer" column="sequencer_run_id" unsaved-value="none">
-            <meta attribute="scope-set">public</meta>
-            <meta attribute="use-in-tostring">true</meta>
-            <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
-                <param name="optimizer">none</param>
-                <param name="increment_size">1</param>
-                <param name="sequence_name">sequencer_run_sequencer_run_id_seq</param>
-            </generator>
-        </id>
-
-        <version column="update_tstmp" name="updateTimestamp" type="timestamp" unsaved-value="null"/>
-
-        <property name="description" column="description" type="string"/>
-        <property name="status" column="status">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.seqware.common.model.SequencerRunStatus</param>
-                <param name="useNamed">true</param>
-            </type>
-        </property>
-        <property name="instrumentName" column="instrument_name" type="string"/>
-        <property name="cycleDescriptor" column="cycle_descriptor" type="string"/>
-        <property name="cycleCount" column="cycle_count" type="integer"/>
-        <property name="cycleSequence" column="cycle_sequence" type="string"/>
-        <property name="refLane" column="ref_lane" type="integer"/>
-        <property name="filePath" column="file_path" type="string"/>
-        <property name="pairedEnd" column="paired_end" type="boolean"/>
-        <property name="pairedFilePath" column="paired_file_path" type="string"/>
-        <property name="useIparIntensities" column="use_ipar_intensities" type="boolean"/>
-        <property name="colorMatrix" column="color_matrix" type="string"/>
-        <property name="colorMatrixCode" column="color_matrix_code" type="string"/>
-        <property name="slideOneLaneCount" column="slide_1_lane_count" type="integer"/>
-        <property name="slideTwoLaneCount" column="slide_2_lane_count" type="integer"/>
-        <property name="slideOneFilePath" column="slide_1_file_path" type="string"/>
-        <property name="slideTwoFilePath" column="slide_2_file_path" type="string"/>
-        <property name="flowSequence" column="flow_sequence" type="string"/>
-        <property name="flowCount" column="flow_count" type="integer"/>
-        <property name="runCenter" column="run_center" type="string"/>
-        <property name="swAccession" column="sw_accession" type="integer" generated="insert"/>
-        <property name="skip" column="skip" type="boolean"/>
-        <property name="name" column="name" type="string">
-            <meta attribute="use-in-equals">true</meta>
-            <meta attribute="use-in-tostring">true</meta>
-        </property>
-
-        <property name="createTimestamp" column="create_tstmp" type="timestamp" not-null="true"/>
-
-        <many-to-one
-                name="owner"
-                class="Registration"
-                cascade="none"
-                outer-join="auto"
-                update="true"
-                insert="true"
-                column="owner_id"
-                not-found="ignore"
-        />
-
-        <many-to-one
-                name="platform"
-                class="Platform"
-                cascade="none"
-                outer-join="auto"
-                update="true"
-                insert="true"
-                column="platform_id"
-        />
-
-        <set
-                name="lanes"
-                lazy="false"
-                inverse="true"
-                cascade="none"
-                sort="natural">
-            <key column="sequencer_run_id"/>
-            <one-to-many class="Lane"/>
-        </set>
-
-        <set name="sequencerRunAttributes" inverse="true" lazy="true" table="sequencer_run_attribute" fetch="select"
-             cascade="all-delete-orphan">
-            <key column="sample_id"/>
-            <one-to-many class="SequencerRunAttribute"/>
-        </set>
-
-    </class>
-
     <!-- ********** **************** Platform **************** ********** -->
     <class name="Platform" table="platform" dynamic-insert="true" dynamic-update="true" optimistic-lock="version">
         <meta attribute="class-description">
@@ -1732,7 +1638,7 @@
             </generator>
         </id>
 
-        <many-to-one name="sequencerRunWizardDTO" class="SequencerRunWizardDTO" fetch="select">
+        <many-to-one name="sequencerRun" class="SequencerRun" fetch="select">
             <column name="sample_id" not-null="true"/>
         </many-to-one>
 
@@ -1749,7 +1655,7 @@
         </property>
     </class>
 
-    <!-- ************* **************** IUS **************** ************* -->
+  <!-- ************* **************** IUS **************** ************* -->
     <class name="IUS" table="ius" dynamic-insert="true" dynamic-update="true" optimistic-lock="version">
         <meta attribute="class-description">
             An IUS.
@@ -1796,6 +1702,15 @@
                 update="true"
                 insert="true"
                 column="sample_id"
+        />
+        <many-to-one
+            name="limsKey"
+            class="LimsKey"
+            cascade="all"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="lims_key_id"
         />
 
         <many-to-one
@@ -2574,4 +2489,43 @@
         <property name="status" column="status" type="string"/>
     </class>
 
+    <!-- ************* **************** LimsKey **************** ************* -->
+    <class name="LimsKey" table="lims_key" dynamic-insert="true" dynamic-update="true" optimistic-lock="version">
+        <meta attribute="class-description">
+            LimsKey entity
+        </meta>
+        <meta attribute="implement-equals">true</meta>
+        <meta attribute="implement-tostring">true</meta>
+        
+        <id name="limsKeyId" type="integer" column="lims_key_id" unsaved-value="none">
+            <meta attribute="scope-set">public</meta>
+            <meta attribute="use-in-tostring">true</meta>
+            <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+                <param name="optimizer">none</param>
+                <param name="increment_size">1</param>
+                <param name="sequence_name">lims_key_id_seq</param>
+            </generator>
+        </id>
+        <property name="swAccession" type="integer" generated="insert">
+            <column name="sw_accession" />
+        </property>
+        <property name="provider" type="string">
+            <column name="provider" />
+        </property>
+        <property name="id" type="string">
+            <column name="id" />
+        </property>
+        <property name="version" type="string">
+            <column name="version" />
+        </property>
+        <property name="lastModified" type="java.time.ZonedDateTime">
+            <column name="last_modified" />
+        </property>
+        <property name="createTimestamp" type="timestamp" >
+            <column name="create_tstmp" />
+        </property>
+        <property name="updateTimestamp" type="timestamp" >
+            <column name="update_tstmp" />
+        </property>
+    </class>
 </hibernate-mapping>

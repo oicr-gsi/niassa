@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>1.2.0-alpha.1-SNAPSHOT</version>
+        <version>1.99.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -70,12 +70,6 @@
             <artifactId>jsr311-api</artifactId>
             <version>1.1.1</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>seqware-meta-db</artifactId>
@@ -106,6 +100,30 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+            <version>1.11.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.11.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>3.3.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+            <version>3.1.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>7.0</version>
@@ -131,7 +149,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
     </dependencies>
@@ -149,7 +166,7 @@
             <plugin>
                 <groupId>org.glassfish.embedded</groupId>
                 <artifactId>maven-embedded-glassfish-plugin</artifactId>
-                <version>3.1.2.2</version>
+                <version>4.1.1</version>
                 <configuration>
                     <contextRoot>seqware-admin-webservice</contextRoot>
                     <name>seqware-admin-webservice</name>
@@ -157,7 +174,6 @@
                     <dbVendorName>postgresql</dbVendorName>
                     <libraries>${project.build.directory}/lib/postgresql-${postgresql.version}.jar</libraries>
                     <autoDelete>true</autoDelete>
-                    <!-- <goalPrefix>embedded-glassfish</goalPrefix> -->
                 </configuration>
             </plugin>
             <plugin>
@@ -186,8 +202,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <compilerArguments>
                         <endorseddirs>${endorsed.dir}</endorseddirs>
                     </compilerArguments>
@@ -284,7 +300,6 @@
                 </executions>
 
                 <configuration>
-                    <!-- <argLine>${argLine} -Xms512m -Xmx512m</argLine> -->
                     <forkMode>pertest</forkMode>
                 </configuration>
             </plugin>

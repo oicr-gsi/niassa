@@ -68,7 +68,7 @@ public class CreateTest {
         PowerMockito.doAnswer(new WriteFormattedMessageToBufferAnswer()).when(Main.class, "kill", anyString(),
                 Matchers.<Object> anyVararg());
         try {
-            Main.main(mainArgs);
+            Main.mainInternal(mainArgs);
         } catch (Exception e) {
             assertEquals(errorMessage, e.getMessage());
         }
@@ -146,7 +146,7 @@ public class CreateTest {
         PluginRunner spiedRunner = PowerMockito.spy(new PluginRunner());
 
         String[] mainArgs = new String[] { "create", "sample", "--experiment-accession", "123", "--description", "TestDescription",
-                "--organism-id", "234", "--title", "SomeTitle", "--parent-sample-accession", "789" };
+                "--organism-id", "234", "--title", "SomeTitle" };
 
         final String[] runnerArgs = new String[] { "--plugin", "net.sourceforge.seqware.pipeline.plugins.Metadata", "--", "--table",
                 "sample", "--create", "--field", "description::TestDescription", "--field", "experiment_accession::123",
@@ -242,6 +242,6 @@ public class CreateTest {
         answer.setRunnerArgs(runnerArgs);
         PowerMockito.doAnswer(answer).when(spiedRunner, "run", any());
         PowerMockito.whenNew(PluginRunner.class).withNoArguments().thenReturn(spiedRunner);
-        Main.main(mainArgs);
+        Main.mainInternal(mainArgs);
     }
 }

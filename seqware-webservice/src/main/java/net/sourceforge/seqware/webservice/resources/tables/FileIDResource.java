@@ -71,7 +71,7 @@ public class FileIDResource extends DatabaseIDResource {
         CollectionPropertyName<File>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(File.class,
                 new String[] { "fileAttributes" });
         File dto = copier.hibernate2dto(File.class, file, new Class<?>[] {}, createCollectionPropertyNames);
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, File.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
@@ -90,7 +90,7 @@ public class FileIDResource extends DatabaseIDResource {
         JaxbObject<File> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            newFile = (File) XmlTools.unMarshal(jo, new File(), text);
+            newFile = (File) XmlTools.unMarshal(jo, File.class, text);
         } catch (SAXException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
@@ -136,7 +136,7 @@ public class FileIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             File detachedFile = copier.hibernate2dto(File.class, file);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedFile);
+            Document line = XmlTools.marshalToDocument(jo, detachedFile, File.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/files/" + detachedFile.getSwAccession());

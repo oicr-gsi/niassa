@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class TestDatabaseCreator {
 
     private static final String DEFAULT_DB_HOST = "127.0.0.1";
+    private static final String DEFAULT_DB_PORT = "5432";
     private static final String POSTGRE_DB = "postgres";
     private static final String SEQWARE_DB = "test_seqware_meta_db";
     // We should not have a postgres user with an easily guessable password. It
@@ -43,6 +44,34 @@ public class TestDatabaseCreator {
      */
     protected String getDEFAULT_DB_HOST() {
         return DEFAULT_DB_HOST;
+    }
+    
+    /**
+     * @return the DEFAULT_DB_PORT
+     */
+    protected String getDEFAULT_DB_PORT() {
+        return DEFAULT_DB_PORT;
+    }
+    
+    /**
+     * <p>
+     * createNewDatabase.
+     * </p>
+     *
+     * @param loadTestingData load the provided testing data
+     *
+     * @throws java.sql.SQLException
+     *                               if any.
+     */
+    public void createNewDatabase(boolean loadTestingData) throws SQLException {
+        try (Connection connectionToPostgres = createConnection(getPOSTGRE_DB(), getSEQWARE_USER(), getSEQWARE_PASSWORD())) {
+            connectionToPostgres.createStatement().execute("CREATE DATABASE " + getSEQWARE_DB() + ";");
+            createDatabase(loadTestingData);
+        } catch (SQLException se) {
+            throw se;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -215,7 +244,7 @@ public class TestDatabaseCreator {
 
         try {
 
-            return DriverManager.getConnection("jdbc:postgresql://" + getDEFAULT_DB_HOST() + ":5432/" + databaseName, userName, password);
+            return DriverManager.getConnection("jdbc:postgresql://" + getDEFAULT_DB_HOST() + ":" + getDEFAULT_DB_PORT() + "/" + databaseName, userName, password);
 
         } catch (SQLException e) {
 
@@ -232,12 +261,14 @@ public class TestDatabaseCreator {
         System.out.println("----------------Loading dump into PostgreSQL--------------------");
         try {
             System.out.println("Loading schema");
-            connection.createStatement().execute(getClassPathFileToString("seqware_meta_db.sql"));
-            System.out.println("Loading basic data");
-            connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_data.sql"));
+            connection.createStatement().execute(getClassPathFileToString("seqware_meta_db.sql")
+                    .replaceAll("OWNER TO seqware;", "OWNER TO " + connection.getMetaData().getUserName() + ";"));
             if (loadTestingData) {
                 System.out.println("Loading testing data");
                 connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_testdata.sql"));
+            } else {
+                System.out.println("Loading basic data");
+                connection.createStatement().execute(getClassPathFileToString("seqware_meta_db_data.sql"));
             }
         } catch (IOException e) {
             Logger logger = LoggerFactory.getLogger(TestDatabaseCreator.class);

@@ -39,7 +39,6 @@ import org.apache.commons.dbutils.handlers.ArrayHandler;
 import org.apache.commons.dbutils.handlers.ArrayListHandler;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -49,15 +48,15 @@ import org.junit.Test;
  */
 public class MetadataTest extends ExtendedPluginTest {
 
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-        Reports.triggerProvenanceReport();
-    }
+    private BasicTestDatabaseCreator dbCreator;
 
     @Before
     @Override
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        Reports.triggerProvenanceReport();
+        
         instance = new Metadata();
         super.setUp();
     }
@@ -236,7 +235,6 @@ public class MetadataTest extends ExtendedPluginTest {
         String s = getOut();
         String localExperimentAccession = getAndCheckSwid(s);
         // SEQWARE-1713 check that the two optional fields make it into the database
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
                 "select experiment_library_design_id,experiment_spot_design_id from experiment WHERE sw_accession=?",
                 Integer.valueOf(localExperimentAccession));
@@ -276,7 +274,6 @@ public class MetadataTest extends ExtendedPluginTest {
 
         // SEQWARE-1716 : omitting the parent sample should result in a "production"-like root sample with a null parent in the sample
         // hierarchy
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
                 "select h.sample_id, h.parent_id, count(*) from sample s, sample_hierarchy h "
                         + "WHERE s.sample_id = h.sample_id AND s.sw_accession=? GROUP BY h.sample_id, h.parent_id",
@@ -342,7 +339,6 @@ public class MetadataTest extends ExtendedPluginTest {
         String accession = getAndCheckSwid(s);
 
         // SEQWARE-1561 check that library strategy, selection, and source make it into the database
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator.runQuery(new ArrayHandler(), "select status from sequencer_run WHERE sw_accession=?",
                 Integer.valueOf(accession));
         Assert.assertTrue("status was incorrect", runQuery[0].equals(funky_status.name()));
@@ -367,7 +363,6 @@ public class MetadataTest extends ExtendedPluginTest {
         laneAccession = getAndCheckSwid(s);
 
         // SEQWARE-1561 check that library strategy, selection, and source make it into the database
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator
                 .runQuery(new ArrayHandler(), "select library_strategy, library_selection, library_source from lane WHERE sw_accession=?",
                         Integer.valueOf(laneAccession));
@@ -490,7 +485,6 @@ public class MetadataTest extends ExtendedPluginTest {
         Assert.assertTrue("could not find files",
                 workflowRunReport.contains("/datastore/adamantium.gz") && workflowRunReport.contains("/datastore/corbomite.gz"));
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select f.sw_accession, p.algorithm, p.status from file f, processing p, processing_files pf, workflow_run r "
                         + "WHERE f.file_id=pf.file_id AND pf.processing_id = p.processing_id "
@@ -541,7 +535,6 @@ public class MetadataTest extends ExtendedPluginTest {
         String s = getOut();
         String swid = getAndCheckSwid(s);
         int integer = Integer.valueOf(swid);
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator
                 .runQuery(
                         new ArrayHandler(),
@@ -577,7 +570,6 @@ public class MetadataTest extends ExtendedPluginTest {
         String swid = getAndCheckSwid(s);
         int integer = Integer.valueOf(swid);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         Object[] runQuery = dbCreator
                 .runQuery(
                         new ArrayHandler(),

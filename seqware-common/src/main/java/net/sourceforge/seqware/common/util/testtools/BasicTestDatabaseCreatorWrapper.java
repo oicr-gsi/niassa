@@ -44,10 +44,10 @@ public class BasicTestDatabaseCreatorWrapper {
      * </p>
      */
     public static void markDatabaseChanged() {
-        BasicTestDatabaseCreator.markDatabaseChanged();
+        TEST_DB_CREATOR.markDatabaseChanged();
     }
 
     public static void resetDatabaseWithUsers() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        TEST_DB_CREATOR.resetDatabaseWithUsers();
     }
 }

@@ -21,10 +21,12 @@ import java.util.List;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.LaneService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.lists.IUSList;
@@ -81,7 +83,7 @@ public class IusResource extends DatabaseResource {
 
             JaxbObject<IUS> jaxbTool = new JaxbObject<>();
             IUS dto = copier.hibernate2dto(IUS.class, p);
-            line = XmlTools.marshalToDocument(jaxbTool, dto);
+            line = XmlTools.marshalToDocument(jaxbTool, dto,IUS.class);
 
         } else {
 
@@ -92,7 +94,7 @@ public class IusResource extends DatabaseResource {
             for (IUS i : iuses) {
                 list.add(copier.hibernate2dto(IUS.class, i));
             }
-            line = XmlTools.marshalToDocument(jaxbTool, list);
+            line = XmlTools.marshalToDocument(jaxbTool, list,IUSList.class);
 
         }
         getResponse().setEntity(XmlTools.getRepresentation(line));
@@ -116,7 +118,7 @@ public class IusResource extends DatabaseResource {
             String text = entity.getText();
             IUS o = null;
             try {
-                o = (IUS) XmlTools.unMarshal(jo, new IUS(), text);
+                o = (IUS) XmlTools.unMarshal(jo, IUS.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -145,6 +147,12 @@ public class IusResource extends DatabaseResource {
                 Sample sample = (Sample) testIfNull(ps.findByID(o.getSample().getSampleId()));
                 o.setSample(sample);
             }
+            
+            if (o.getLimsKey()!= null) {
+                LimsKeyService limsKeyService = BeanFactory.getLimsKeyServiceBean();
+                LimsKey limsKey = (LimsKey) testIfNull(limsKeyService.findBySWAccession(o.getLimsKey().getSwAccession()));
+                o.setLimsKey(limsKey);
+            }
 
             // persist object
             IUSService service = BeanFactory.getIUSServiceBean();
@@ -154,7 +162,7 @@ public class IusResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             IUS detachedIUS = copier.hibernate2dto(IUS.class, obj);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedIUS);
+            Document line = XmlTools.marshalToDocument(jo, detachedIUS, IUS.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/ius/" + detachedIUS.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

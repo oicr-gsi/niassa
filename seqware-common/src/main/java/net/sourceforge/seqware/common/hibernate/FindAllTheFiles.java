@@ -56,7 +56,7 @@ public class FindAllTheFiles {
                 "File Meta-Type"), FILE_TAG_PREFIX("file."), FILE_ATTRIBUTES("File Attributes"), PROCESSING_DATE("Last Modified"), PROCESSING_SWID(
                 "Processing SWID"), PROCESSING_ALGO("Processing Algorithm"), PROCESSING_TAG_PREFIX("processing."), PROCESSING_ATTRIBUTES(
                 "Processing Attributes"), INPUT_FILE_META_TYPES("Input File Meta-Types"), INPUT_FILE_SWIDS("Input File SWIDs"), INPUT_FILE_PATHS(
-                "Input File Paths"), SKIP("Skip");
+                "Input File Paths"), SKIP("Skip"), ROOT_SAMPLE_NAME("Root Sample Name");
         private final String title;
 
         Header(String title) {
@@ -162,8 +162,8 @@ public class FindAllTheFiles {
     public static final String INPUT_FILE_FILE_PATHS = Header.INPUT_FILE_PATHS.getTitle();
     public static final String INPUT_FILE_SWIDS = Header.INPUT_FILE_SWIDS.getTitle();
 
-    public static void print(Writer writer, ReturnValue ret, String studyName, boolean showStatus, FileMetadata fm) throws IOException {
-        print(writer, ret, studyName, showStatus, fm, false);
+    public static void print(Writer writer, ReturnValue ret, boolean showStatus, FileMetadata fm) throws IOException {
+        print(writer, ret, showStatus, fm, false);
     }
 
     /**
@@ -183,7 +183,7 @@ public class FindAllTheFiles {
      * @param fm
      *            a {@link net.sourceforge.seqware.common.module.FileMetadata} object.
      */
-    public static void print(Writer writer, ReturnValue ret, String studyName, boolean showStatus, FileMetadata fm, boolean reportInputFiles)
+    public static void print(Writer writer, ReturnValue ret, boolean showStatus, FileMetadata fm, boolean reportInputFiles)
             throws IOException {
         StringBuilder parentSampleTag = new StringBuilder();
         StringBuilder sampleTag = new StringBuilder();
@@ -217,7 +217,7 @@ public class FindAllTheFiles {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(ret.getAttribute(PROCESSING_DATE)).append("\t");
-        sb.append(studyName).append("\t");
+        sb.append(ret.getAttribute(STUDY_TITLE)).append("\t");
         sb.append(ret.getAttribute(STUDY_SWA)).append("\t");
         sb.append(studyTag.toString()).append("\t");
         sb.append(ret.getAttribute(EXPERIMENT_NAME)).append("\t");

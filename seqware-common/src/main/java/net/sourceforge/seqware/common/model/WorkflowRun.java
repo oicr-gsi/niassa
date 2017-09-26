@@ -9,6 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.LaneService;
@@ -39,6 +43,8 @@ import org.slf4j.LoggerFactory;
 public class WorkflowRun extends PermissionsAware implements Serializable, Comparable<WorkflowRun>, Annotatable<WorkflowRunAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer workflowRunId;
     private Workflow workflow;
     private Integer swAccession;

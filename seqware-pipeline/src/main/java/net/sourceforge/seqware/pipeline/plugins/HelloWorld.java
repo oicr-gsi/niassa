@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import joptsimple.OptionException;
+
+import org.openide.util.lookup.ServiceProvider;
+
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * <p>
@@ -109,28 +110,6 @@ public class HelloWorld extends Plugin {
             e.printStackTrace();
         }
         return ("");
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#parse_parameters()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue parse_parameters() {
-
-        try {
-            options = parser.parse(params);
-        } catch (OptionException e) {
-            get_syntax();
-            ret.setExitStatus(ReturnValue.INVALIDARGUMENT);
-        }
-        return ret;
     }
 
     /*

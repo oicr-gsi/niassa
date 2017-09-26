@@ -85,7 +85,9 @@ public class WhiteStarLT {
         // generate and install archetypes to local maven repo
         String command = "mvn archetype:generate -DarchetypeCatalog=local -Dpackage=com.seqware.github -DgroupId=com.github.seqware -DarchetypeArtifactId="
                 + workflow
-                + " -Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId="
+                + " -Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DarchetypeVersion="
+                + SEQWARE_VERSION
+                + " -DartifactId="
                 + workflow
                 + " -Dworkflow-name="
                 + workflowName + " -B -Dgoals=install";

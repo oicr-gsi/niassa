@@ -70,7 +70,7 @@ public class WorkflowParamResource extends DatabaseResource {
             String text = entity.getText();
             WorkflowParam p;
             try {
-                p = (WorkflowParam) XmlTools.unMarshal(jo, new WorkflowParam(), text);
+                p = (WorkflowParam) XmlTools.unMarshal(jo, WorkflowParam.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -87,7 +87,7 @@ public class WorkflowParamResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             WorkflowParam detachedWP = copier.hibernate2dto(WorkflowParam.class, wp);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedWP);
+            Document line = XmlTools.marshalToDocument(jo, detachedWP, WorkflowParam.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/workflowparams?id=" + detachedWP.getWorkflowParamId());
             getResponse().setStatus(Status.SUCCESS_CREATED);
@@ -124,17 +124,17 @@ public class WorkflowParamResource extends DatabaseResource {
             Workflow detachedW = copier.hibernate2dto(Workflow.class, w);
             dto.setWorkflow(detachedW);
 
-            line = XmlTools.marshalToDocument(jaxbTool, dto);
+            line = XmlTools.marshalToDocument(jaxbTool, dto, WorkflowParam.class);
 
         } else {
-            JaxbObject<WorkflowParam> jaxbTool = new JaxbObject<>();
+            JaxbObject<WorkflowParamList> jaxbTool = new JaxbObject<>();
             List<WorkflowParam> wps = (List<WorkflowParam>) testIfNull(ss.list());
             WorkflowParamList list = new WorkflowParamList();
             for (WorkflowParam wp : wps) {
                 list.add(copier.hibernate2dto(WorkflowParam.class, wp));
             }
 
-            line = XmlTools.marshalToDocument(jaxbTool, list);
+            line = XmlTools.marshalToDocument(jaxbTool, list, WorkflowParamList.class);
         }
         getResponse().setEntity(XmlTools.getRepresentation(line));
 

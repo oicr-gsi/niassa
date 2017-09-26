@@ -29,58 +29,59 @@ import org.restlet.resource.ClientResource;
  */
 public abstract class AbstractResourceTest {
 
-    private String relativeURI;
-    protected ClientResource resource;
-    private Logger logger = Logger.getLogger(AbstractResourceTest.class);
+	private String relativeURI;
+	protected ClientResource resource;
+	private Logger logger = Logger.getLogger(AbstractResourceTest.class);
 
-    public AbstractResourceTest(String relativeURI) {
-        this.relativeURI = relativeURI;
-    }
+	public AbstractResourceTest(String relativeURI) {
+		this.relativeURI = relativeURI;
+	}
 
-    // @BeforeClass
-    // public static void setUpClass() throws Exception {
-    // SeqWareWebServiceMain.main(null);
-    // }
-    //
-    // @AfterClass
-    // public static void tearDownClass() throws Exception {
-    // SeqWareWebServiceMain.stop();
-    // }
-    @Before
-    public void setUp() {
-        resource = ClientResourceInstance.getChild(relativeURI);
-        logger.debug("REQUESTING!!!!" + resource.toString());
-    }
+	// @BeforeClass
+	// public static void setUpClass() throws Exception {
+	// SeqWareWebServiceMain.main(null);
+	// }
+	//
+	// @AfterClass
+	// public static void tearDownClass() throws Exception {
+	// SeqWareWebServiceMain.stop();
+	// }
+	@Before
+	public void setUp() {
+		resource = ClientResourceInstance.getChild(relativeURI);
+		logger.debug("REQUESTING!!!!" + resource.toString());
+	}
 
-    @After
-    public void tearDown() {
-        try {
-            if (resource.getResponse() != null && resource.getResponse().getEntity() != null) {
-                resource.getResponse().getEntity().exhaust();
-                resource.getResponse().getEntity().release();
-            } else {
-                logger.debug("No response or entity to exhaust");
-            }
-        } catch (IOException ex) {
-            logger.debug("No entity to exhaust");
-        }
-        resource.release();
-        System.out.println();
-    }
+	@After
+	public void tearDown() {
+		try {
+			if (resource.getResponse() != null && resource.getResponse().getEntity() != null) {
+				resource.getResponse().getEntity().exhaust();
+				resource.getResponse().getEntity().release();
+			} else {
+				logger.debug("No response or entity to exhaust");
+			}
+		} catch (IOException ex) {
+			logger.debug("No entity to exhaust");
+		} finally {
+			resource.release();
+		}
+		System.out.println();
+	}
 
-    @Test
-    public abstract void testGet();
+	@Test
+	public abstract void testGet();
 
-    @Test
-    public abstract void testPut();
+	@Test
+	public abstract void testPut();
 
-    @Test
-    public abstract void testPost();
+	@Test
+	public abstract void testPost();
 
-    @Test
-    public abstract void testDelete();
+	@Test
+	public abstract void testDelete();
 
-    public String getRelativeURI() {
-        return relativeURI;
-    }
+	public String getRelativeURI() {
+		return relativeURI;
+	}
 }

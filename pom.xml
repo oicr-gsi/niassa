@@ -19,13 +19,14 @@
         <seqware_meta_db_password>seqware</seqware_meta_db_password>
         <seqware_meta_db_user>seqware</seqware_meta_db_user>
         <seqware_meta_db_host>localhost</seqware_meta_db_host>
+        <tomcat_maven_port>8889</tomcat_maven_port>
 
         <!-- while merging com.amazonaws.services.s3.transfer.MultipleFileUpload , I couldn't compile without setting a version here -->
         <aws-java-sdk.version>1.11.15</aws-java-sdk.version>
-        <jackson.version>2.4.4</jackson.version>
-        <spring.version>4.2.6.RELEASE</spring.version>
-        <hibernate.version>5.1.0.Final</hibernate.version>
-        <hibernate.jpa.version>1.0.0.Final</hibernate.jpa.version>
+        <jackson.version>2.9.1</jackson.version>
+        <spring.version>5.0.0.RELEASE</spring.version>
+        <hibernate.version>5.2.11.Final</hibernate.version>
+        <jpa.version>2.2</jpa.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <hamcrest.version>1.3</hamcrest.version>
         <beanlib.version>5.0.2beta</beanlib.version>
@@ -35,15 +36,15 @@
         <commons-exec.version>1.3</commons-exec.version>
         <postgresql.version>9.4-1201-jdbc41</postgresql.version>
         <guava.version>19.0</guava.version>
-        <restlet.version>2.3.7</restlet.version>
+        <restlet.version>2.3.12</restlet.version>
         <opencsv.version>2.3</opencsv.version>
         <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
         <jetty-maven-plugin.version>6.1.26</jetty-maven-plugin.version>
         <github.url>scm:git:git@github.com:SeqWare/seqware.git</github.url>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
-        <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>2.19.1</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
         <maven-war-plugin.version>2.6</maven-war-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -59,8 +60,9 @@
         <powermock.version>1.6.5</powermock.version>
         <findbugs.version>3.0.3</findbugs.version>
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
-        <slf4j.version>1.7.21</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <old-jersey.version>1.19.1</old-jersey.version>
+        <provenance.version>1.1</provenance.version>
 
         <skipITs>true</skipITs>
         <!-- Needs to be set for memory issues, but must be overrideable from the command line for Bionimbus for unknown reasons -->
@@ -73,19 +75,11 @@
         <developerConnection>${github.url}</developerConnection>
         <url>${github.url}</url>
     </scm>
-    <distributionManagement>
-        <repository>
-            <id>wrench.res.oicr.on.ca</id>
-            <name>wrench.res.oicr.on.ca-releases</name>
-            <url>http://seqwaremaven.oicr.on.ca/artifactory/seqware-release</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-    </distributionManagement>
 
     <artifactId>seqware</artifactId>
     <packaging>pom</packaging>
     <groupId>com.github.seqware</groupId>
-    <version>1.2.0-alpha.1-SNAPSHOT</version>
+    <version>1.99.1-SNAPSHOT</version>
 
     <repositories>
         <repository>
@@ -110,6 +104,39 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>dependencies.gsi</id>
+            <name>GSI Dependencies Maven Snapshot Repository</name>
+            <url>https://seqwaremaven.oicr.on.ca/artifactory/seqware-dependencies</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>snapshots.gsi</id>
+            <name>GSI Snapshots Maven Snapshot Repository</name>
+            <url>https://artifacts.oicr.on.ca/artifactory/gsi-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>release.gsi</id>
+            <name>GSI Snapshots Maven Snapshot Repository</name>
+            <url>https://artifacts.oicr.on.ca/artifactory/gsi-release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository> 
         <repository>
             <id>dependencies.seqware.sourceforge.net</id>
             <name>SeqWare Dependencies Maven Repository</name>
@@ -188,12 +215,12 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.1.3</version>
+                <version>1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.4</version>
+                <version>3.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -233,7 +260,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.2</version>
             </dependency>
             <dependency>
                 <groupId>commons-digester</groupId>
@@ -259,7 +286,7 @@
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util-lookup</artifactId>
-                <version>RELEASE80</version>
+                <version>RELEASE701</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -307,7 +334,52 @@
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
-                <version>2.6.0-cdh5.4.4</version>
+                <version>2.8.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-core-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-auth</artifactId>
+                <version>2.8.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>2.8.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-core-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.oozie</groupId>
+                <artifactId>oozie-client</artifactId>
+                <version>4.3.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-core-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.seqware</groupId>
@@ -390,16 +462,10 @@
                 </exclusions>
             </dependency>
 
-            <!-- enforce for dependencies but replaced by com.fasterxml.jackson in our code -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.13</version>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.16.1</version>
             </dependency>
 
             <dependency>
@@ -421,6 +487,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -514,9 +585,14 @@
                 <version>${hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.1-api</artifactId>
-                <version>${hibernate.jpa.version}</version>
+                <artifactId>hibernate-java8</artifactId>
+                <groupId>org.hibernate</groupId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.persistence</groupId>
+                <artifactId>javax.persistence-api</artifactId>
+                <version>${jpa.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -603,6 +679,12 @@
                 <groupId>org.restlet.jee</groupId>
                 <artifactId>org.restlet.ext.jackson</artifactId>
                 <version>${restlet.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>stax2-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
@@ -655,6 +737,16 @@
                 <artifactId>org.restlet.ext.servlet</artifactId>
                 <version>${restlet.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.4.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.2</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.restlet.jee</groupId>
@@ -671,11 +763,6 @@
                 <groupId>org.restlet.jee</groupId>
                 <artifactId>org.restlet.ext.jaxb</artifactId>
                 <version>${restlet.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.restlet.jee</groupId>
-                <artifactId>org.restlet.ext.protobuf</artifactId>
-                <version>2.1-R2</version>
             </dependency>
             <dependency>
                 <groupId>org.restlet.jee</groupId>
@@ -696,6 +783,11 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.9</version>
             </dependency>
             <dependency>
                 <groupId>org.restlet.jee</groupId>
@@ -730,6 +822,24 @@
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-json</artifactId>
                 <version>${old-jersey.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-core-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-jaxrs</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-xc</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sun.jersey.contribs</groupId>
@@ -813,6 +923,11 @@
                 <version>${powermock.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-reflect</artifactId>
+                <version>${powermock.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>2.2</version>
@@ -870,15 +985,9 @@
                 <version>2.9.3</version>
             </dependency>
             <dependency>
-                <groupId>com.github.stefanbirkner</groupId>
-                <artifactId>system-rules</artifactId>
-                <version>1.16.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit-dep</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>ca.on.oicr.gsi</groupId>
+                <artifactId>provenance-api</artifactId>
+                <version>${provenance.version}</version>
             </dependency>
 
             <!-- security updates -->
@@ -919,17 +1028,21 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>1.1</version>
                     <configuration>
-                        <pubScmUrl>scm:git:ssh://git@github.com/SeqWare/unstable.seqware.io.git</pubScmUrl>
+                        <pubScmUrl>scm:git:ssh://git@github.com/SeqWare/seqware.github.com.git</pubScmUrl>
                         <content>${project.build.directory}/site/</content>
                         <tryUpdate>true</tryUpdate>
                         <skipDeletedFiles>true</skipDeletedFiles>
-                        <scmBranch>gh-pages</scmBranch>
+                        <scmBranch>master</scmBranch>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <!-- property set by jacoco-maven-plugin -->
+                        <argLine>${itCoverageAgent}</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -941,8 +1054,11 @@
                     <artifactId>tomcat7-maven-plugin</artifactId>
                     <version>2.2</version>
                     <configuration>
-                        <port>8889</port>
+                        <port>${tomcat_maven_port}</port>
                         <useNaming>true</useNaming>
+
+                        <!-- disable tomcat-embedded https, tests use http -->
+                        <httpsPort>0</httpsPort>
                     </configuration>
                     <executions>
                         <execution>
@@ -1047,6 +1163,11 @@
                     <version>2.7</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.2.201409121644</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven-clean-plugin.version}</version>
@@ -1116,7 +1237,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>2.3</version>
                 </plugin>
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                 <plugin>
@@ -1126,6 +1247,23 @@
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.jacoco</groupId>
+                                        <artifactId>
+                                            jacoco-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [0.6.3.201306030806,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>prepare-agent</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>
@@ -1182,7 +1320,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <ignore></ignore>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -1193,6 +1331,25 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>1.8</version>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -1235,6 +1392,42 @@
                             <outputXML>true</outputXML>
                             <ignoreNonCompile>true</ignoreNonCompile>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>itCoverageAgent</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report-integration</id>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

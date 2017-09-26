@@ -81,7 +81,7 @@ public class ${workflow-name}Decider extends BasicDecider {
 
     /**
      * Allows a shortened command line. :
-     * <code>java -jar Decider_${project.version}_${project.workflow-name}_${workflow-version}_SeqWare_${seqware-version}-jar-with-dependencies.jar --wf-accession 000000 --study Test --test</code> 
+     * <code>java -jar Decider_${project.version}_${project.workflow-name}_${workflow-version}_SeqWare_${seqware-version}-jar-with-dependencies.jar --wf-accession 000000 --study Test --dry-run</code> 
      */
     public static void main(String args[]){
   

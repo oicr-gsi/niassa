@@ -203,8 +203,7 @@ public class FileProvenanceQueryTool extends Plugin {
                 List<Map<String, Object>> mapList = runner.query(connection, options.valueOf(querySpec), new MapListHandler());
                 // output header
                 if (mapList.isEmpty()) {
-                    Log.fatal("Query had no results");
-                    System.exit(-1);
+                    throw new IllegalStateException("Query had no results");
                 }
                 StringBuilder builder = new StringBuilder();
                 for (String columnName : mapList.get(0).keySet()) {

@@ -16,6 +16,21 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.Post;
+import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.business.SampleService;
@@ -26,19 +41,6 @@ import net.sourceforge.seqware.common.model.lists.SampleList;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * <p>
@@ -76,7 +78,7 @@ public class SampleResource extends DatabaseResource {
     public void getXml() {
         authenticate();
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-        JaxbObject jaxbTool;
+
         for (String key : queryValues.keySet()) {
             Log.debug("key: " + key + " -> " + queryValues.get(key));
         }
@@ -84,45 +86,45 @@ public class SampleResource extends DatabaseResource {
         SampleService ss = BeanFactory.getSampleServiceBean();
 
         if (queryValues.get("title") != null) {
-            jaxbTool = new JaxbObject<>();
+        	JaxbObject<Sample> jaxbTool = new JaxbObject<>();
             Sample sample = (Sample) testIfNull(ss.findByTitle(queryValues.get("title")));
             Sample dto = copier.hibernate2dto(Sample.class, sample);
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, Sample.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
 
         } else if (queryValues.get("name") != null) {
 
-            jaxbTool = new JaxbObject<>();
+        	JaxbObject<Sample> jaxbTool = new JaxbObject<>();
             Sample sample = (Sample) testIfNull(ss.findByName(queryValues.get("name")));
             Sample dto = copier.hibernate2dto(Sample.class, sample);
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, Sample.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
 
         } else if (queryValues.get("matches") != null) {
-            jaxbTool = new JaxbObject<>();
+        	JaxbObject<SampleList> jaxbTool = new JaxbObject<>();
             String name = queryValues.get("matches");
 
             List<Sample> samples = (List<Sample>) testIfNull(ss.matchName(name));
             SampleList eList = new SampleList();
-            eList.setList(new ArrayList());
+            eList.setList(new ArrayList<>());
 
             for (Sample sample : samples) {
                 Sample dto = copier.hibernate2dto(Sample.class, sample);
                 eList.add(dto);
             }
-            Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+            Document line = XmlTools.marshalToDocument(jaxbTool, eList, SampleList.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         } else {
-            jaxbTool = new JaxbObject<>();
+        	JaxbObject<SampleList> jaxbTool = new JaxbObject<>();
             List<Sample> samples = (List<Sample>) testIfNull(ss.list());
             SampleList eList = new SampleList();
-            eList.setList(new ArrayList());
+            eList.setList(new ArrayList<>());
 
             for (Sample sample : samples) {
                 Sample dto = copier.hibernate2dto(Sample.class, sample);
                 eList.add(dto);
             }
-            Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+            Document line = XmlTools.marshalToDocument(jaxbTool, eList, SampleList.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         }
     }
@@ -147,7 +149,7 @@ public class SampleResource extends DatabaseResource {
             String text = entity.getText();
             Sample o = null;
             try {
-                o = (Sample) XmlTools.unMarshal(jo, new Sample(), text);
+                o = (Sample) XmlTools.unMarshal(jo, Sample.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -205,9 +207,11 @@ public class SampleResource extends DatabaseResource {
 
                 Session openSession = BeanFactory.getSessionFactoryBean().openSession();
                 try {
+                	Transaction tx = openSession.beginTransaction();
                     Query query = openSession.createSQLQuery("INSERT INTO sample_hierarchy(sample_id, parent_id) VALUES ("
                             + sample.getSampleId() + ",null)");
                     query.executeUpdate();
+                    tx.commit();
                 } catch (Exception e) {
                     getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
                     return;
@@ -224,7 +228,7 @@ public class SampleResource extends DatabaseResource {
                 }
             }
 
-            Document line = XmlTools.marshalToDocument(jo, detachedSample);
+            Document line = XmlTools.marshalToDocument(jo, detachedSample, Sample.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/samples/" + detachedSample.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

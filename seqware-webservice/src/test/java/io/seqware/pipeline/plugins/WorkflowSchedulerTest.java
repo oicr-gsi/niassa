@@ -33,7 +33,6 @@ import org.apache.commons.dbutils.handlers.ArrayListHandler;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -43,14 +42,14 @@ import org.junit.Test;
  */
 public class WorkflowSchedulerTest extends ExtendedPluginTest {
 
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-    }
+    private BasicTestDatabaseCreator dbCreator;
 
     @Before
     @Override
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
         instance = new WorkflowScheduler();
         super.setUp();
     }
@@ -62,7 +61,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(), "select r.status, r.workflow_id from workflow_run r\n"
                 + "WHERE \n" + "r.sw_accession = ?\n" + "; ", Integer.valueOf(firstWorkflowRun));
         Assert.assertTrue("schedule workflow is incorrect " + runQuery.get(0)[0].toString() + " " + runQuery.get(0)[1].toString(),
@@ -77,7 +75,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.workflow_engine from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -95,7 +92,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.workflow_engine from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -112,7 +108,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -140,7 +135,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -162,7 +156,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -180,7 +173,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -218,7 +210,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -258,7 +249,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));
@@ -284,7 +274,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
                 "select r.status, r.workflow_id, r.workflow_engine from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
                 Integer.valueOf(firstWorkflowRun));

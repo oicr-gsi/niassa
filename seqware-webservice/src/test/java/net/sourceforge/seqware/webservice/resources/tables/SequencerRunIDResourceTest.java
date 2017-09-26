@@ -18,38 +18,28 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class SequencerRunIDResourceTest extends DatabaseResourceIDTest {
+public class SequencerRunIDResourceTest extends DatabaseResourceIDTest<SequencerRun> {
 
-    public SequencerRunIDResourceTest() {
-        super("/sequencerruns/4715");
-        jo = new JaxbObject<>();
-        o = new SequencerRun();
-    }
+	public SequencerRunIDResourceTest() {
+		super("/sequencerruns/4715", SequencerRun.class);
+	}
 
-    @Override
-    public void testPut() {
+	@Override
+	public void testPut() {
 
-    }
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof SequencerRun) {
-            SequencerRun e = (SequencerRun) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
-
-        } else {
-            System.err.println("Object is not an instance of SequencerRun");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	protected int testObject(SequencerRun e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 }

@@ -20,6 +20,15 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.Put;
+import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.RegistrationService;
@@ -31,17 +40,9 @@ import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Put;
-import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -92,7 +93,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, SequencerRun.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
 
     }
@@ -111,7 +112,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
         SequencerRun newSequencerRun = null;
         try {
             String text = entity.getText();
-            newSequencerRun = (SequencerRun) XmlTools.unMarshal(jo, new SequencerRun(), text);
+            newSequencerRun = (SequencerRun) XmlTools.unMarshal(jo, SequencerRun.class, text);
         } catch (SAXException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex.getMessage());
@@ -121,7 +122,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
         }
         try {
             SequencerRunService srs = BeanFactory.getSequencerRunServiceBean();
-            SequencerRunWizardDTO sequencerRun = testIfNull(srs.findByID(newSequencerRun.getSequencerRunId()));
+      SequencerRun sequencerRun = testIfNull(srs.findByID(newSequencerRun.getSequencerRunId()));
             sequencerRun.givesPermission(registration);
 
             // simple types
@@ -170,7 +171,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             SequencerRun detachedSequencerRun = copier.hibernate2dto(SequencerRun.class, sequencerRun);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedSequencerRun);
+            Document line = XmlTools.marshalToDocument(jo, detachedSequencerRun, SequencerRun.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/sequencerruns/" + detachedSequencerRun.getSwAccession());

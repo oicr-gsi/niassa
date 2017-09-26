@@ -1,35 +1,26 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
-import net.sourceforge.seqware.common.BaseUnit;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.SequencerRunService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * SequencerRunServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class SequencerRunServiceImplTest extends BaseUnit {
+public class SequencerRunServiceImplTest extends AbstractTestCase {
 
-    /**
-     * <p>
-     * Constructor for SequencerRunServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public SequencerRunServiceImplTest() throws Exception {
-        super();
-    }
+    @Autowired
+    SequencerRunService sequencerRunService;
 
     /**
      * <p>
@@ -38,19 +29,18 @@ public class SequencerRunServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        SequencerRunService sequencerRunServiceImpl = BeanFactory.getSequencerRunServiceBean();
-        List<SequencerRun> found = sequencerRunServiceImpl.findByCriteria("srk", false);
-        assertEquals(1, found.size());
+        List<SequencerRun> found = sequencerRunService.findByCriteria("srk", false);
+        assertEquals(2, found.size());
 
         // Case sensitive
-        found = sequencerRunServiceImpl.findByCriteria("Run", true);
+        found = sequencerRunService.findByCriteria("Run", true);
         assertEquals(0, found.size());
 
-        found = sequencerRunServiceImpl.findByCriteria("Run", false);
-        assertEquals(1, found.size());
+        found = sequencerRunService.findByCriteria("Run", false);
+        assertEquals(2, found.size());
 
         // SWID
-        found = sequencerRunServiceImpl.findByCriteria("4715", false);
+        found = sequencerRunService.findByCriteria("47150", false);
         assertEquals(1, found.size());
     }
 }

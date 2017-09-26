@@ -1,8 +1,29 @@
 package net.sourceforge.seqware.common.metadata;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -17,6 +38,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -35,21 +57,6 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * <p>
@@ -282,6 +289,14 @@ public class MetadataNoConnection implements Metadata {
     /** {@inheritDoc} */
     @Override
     public WorkflowRun getWorkflowRun(int workflowRunAccession) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
         return null;
     }
 
@@ -804,4 +819,75 @@ public class MetadataNoConnection implements Metadata {
         logger.info("No metadata connection");
         return null;
     }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public List<SampleProvenanceDto> getSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void refreshSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addIUS(Integer limsKeyAccession, boolean skip) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKey(int limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateIUS(IUS ius) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateLimsKey(LimsKey limsKey) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteIUS(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteLimsKey(Integer limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<LaneProvenanceDto> getLaneProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void refreshLaneProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
 }

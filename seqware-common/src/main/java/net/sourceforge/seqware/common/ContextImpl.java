@@ -1,16 +1,25 @@
 package net.sourceforge.seqware.common;
 
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.ContextLoader;
+
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.ExperimentLibraryDesignService;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignReadSpecService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
+import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.business.LaneService;
 import net.sourceforge.seqware.common.business.LibrarySelectionService;
 import net.sourceforge.seqware.common.business.LibraryService;
 import net.sourceforge.seqware.common.business.LibrarySourceService;
 import net.sourceforge.seqware.common.business.LibraryStrategyService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.OrganismService;
 import net.sourceforge.seqware.common.business.PlatformService;
 import net.sourceforge.seqware.common.business.ProcessingExperimentsService;
@@ -22,6 +31,7 @@ import net.sourceforge.seqware.common.business.ProcessingSequencerRunsService;
 import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.ProcessingStudiesService;
 import net.sourceforge.seqware.common.business.RegistrationService;
+import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.business.SampleReportService;
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.business.SequencerRunService;
@@ -33,17 +43,12 @@ import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.util.Log;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.context.ContextLoader;
 
 /**
  * <p>
  * ContextImpl class.
  * </p>
- *
+ * 
  * @author boconnor
  * @version $Id: $Id
  */
@@ -54,6 +59,7 @@ public class ContextImpl {
     private StudyService studyService;
     private ExperimentService experimentService;
     private FileService fileService;
+    private LimsKeyService limsKeyService;
     private IUSService iusService;
     private LaneService laneService;
     private ProcessingService processingService;
@@ -91,6 +97,13 @@ public class ContextImpl {
 
     @Autowired
     private ValidationReportService validationReportService;
+    
+    private AnalysisProvenanceService analysisProvenanceService;
+    
+    private SampleProvenanceService sampleProvenanceService;
+    
+    @Autowired
+    private LaneProvenanceService laneProvenanceService;
 
     private ContextImpl() {
         // appCtx = new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -100,7 +113,7 @@ public class ContextImpl {
      * <p>
      * getInstance.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.ContextImpl} object.
      */
     public static synchronized ContextImpl getInstance() {
@@ -123,7 +136,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>studyService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.StudyService} object.
      */
     public StudyService getStudyService() {
@@ -134,7 +147,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>studyService</code>.
      * </p>
-     *
+     * 
      * @param studyService
      *            a {@link net.sourceforge.seqware.common.business.StudyService} object.
      */
@@ -146,7 +159,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>experimentService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ExperimentService} object.
      */
     public ExperimentService getExperimentService() {
@@ -157,7 +170,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>experimentService</code>.
      * </p>
-     *
+     * 
      * @param experimentService
      *            a {@link net.sourceforge.seqware.common.business.ExperimentService} object.
      */
@@ -169,7 +182,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>fileService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.FileService} object.
      */
     public FileService getFileService() {
@@ -180,7 +193,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>fileService</code>.
      * </p>
-     *
+     * 
      * @param fileService
      *            a {@link net.sourceforge.seqware.common.business.FileService} object.
      */
@@ -190,9 +203,32 @@ public class ContextImpl {
 
     /**
      * <p>
-     * Getter for the field <code>iusService</code>.
+     * Getter for the field <code>limsKeyService</code>.
      * </p>
      *
+     * @return a {@link net.sourceforge.seqware.common.business.LimsKeyService} object.
+     */
+    public LimsKeyService getLimsKeyService() {
+        return limsKeyService;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>limsKeyService</code>.
+     * </p>
+     *
+     * @param limsKeyService
+     *                    a {@link net.sourceforge.seqware.common.business.LimsKeyService} object.
+     */
+    public void setLimsKeyService(LimsKeyService limsKeyService) {
+        this.limsKeyService = limsKeyService;
+    }
+
+    /**
+     * <p>
+     * Getter for the field <code>iusService</code>.
+     * </p>
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.IUSService} object.
      */
     public IUSService getIusService() {
@@ -203,7 +239,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>iusService</code>.
      * </p>
-     *
+     * 
      * @param iusService
      *            a {@link net.sourceforge.seqware.common.business.IUSService} object.
      */
@@ -215,7 +251,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>laneService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.LaneService} object.
      */
     public LaneService getLaneService() {
@@ -226,7 +262,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>laneService</code>.
      * </p>
-     *
+     * 
      * @param laneService
      *            a {@link net.sourceforge.seqware.common.business.LaneService} object.
      */
@@ -238,7 +274,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingExperimentsService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingExperimentsService} object.
      */
     public ProcessingExperimentsService getProcessingExperimentsService() {
@@ -249,7 +285,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingExperimentsService</code>.
      * </p>
-     *
+     * 
      * @param processingExperimentsService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingExperimentsService} object.
      */
@@ -261,7 +297,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingIusService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingIUSService} object.
      */
     public ProcessingIUSService getProcessingIusService() {
@@ -272,7 +308,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingIusService</code>.
      * </p>
-     *
+     * 
      * @param processingIusService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingIUSService} object.
      */
@@ -284,7 +320,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingLaneService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingLanesService} object.
      */
     public ProcessingLanesService getProcessingLaneService() {
@@ -295,7 +331,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingLaneService</code>.
      * </p>
-     *
+     * 
      * @param processingLaneService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingLanesService} object.
      */
@@ -307,7 +343,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingRelationshipService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingRelationshipService} object.
      */
     public ProcessingRelationshipService getProcessingRelationshipService() {
@@ -318,7 +354,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingRelationshipService</code>.
      * </p>
-     *
+     * 
      * @param processingRelationshipService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingRelationshipService} object.
      */
@@ -330,7 +366,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingSamplesService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingSamplesService} object.
      */
     public ProcessingSamplesService getProcessingSamplesService() {
@@ -341,7 +377,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingSamplesService</code>.
      * </p>
-     *
+     * 
      * @param processingSamplesService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingSamplesService} object.
      */
@@ -353,7 +389,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingSequencerRunService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingSequencerRunsService} object.
      */
     public ProcessingSequencerRunsService getProcessingSequencerRunService() {
@@ -364,7 +400,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingSequencerRunService</code>.
      * </p>
-     *
+     * 
      * @param processingSequencerRunService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingSequencerRunsService} object.
      */
@@ -376,7 +412,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingService} object.
      */
     public ProcessingService getProcessingService() {
@@ -387,7 +423,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingService</code>.
      * </p>
-     *
+     * 
      * @param processingService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingService} object.
      */
@@ -399,7 +435,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>processingStudiesService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingStudiesService} object.
      */
     public ProcessingStudiesService getProcessingStudiesService() {
@@ -410,7 +446,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>processingStudiesService</code>.
      * </p>
-     *
+     * 
      * @param processingStudiesService
      *            a {@link net.sourceforge.seqware.common.business.ProcessingStudiesService} object.
      */
@@ -422,7 +458,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>registrationService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.RegistrationService} object.
      */
     public RegistrationService getRegistrationService() {
@@ -433,7 +469,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>registrationService</code>.
      * </p>
-     *
+     * 
      * @param registrationService
      *            a {@link net.sourceforge.seqware.common.business.RegistrationService} object.
      */
@@ -445,7 +481,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>sampleService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.SampleService} object.
      */
     public SampleService getSampleService() {
@@ -456,7 +492,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>sampleService</code>.
      * </p>
-     *
+     * 
      * @param sampleService
      *            a {@link net.sourceforge.seqware.common.business.SampleService} object.
      */
@@ -468,7 +504,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>sequencerRunService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.SequencerRunService} object.
      */
     public SequencerRunService getSequencerRunService() {
@@ -479,7 +515,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>sequencerRunService</code>.
      * </p>
-     *
+     * 
      * @param sequencerRunService
      *            a {@link net.sourceforge.seqware.common.business.SequencerRunService} object.
      */
@@ -491,7 +527,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>sessionFactory</code>.
      * </p>
-     *
+     * 
      * @return a {@link org.hibernate.SessionFactory} object.
      */
     public SessionFactory getSessionFactory() {
@@ -502,7 +538,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>sessionFactory</code>.
      * </p>
-     *
+     * 
      * @param sessionFactory
      *            a {@link org.hibernate.SessionFactory} object.
      */
@@ -514,7 +550,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>workflowParamService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
      */
     public WorkflowParamService getWorkflowParamService() {
@@ -525,7 +561,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>workflowParamService</code>.
      * </p>
-     *
+     * 
      * @param workflowParamService
      *            a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
      */
@@ -537,7 +573,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>workflowParamValueService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
      */
     public WorkflowParamValueService getWorkflowParamValueService() {
@@ -548,7 +584,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>workflowParamValueService</code>.
      * </p>
-     *
+     * 
      * @param workflowParamValueService
      *            a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
      */
@@ -560,7 +596,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>workflowRunService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowRunService} object.
      */
     public WorkflowRunService getWorkflowRunService() {
@@ -571,7 +607,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>workflowRunService</code>.
      * </p>
-     *
+     * 
      * @param workflowRunService
      *            a {@link net.sourceforge.seqware.common.business.WorkflowRunService} object.
      */
@@ -583,7 +619,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>workflowService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowService} object.
      */
     public WorkflowService getWorkflowService() {
@@ -594,7 +630,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>workflowService</code>.
      * </p>
-     *
+     * 
      * @param workflowService
      *            a {@link net.sourceforge.seqware.common.business.WorkflowService} object.
      */
@@ -606,7 +642,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>platformService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.PlatformService} object.
      */
     public PlatformService getPlatformService() {
@@ -617,7 +653,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>platformService</code>.
      * </p>
-     *
+     * 
      * @param platformService
      *            a {@link net.sourceforge.seqware.common.business.PlatformService} object.
      */
@@ -629,7 +665,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>sampleReportService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.SampleReportService} object.
      */
     public SampleReportService getSampleReportService() {
@@ -640,7 +676,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>sampleReportService</code>.
      * </p>
-     *
+     * 
      * @param sampleReportService
      *            a {@link net.sourceforge.seqware.common.business.SampleReportService} object.
      */
@@ -652,7 +688,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>libraryService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.LibraryService} object.
      */
     public LibraryService getLibraryService() {
@@ -663,7 +699,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>libraryService</code>.
      * </p>
-     *
+     * 
      * @param libraryService
      *            a {@link net.sourceforge.seqware.common.business.LibraryService} object.
      */
@@ -675,7 +711,7 @@ public class ContextImpl {
      * <p>
      * Getter for the field <code>validationReportService</code>.
      * </p>
-     *
+     * 
      * @return a {@link net.sourceforge.seqware.common.business.ValidationReportService} object.
      */
     public ValidationReportService getValidationReportService() {
@@ -686,7 +722,7 @@ public class ContextImpl {
      * <p>
      * Setter for the field <code>validationReportService</code>.
      * </p>
-     *
+     * 
      * @param validationReportService
      *            a {@link net.sourceforge.seqware.common.business.ValidationReportService} object.
      */
@@ -779,4 +815,28 @@ public class ContextImpl {
         this.experimentSpotDesignReadSpecService = experimentSpotDesignReadSpecService;
     }
 
+    public AnalysisProvenanceService getAnalysisProvenanceService() {
+        return analysisProvenanceService;
+    }
+
+    public void setAnalysisProvenanceService(AnalysisProvenanceService analysisProvenanceService) {
+        this.analysisProvenanceService = analysisProvenanceService;
+    }
+
+    public SampleProvenanceService getSampleProvenanceService() {
+        return sampleProvenanceService;
+    }
+
+    public void setSampleProvenanceService(SampleProvenanceService sampleProvenanceService) {
+        this.sampleProvenanceService = sampleProvenanceService;
+    }
+
+    public LaneProvenanceService getLaneProvenanceService() {
+        return laneProvenanceService;
+    }
+
+    public void setLaneProvenanceService(LaneProvenanceService laneProvenanceService) {
+        this.laneProvenanceService = laneProvenanceService;
+    }
+    
 }

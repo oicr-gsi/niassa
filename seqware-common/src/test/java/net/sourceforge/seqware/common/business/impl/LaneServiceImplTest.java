@@ -2,37 +2,27 @@ package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
 import java.util.Set;
-import net.sourceforge.seqware.common.BaseUnit;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.LaneService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.hibernate.InSessionExecutions;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * LaneServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class LaneServiceImplTest extends BaseUnit {
+public class LaneServiceImplTest extends AbstractTestCase {
 
-    /**
-     * <p>
-     * Constructor for LaneServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public LaneServiceImplTest() throws Exception {
-        super();
-    }
+    @Autowired
+    LaneService laneService;
 
     /**
      * <p>
@@ -41,16 +31,10 @@ public class LaneServiceImplTest extends BaseUnit {
      */
     @Test
     public void testAssociatedWorkflowRuns() {
-        try {
-            InSessionExecutions.bindSessionToThread();
-            LaneService laneService = BeanFactory.getLaneServiceBean();
-            Lane lane = laneService.findByID(16);
-            Set<WorkflowRun> workflowRuns = lane.getWorkflowRuns();
-            System.out.print(workflowRuns.size());
-            assertEquals(0, workflowRuns.size());
-        } finally {
-            InSessionExecutions.unBindSessionFromTheThread();
-        }
+        Lane lane = laneService.findByID(16);
+        Set<WorkflowRun> workflowRuns = lane.getWorkflowRuns();
+        System.out.print(workflowRuns.size());
+        assertEquals(0, workflowRuns.size());
     }
 
     /**
@@ -60,7 +44,6 @@ public class LaneServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        LaneService laneService = BeanFactory.getLaneServiceBean();
         // List<Lane> found = laneService.findByCriteria("_LMP", true);
         // assertEquals(9, found.size());
 
@@ -78,6 +61,5 @@ public class LaneServiceImplTest extends BaseUnit {
         // By Description
         // found = laneService.findByCriteria("{", false);
         // assertEquals(1, found.size());
-
     }
 }

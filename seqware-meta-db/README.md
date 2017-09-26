@@ -94,6 +94,14 @@ Testing databases are built using all three SQL files in sequence. The test data
 
 These files are structured this way for several reasons. First, if the schema changes in the future, the changes can be more easily put into the database by merely updating the schema, and then generating the data and testdata files. Second, it has previously been established that sequences in PostgreSQL (such as that used by the sw_accession, a key that is used throughout the database) can introduce errors in the form of duplicated keys when the schema and data are simultaneously loaded.
 
+### Update testing data (seqware_meta_db_testdata.sql) ###
+
+To update the SeqWare testing data (seqware_meta_db_testdata.sql), pg_dump can be used:
+
+```
+pg_dump -d test_db --data-only --no-privileges --insert > seqware-meta-db/src/main/resources/io/seqware/metadb/util/seqware_meta_db_testdata.sql
+```
+
 ### Method for production databases ###
 Populate a production database by loading the provided schema/data. You will be prompted to enter the password for your database user:
 

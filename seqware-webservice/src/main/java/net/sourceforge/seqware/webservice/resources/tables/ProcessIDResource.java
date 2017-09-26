@@ -16,7 +16,6 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
-import io.seqware.common.model.ProcessingStatus;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,6 +25,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.restlet.data.MediaType;
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import io.seqware.common.model.ProcessingStatus;
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
@@ -51,14 +61,6 @@ import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -86,7 +88,7 @@ public class ProcessIDResource extends DatabaseIDResource {
      */
     @Get
     public void getXml() {
-        JaxbObject<Lane> jaxbTool = new JaxbObject<>();
+        JaxbObject<Processing> jaxbTool = new JaxbObject<>();
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
 
         authenticate();
@@ -107,7 +109,7 @@ public class ProcessIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Processing.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 
@@ -126,7 +128,7 @@ public class ProcessIDResource extends DatabaseIDResource {
             Processing p = null;
             try {
                 String text = rep.getText();
-                p = (Processing) XmlTools.unMarshal(jo, new Processing(), text);
+                p = (Processing) XmlTools.unMarshal(jo, Processing.class, text);
             } catch (IOException e) {
                 Log.error(e, e);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
@@ -322,7 +324,7 @@ public class ProcessIDResource extends DatabaseIDResource {
 
                 if (p.getProcessingAttributes() != null && !p.getProcessingAttributes().isEmpty()) {
                     // SEQWARE-1577 - AttributeAnnotator cascades deletes when annotating
-                    this.mergeAttributes(processing.getProcessingAttributes(), p.getProcessingAttributes(), processing);
+                    mergeAttributes(processing.getProcessingAttributes(), p.getProcessingAttributes(), processing);
                 }
                 ps.update(registration, processing);
 
@@ -390,7 +392,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                 }
 
                 Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(processing));
+                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(processing), Processing.class);
 
                 toreturn = XmlTools.getRepresentation(line);
                 getResponse().setEntity(toreturn);

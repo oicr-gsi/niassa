@@ -16,20 +16,24 @@
  */
 package net.sourceforge.seqware.pipeline.runner;
 
-import io.seqware.Reports;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
-import net.sourceforge.seqware.pipeline.plugins.ExtendedPluginTest;
-import net.sourceforge.seqware.pipeline.plugins.ModuleRunner;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.ExpectedSystemExit;
+
+import io.seqware.Reports;
+import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.ExitException;
+import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
+import net.sourceforge.seqware.pipeline.plugins.ExtendedPluginTest;
+import net.sourceforge.seqware.pipeline.plugins.ModuleRunner;
 
 /**
  * Runs tests for the ModuleRunner class.
@@ -39,68 +43,76 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
 public class ModuleRunnerTest extends ExtendedPluginTest {
 
-    /**
-     * This allows us to intercept and ignore the various System.exit calls within runner so they don't take down the tests as well
-     */
-    @Rule
-    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
+	@BeforeClass
+	public static void beforeClass() {
+		new BasicTestDatabaseCreator().resetDatabaseWithUsers();
+		Reports.triggerProvenanceReport();
+	}
 
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-        Reports.triggerProvenanceReport();
-    }
+	@Before
+	@Override
+	public void setUp() {
+		instance = new ModuleRunner();
+		super.setUp();
+	}
 
-    @Before
-    @Override
-    public void setUp() {
-        instance = new ModuleRunner();
-        super.setUp();
-    }
+	public ModuleRunnerTest() {
+	}
 
-    public ModuleRunnerTest() {
-    }
+	@Test
+	public void normalParentAccessionRunTest() throws IOException {
+		System.out.println("normalParentAccessionRunTest");
+		try {
+			Path parentAccession = Files.createTempFile("accession", "test");
+			FileUtils.write(parentAccession.toFile(), "836", StandardCharsets.UTF_8);
+			launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(),
+					"--module", "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--",
+					"--gcr-algorithm", "bash_cp", "--gcr-command", "echo");
+		} catch (ExitException e) {
+			assertEquals(e.getExitCode(), ReturnValue.SUCCESS);
+		}
+	}
 
-    @Test
-    public void normalParentAccessionRunTest() throws IOException {
-        System.out.println("normalParentAccessionRunTest");
-        Path parentAccession = Files.createTempFile("accession", "test");
-        FileUtils.write(parentAccession.toFile(), "836");
-        exit.expectSystemExitWithStatus(ReturnValue.SUCCESS);
-        launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(), "--module",
-                "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--", "--gcr-algorithm", "bash_cp", "--gcr-command",
-                "echo");
-    }
+	@Test
+	public void normalAccessionFileRunTest() throws IOException {
+		System.out.println("normalAccessionFileRunTest");
+		try {
+			Path resultAccession = Files.createTempFile("accession", "test");
+			launchPlugin("--metadata", "--metadata-processing-accession-file",
+					resultAccession.toAbsolutePath().toString(), "--module",
+					"net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--", "--gcr-algorithm", "bash_cp",
+					"--gcr-command", "echo");
+		} catch (ExitException e) {
+			assertEquals(e.getExitCode(), ReturnValue.SUCCESS);
+		}
+	}
 
-    @Test
-    public void normalAccessionFileRunTest() throws IOException {
-        System.out.println("normalAccessionFileRunTest");
-        Path resultAccession = Files.createTempFile("accession", "test");
-        exit.expectSystemExitWithStatus(ReturnValue.SUCCESS);
-        launchPlugin("--metadata", "--metadata-processing-accession-file", resultAccession.toAbsolutePath().toString(), "--module",
-                "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--", "--gcr-algorithm", "bash_cp", "--gcr-command",
-                "echo");
-    }
+	@Test
+	public void testBlankParentAccessionFileFail() throws IOException {
+		System.out.println("testBlankParentAccessionFile");
+		try {
+			Path parentAccession = Files.createTempFile("accession", "test");
+			launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(),
+					"--module", "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--",
+					"--gcr-algorithm", "bash_cp", "--gcr-command", "echo");
+		} catch (ExitException e) {
+			assertEquals(e.getExitCode(), ReturnValue.METADATAINVALIDIDCHAIN);
+		}
 
-    @Test
-    public void testBlankParentAccessionFileFail() throws IOException {
-        System.out.println("testBlankParentAccessionFile");
-        Path parentAccession = Files.createTempFile("accession", "test");
-        exit.expectSystemExitWithStatus(ReturnValue.METADATAINVALIDIDCHAIN);
-        launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(), "--module",
-                "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--", "--gcr-algorithm", "bash_cp", "--gcr-command",
-                "echo");
-    }
+	}
 
-    @Test
-    public void testInvalidAccessionFileFail() throws IOException {
-        System.out.println("testInvalidAccessionFile");
-        Path parentAccession = Files.createTempFile("accession", "test");
-        FileUtils.write(parentAccession.toFile(), "-1");
-        exit.expectSystemExitWithStatus(ReturnValue.SQLQUERYFAILED);
-        launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(), "--module",
-                "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--", "--gcr-algorithm", "bash_cp", "--gcr-command",
-                "echo");
-    }
+	@Test
+	public void testInvalidAccessionFileFail() throws IOException {
+		System.out.println("testInvalidAccessionFile");
+		try {
+			Path parentAccession = Files.createTempFile("accession", "test");
+			FileUtils.write(parentAccession.toFile(), "-1", StandardCharsets.UTF_8);
+			launchPlugin("--metadata", "--metadata-parent-accession-file", parentAccession.toAbsolutePath().toString(),
+					"--module", "net.sourceforge.seqware.pipeline.modules.GenericCommandRunner", "--",
+					"--gcr-algorithm", "bash_cp", "--gcr-command", "echo");
+		} catch (ExitException e) {
+			assertEquals(e.getExitCode(), ReturnValue.SQLQUERYFAILED);
+		}
+	}
 
 }

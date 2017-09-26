@@ -1,0 +1,237 @@
+/*
+ * Copyright (C) 2016 SeqWare
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package net.sourceforge.seqware.common.dto.builders;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Objects;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import com.google.common.collect.ImmutableSortedSet;
+
+import ca.on.oicr.gsi.provenance.model.LaneProvenance;
+import ca.on.oicr.gsi.provenance.util.Versioning;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LaneAttribute;
+import net.sourceforge.seqware.common.model.SequencerRun;
+import net.sourceforge.seqware.common.model.SequencerRunAttribute;
+
+/**
+ *
+ * @author mlaszloffy
+ */
+public class LaneProvenanceDtoFromObjects extends LaneProvenanceDto {
+
+	public static DateTime convert(ZonedDateTime original) {
+		return original == null ? null
+				: new DateTime(original.getYear(), original.getMonthValue(), original.getDayOfMonth(),
+						original.getHour(), original.getMinute(), original.getSecond(), original.getNano() / 1_000_000,
+						original.getZone().getId().equals("Z") ? DateTimeZone.UTC
+								: DateTimeZone.forID(original.getZone().getId()));
+	}
+
+	private Lane lane;
+	private SequencerRun sequencerRun;
+
+	public LaneProvenanceDtoFromObjects setLane(Lane lane) {
+		this.lane = lane;
+		return this;
+	}
+
+	public LaneProvenanceDtoFromObjects setSequencerRun(SequencerRun sequencerRun) {
+		this.sequencerRun = sequencerRun;
+		return this;
+	}
+
+	@Override
+	public String getSequencerRunName() {
+		if (sequencerRun != null) {
+			return sequencerRun.getName();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+		SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
+		if (sequencerRun != null) {
+			for (SequencerRunAttribute attr : sequencerRun.getSequencerRunAttributes()) {
+				SortedSet<String> values = attrs.get(attr.getTag());
+				if (values == null) {
+					values = new TreeSet<>();
+					attrs.put(attr.getTag(), values);
+				}
+				values.add(attr.getValue());
+			}
+			if (sequencerRun.getFilePath() != null) {
+				attrs.put("run_dir", ImmutableSortedSet.of(sequencerRun.getFilePath()));
+			}
+
+		}
+		return attrs;
+	}
+
+	@Override
+	public String getSequencerRunPlatformModel() {
+		if (sequencerRun != null && sequencerRun.getPlatform() != null) {
+			return sequencerRun.getPlatform().getName();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getLaneNumber() {
+		if (lane == null || lane.getLaneIndex() == null) {
+			return null;
+		} else {
+			return Integer.toString(lane.getLaneIndex() + 1);
+		}
+	}
+
+	@Override
+	public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+		SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
+		if (lane != null) {
+			for (LaneAttribute attr : lane.getLaneAttributes()) {
+				SortedSet<String> values = attrs.get(attr.getTag());
+				if (values == null) {
+					values = new TreeSet<>();
+					attrs.put(attr.getTag(), values);
+				}
+				values.add(attr.getValue());
+			}
+		}
+		return attrs;
+	}
+
+	@Override
+	public Boolean getSkip() {
+		if (lane != null && Boolean.TRUE.equals(lane.getSkip())) {
+			return true;
+		}
+		if (sequencerRun != null && Boolean.TRUE.equals(sequencerRun.getSkip())) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public String getLaneProvenanceId() {
+		return lane.getSwAccession().toString();
+	}
+
+	@Override
+	public String getProvenanceId() {
+		return getLaneProvenanceId();
+	}
+
+	@Override
+	public String getVersion() {
+		return Versioning.getSha256(new LaneProvenance() {
+
+			@Override
+			public String getVersion() {
+				return LaneProvenanceDtoFromObjects.this.getVersion();
+			}
+
+			@Override
+			public String getProvenanceId() {
+				return LaneProvenanceDtoFromObjects.this.getProvenanceId();
+			}
+
+			@Override
+			public DateTime getLastModified() {
+				return convert(LaneProvenanceDtoFromObjects.this.getLastModified());
+			}
+
+			@Override
+			public Boolean getSkip() {
+				return LaneProvenanceDtoFromObjects.this.getSkip();
+			}
+
+			@Override
+			public String getSequencerRunPlatformModel() {
+				return LaneProvenanceDtoFromObjects.this.getSequencerRunPlatformModel();
+			}
+
+			@Override
+			public String getSequencerRunName() {
+				return LaneProvenanceDtoFromObjects.this.getSequencerRunName();
+			}
+
+			@Override
+			public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+				return LaneProvenanceDtoFromObjects.this.getSequencerRunAttributes();
+			}
+
+			@Override
+			public String getLaneProvenanceId() {
+				return LaneProvenanceDtoFromObjects.this.getLaneProvenanceId();
+			}
+
+			@Override
+			public String getLaneNumber() {
+				return LaneProvenanceDtoFromObjects.this.getLaneNumber();
+			}
+
+			@Override
+			public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+				return LaneProvenanceDtoFromObjects.this.getLaneAttributes();
+			}
+
+			@Override
+			public DateTime getCreatedDate() {
+				return convert(LaneProvenanceDtoFromObjects.this.getCreatedDate());
+			}
+		});
+	}
+
+	@Override
+	public ZonedDateTime getLastModified() {
+		Instant updated = Stream.of(createdDate == null ? null : createdDate.toInstant(),
+				lastModified == null ? null : lastModified.toInstant(),
+				lane.getCreateTimestamp() == null ? null : lane.getCreateTimestamp().toInstant(),
+				lane.getUpdateTimestamp() == null ? null : lane.getUpdateTimestamp().toInstant(),
+				sequencerRun.getCreateTimestamp() == null ? null : sequencerRun.getCreateTimestamp().toInstant(),
+				sequencerRun.getUpdateTimestamp() == null ? null : sequencerRun.getUpdateTimestamp().toInstant())
+				.filter(Objects::nonNull).max(Instant::compareTo).orElse(null);
+		return updated == null ? null : ZonedDateTime.ofInstant(updated, ZoneId.of("Z"));
+	}
+
+	@Override
+	public ZonedDateTime getCreatedDate() {
+		Instant created = Stream
+				.of(createdDate == null ? null : createdDate.toInstant(),
+						lane.getCreateTimestamp() == null ? null : lane.getCreateTimestamp().toInstant(),
+						sequencerRun.getCreateTimestamp() == null ? null
+								: sequencerRun.getCreateTimestamp().toInstant())
+				.filter(Objects::nonNull).min(Instant::compareTo).orElse(null);
+		return created == null ? null : ZonedDateTime.ofInstant(created, ZoneId.of("Z"));
+	}
+
+}

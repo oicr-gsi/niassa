@@ -79,7 +79,7 @@ public class ProcessIdProcessResource extends BasicRestlet {
         } else {
             Log.info("Could not find parents");
         }
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, ProcessingList.class);
 
         response.setEntity(XmlTools.getRepresentation(line));
     }

@@ -16,7 +16,32 @@
  */
 package net.sourceforge.seqware.common.metadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
+
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.WorkflowRunStatus;
 import io.seqware.pipeline.SqwKeys;
@@ -27,6 +52,7 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Workflow;
@@ -38,24 +64,6 @@ import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.webservice.resources.tables.FileChildWorkflowRunsResource;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
 
 /**
  *
@@ -63,7 +71,8 @@ import java.util.SortedSet;
  */
 public class MetadataWSTest {
 
-    protected static Metadata instance;
+    protected Metadata instance;
+    private BasicTestDatabaseCreator dbCreator;
 
     public static Metadata newTestMetadataInstance() {
         // if an alternative database is set, then we need to redirect to look at the defined REST URL
@@ -86,23 +95,16 @@ public class MetadataWSTest {
         logger = Logger.getLogger(MetadataWSTest.class);
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        instance = newTestMetadataInstance();
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        instance.clean_up();
-    }
-
     @Before
     public void setUp() {
+        instance = newTestMetadataInstance();
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
     }
 
     @After
     public void tearDown() {
+        instance.clean_up();
     }
 
     /**
@@ -581,7 +583,7 @@ public class MetadataWSTest {
         } catch (NotFoundException nfe) {
             exceptionThrown = true;
         }
-        Assert.assertTrue("exception not thrown on invalid input", exceptionThrown);
+        Assert.assertFalse("exception not thrown on invalid input", exceptionThrown);
         files.add(-1);
         exceptionThrown = false;
         try {
@@ -711,7 +713,7 @@ public class MetadataWSTest {
 
     @Test
     public void testUpdateWorkflowRunWithInputFiles() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        dbCreator.resetDatabaseWithUsers();
         final int wr_sw_accession = 6603;
         WorkflowRun wr = instance.getWorkflowRun(wr_sw_accession);
         // should already be blank
@@ -751,7 +753,7 @@ public class MetadataWSTest {
 
     @Test
     public void getDirectFilesAssociatedWithWorkflowRuns() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        dbCreator.resetDatabaseWithUsers();
 
         List<Integer> files = new ArrayList<>();
         // try getting nothing
@@ -803,6 +805,117 @@ public class MetadataWSTest {
             Assert.assertTrue("input files for the returned workflow runs should include f1 or f4",
                     r.getInputFileAccessions().contains(f1_sw_accession) || r.getInputFileAccessions().contains(f4_sw_accession));
         }
+    }
+    
+    @Test
+    public void getLimsKeyFromIUS() {
+        Log.info("getLimsKeyFromIUS");
+        LimsKey limsKey = instance.getLimsKeyFrom(6212);
+        assertNotNull(limsKey);
+        assertEquals("25", limsKey.getId());
+        assertEquals("seqware", limsKey.getProvider());
+        assertEquals("1", limsKey.getVersion());
+        assertEquals(ZonedDateTime.parse("2015-12-31T19:00:00.000-05:00").toInstant(), limsKey.getLastModified().toInstant());
+    }
+
+    @Test
+    public void getLimsKeyFromIUSWithNoLimsKey() {
+        Log.info("getLimsKeyFromMissingIUS");
+        LimsKey limsKey = instance.getLimsKeyFrom(-1);
+        assertNull(limsKey);
+    }
+
+    @Test
+    public void updateIUS() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", ZonedDateTime.now());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        Integer newLimsKeySwid = instance.addLimsKey("new_provider", "id", "version", ZonedDateTime.now());
+        LimsKey newLimsKey = instance.getLimsKey(newLimsKeySwid);
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(newLimsKey);
+        instance.updateIUS(ius);
+
+        assertEquals("new_provider", instance.getLimsKeyFrom(iusSwid).getProvider());
+    }
+
+    @Test
+    public void updateLimsKey() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", ZonedDateTime.now());
+        LimsKey limsKey = instance.getLimsKey(limsKeySwid);
+        String expectedProvider = "new_provider";
+        String expectedId = "new_id";
+        String expectedVersion = "new_version";
+        ZonedDateTime expectedLastModified = ZonedDateTime.now(ZoneId.of("Z"));
+        limsKey.setProvider(expectedProvider);
+        limsKey.setId(expectedId);
+        limsKey.setVersion(expectedVersion);
+        limsKey.setLastModified(expectedLastModified);
+        instance.updateLimsKey(limsKey);
+
+        LimsKey updatedLimsKey = instance.getLimsKey(limsKeySwid);
+        assertEquals(expectedProvider, updatedLimsKey.getProvider());
+        assertEquals(expectedId, updatedLimsKey.getId());
+        assertEquals(expectedVersion, updatedLimsKey.getVersion());
+        assertEquals(expectedLastModified.toInstant(), updatedLimsKey.getLastModified().toInstant());
+    }
+
+    @Test
+    public void deleteOrphanIUS() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", ZonedDateTime.now());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        try {
+            instance.deleteIUS(iusSwid);
+            fail("Exception should have been thrown, non-orphaned IUS");
+        } catch (Exception e) {
+        }
+
+        //orphan the IUS
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(new LimsKey());
+        instance.updateIUS(ius);
+
+        //delete orphaned IUS
+        instance.deleteIUS(iusSwid);
+
+        try {
+            instance.getIUS(iusSwid);
+            fail("Expected IUS to be deleted");
+        } catch (NotFoundException ex) {
+        }
+    }
+
+    @Test
+    public void deleteOrphanLimsKey() {
+        Integer limsKeySwid = instance.addLimsKey("provider", "id", "version", ZonedDateTime.now());
+        Integer iusSwid = instance.addIUS(limsKeySwid, false);
+
+        try {
+            instance.deleteLimsKey(limsKeySwid);
+            fail("Exception should have been thrown, non-orphaned LimsKey");
+        } catch (Exception e) {
+        }
+
+        //orphan the LimsKey
+        IUS ius = instance.getIUS(iusSwid);
+        ius.setLimsKey(new LimsKey());
+        instance.updateIUS(ius);
+
+        //delete orphaned LimsKey
+        instance.deleteLimsKey(limsKeySwid);
+
+        try {
+            instance.getLimsKey(limsKeySwid);
+            fail("Expected LimsKey to be deleted");
+        } catch (NotFoundException ex) {
+        }
+    }
+
+    @Test
+    public void getLimsKeyFromMissingIUS() {
+        LimsKey limsKey = instance.getLimsKeyFrom(-1);
+        assertNull(limsKey);
     }
 
 }

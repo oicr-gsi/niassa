@@ -1,10 +1,10 @@
 package net.sourceforge.seqware.common.business;
 
 import java.util.List;
+
 import net.sourceforge.seqware.common.dao.SequencerRunDAO;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 
 /**
  * <p>
@@ -52,30 +52,6 @@ public interface SequencerRunService {
      * @return
      */
     Integer insert(Registration registration, SequencerRun sequencerRun);
-
-    /**
-     * <p>
-     * insert.
-     * </p>
-     *
-     * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
-     * @return
-     */
-    Integer insert(SequencerRunWizardDTO sequencerRun);
-
-    /**
-     * <p>
-     * insert.
-     * </p>
-     *
-     * @param registration
-     *            a {@link net.sourceforge.seqware.common.model.Registration} object.
-     * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
-     * @return
-     */
-    Integer insert(Registration registration, SequencerRunWizardDTO sequencerRun);
 
     /**
      * <p>
@@ -162,7 +138,7 @@ public interface SequencerRunService {
      *            a {@link java.lang.Integer} object.
      * @return a {@link net.sourceforge.seqware.common.model.SequencerRun} object.
      */
-    SequencerRunWizardDTO findByID(Integer expID);
+  SequencerRun findByID(Integer expID);
 
     /**
      * <p>

@@ -78,7 +78,7 @@ public class RunWorkflowResource extends BasicRestlet {
                     Log.info("Could not find workflow runs");
                 }
                 JaxbObject<WorkflowRunList2> jaxbTool = new JaxbObject<>();
-                line = jaxbTool.marshal(list);
+                line = jaxbTool.marshal(list, WorkflowRunList2.class);
             } catch (JAXBException ex) {
                 ex.printStackTrace();
                 response.setStatus(Status.SERVER_ERROR_INTERNAL);

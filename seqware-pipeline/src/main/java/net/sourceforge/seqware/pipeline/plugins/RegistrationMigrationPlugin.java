@@ -1,17 +1,5 @@
 package net.sourceforge.seqware.pipeline.plugins;
 
-import io.seqware.util.PasswordStorage;
-import joptsimple.OptionException;
-import net.sourceforge.seqware.common.factory.DBAccess;
-import net.sourceforge.seqware.common.metadata.Metadata;
-import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.pipeline.plugin.Plugin;
-import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.MapListHandler;
-import org.openide.util.lookup.ServiceProvider;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,6 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.openide.util.lookup.ServiceProvider;
+
+import io.seqware.util.PasswordStorage;
+import net.sourceforge.seqware.common.factory.DBAccess;
+import net.sourceforge.seqware.common.metadata.Metadata;
+import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.pipeline.plugin.Plugin;
+import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 
 /**
  * This plugin migrates passwords from pre-1.2.x and generates password hashes for existing passwords while encrypting them.
@@ -95,23 +95,6 @@ public class RegistrationMigrationPlugin extends Plugin {
             Log.fatal(e);
         }
         return ("");
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public ReturnValue parse_parameters() {
-        ReturnValue ret = new ReturnValue();
-        try {
-            options = parser.parse(params);
-        } catch (OptionException e) {
-            get_syntax();
-            ret.setExitStatus(ReturnValue.INVALIDARGUMENT);
-        }
-        return ret;
     }
 
     /**

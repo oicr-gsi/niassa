@@ -83,14 +83,14 @@ public class ExperimentResource extends DatabaseResource {
         JaxbObject<ExperimentList> jaxbTool = new JaxbObject<>();
 
         ExperimentList eList = new ExperimentList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Experiment experiment : experiments) {
             Experiment dto = copier.hibernate2dto(Experiment.class, experiment);
             eList.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, ExperimentList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
@@ -113,7 +113,7 @@ public class ExperimentResource extends DatabaseResource {
             String text = entity.getText();
             Experiment o = null;
             try {
-                o = (Experiment) XmlTools.unMarshal(jo, new Experiment(), text);
+                o = (Experiment) XmlTools.unMarshal(jo, Experiment.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -144,7 +144,7 @@ public class ExperimentResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Experiment detachedExperiment = copier.hibernate2dto(Experiment.class, experiment);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedExperiment);
+            Document line = XmlTools.marshalToDocument(jo, detachedExperiment, Experiment.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/experiments/" + detachedExperiment.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

@@ -31,6 +31,6 @@ import org.junit.runners.Suite;
 public class OldAdminTutorialSuiteLT extends TutorialSuite {
     @BeforeClass
     public static void resetDatabase() {
-        ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
+    ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
 }

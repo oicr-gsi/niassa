@@ -15,6 +15,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * <p>
  * Workflow class.
@@ -28,6 +32,8 @@ public class Workflow extends PermissionsAware implements Serializable, Comparab
      * LEFT OFF WITH: this needs to be finished
      */
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer workflowId;
     private Integer swAccession;
     private String name;
@@ -42,6 +48,7 @@ public class Workflow extends PermissionsAware implements Serializable, Comparab
     /**
      * @deprecated this does not seem to be in use and probably should not be
      */
+    @Deprecated
     private String host;
     private String username;
     private String permanentBundleLocation;
@@ -398,6 +405,7 @@ public class Workflow extends PermissionsAware implements Serializable, Comparab
      * @deprecated
      * @return a {@link java.lang.String} object.
      */
+    @Deprecated
     public String getHost() {
         return host;
     }
@@ -411,6 +419,7 @@ public class Workflow extends PermissionsAware implements Serializable, Comparab
      * @param host
      *            a {@link java.lang.String} object.
      */
+    @Deprecated
     public void setHost(String host) {
         this.host = host;
     }

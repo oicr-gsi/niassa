@@ -1,8 +1,39 @@
 package net.sourceforge.seqware.common.metadata;
 
+import java.io.Writer;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -18,6 +49,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -40,30 +72,6 @@ import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Bool;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
 
 // FIXME: Have to record processing event (event), what the workflow it was, etc.
 // FIXME: Need to add workflow table, and then have each processing event associated with a workflowID for this particular run of the workflow
@@ -915,7 +923,7 @@ public class MetadataDB implements Metadata {
     public ReturnValue update_processing_event(int processingID, ReturnValue retval) {
         // Create a SQL statement
         StringBuilder sql = new StringBuilder();
-        ArrayList params = new ArrayList();
+        ArrayList<Object> params = new ArrayList<>();
         try {
             // FIXME: Update a processing entry from ReturnValue
             sql.append("UPDATE processing SET ");
@@ -1377,6 +1385,76 @@ public class MetadataDB implements Metadata {
     @Override
     public Study getStudy(int swAccession) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Integer addIUS(Integer limsKeyAccession, boolean skip) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKey(int limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateIUS(IUS ius) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateLimsKey(LimsKey limsKey) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteIUS(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void deleteLimsKey(Integer limsKeyAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<SampleProvenanceDto> getSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void refreshSampleProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public LimsKey getLimsKeyFrom(Integer iusAccession) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<LaneProvenanceDto> getLaneProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void refreshLaneProvenance() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public static class IntByIndex implements ResultSetHandler<Integer> {
@@ -1887,5 +1965,10 @@ public class MetadataDB implements Metadata {
     public List<Object> getViaAccessions(int[] accessions) {
         throw new NotImplementedException("This method is not supported through the direct MetaDB connection!");
     }
+
+  @Override
+  public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+    throw new NotImplementedException("Retrieving workflow runs must be performed through webservice");
+  }
 
 }

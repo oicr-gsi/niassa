@@ -71,7 +71,7 @@ public class WorkflowRunIdFilesResource extends BasicRestlet {
 
             JaxbObject<FileList> jaxbTool = new JaxbObject<>();
 
-            Document doc = XmlTools.marshalToDocument(jaxbTool, list);
+            Document doc = XmlTools.marshalToDocument(jaxbTool, list, FileList.class);
 
             response.setEntity(XmlTools.getRepresentation(doc));
         } catch (SQLException ex) {

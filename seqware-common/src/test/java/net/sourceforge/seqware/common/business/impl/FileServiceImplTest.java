@@ -1,35 +1,26 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
-import net.sourceforge.seqware.common.BaseUnit;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.FileService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.File;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * FileServiceImplTest class.
  * </p>
- * 
+ *
  * @author Oleg Lopatin
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class FileServiceImplTest extends BaseUnit {
+public class FileServiceImplTest extends AbstractTestCase {
 
-    /**
-     * <p>
-     * Constructor for FileServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public FileServiceImplTest() throws Exception {
-        super();
-    }
+    @Autowired
+    FileService fileService;
 
     /**
      * <p>
@@ -38,8 +29,6 @@ public class FileServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        FileService fileService = BeanFactory.getFileServiceBean();
-
         // No results by path matching
         List<File> foundFiles = fileService.findByCriteria("https", false);
         assertEquals(0, foundFiles.size());

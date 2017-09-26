@@ -75,14 +75,14 @@ public class ExperimentSpotDesignResource extends DatabaseResource {
         JaxbObject<ExperimentSpotDesignList> jaxbTool = new JaxbObject<>();
 
         ExperimentSpotDesignList list = new ExperimentSpotDesignList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (ExperimentSpotDesign obj : objects) {
             ExperimentSpotDesign dto = copier.hibernate2dto(ExperimentSpotDesign.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, ExperimentSpotDesignList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

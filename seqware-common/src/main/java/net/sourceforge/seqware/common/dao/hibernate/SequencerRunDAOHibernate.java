@@ -2,20 +2,20 @@ package net.sourceforge.seqware.common.dao.hibernate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import net.sourceforge.seqware.common.dao.SequencerRunDAO;
-import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.NullBeanUtils;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import net.sourceforge.seqware.common.dao.SequencerRunDAO;
+import net.sourceforge.seqware.common.model.Registration;
+import net.sourceforge.seqware.common.model.SequencerRun;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.NullBeanUtils;
 
 /**
  * <p>
@@ -45,22 +45,6 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
      */
     @Override
     public Integer insert(SequencerRun sequencerRun) {
-        this.getHibernateTemplate().save(sequencerRun);
-        currentSession().flush();
-        return (sequencerRun.getSwAccession());
-    }
-
-    /**
-     * <p>
-     * insert.
-     * </p>
-     *
-     * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
-     * @return
-     */
-    @Override
-    public Integer insert(SequencerRunWizardDTO sequencerRun) {
         this.getHibernateTemplate().save(sequencerRun);
         currentSession().flush();
         return (sequencerRun.getSwAccession());
@@ -172,13 +156,13 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
      * Finds an instance of SequencerRun in the database by the SequencerRun ID.
      */
     @Override
-    public SequencerRunWizardDTO findByID(Integer expID) {
-        String query = "from SequencerRunWizardDTO as sequencerRun where sequencerRun.sequencerRunId = ?";
-        SequencerRunWizardDTO sequencerRun = null;
+  public SequencerRun findByID(Integer expID) {
+    String query = "from SequencerRun as sequencerRun where sequencerRun.sequencerRunId = ?";
+    SequencerRun sequencerRun = null;
         Object[] parameters = { expID };
         List list = this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            sequencerRun = (SequencerRunWizardDTO) list.get(0);
+      sequencerRun = (SequencerRun) list.get(0);
         }
         return sequencerRun;
     }
@@ -223,23 +207,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         query.setString("sw", criteria);
         query.setString("name", criteria);
         List<SequencerRun> res = query.list();
-        filterResult(res);
         return res;
-    }
-
-    /**
-     * Filter WizardDTO classes here
-     *
-     * @param res
-     */
-    private void filterResult(List<SequencerRun> res) {
-        Iterator<SequencerRun> iter = res.iterator();
-        while (iter.hasNext()) {
-            SequencerRun val = iter.next();
-            if (val instanceof SequencerRunWizardDTO) {
-                iter.remove();
-            }
-        }
     }
 
     /** {@inheritDoc} */
@@ -264,7 +232,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         // SEQWARE-1489
         // bizarre, my initial thought was to restrict this to the base class
         // however, certain SequencerRuns in the test database get dropped that way
-        String query = "from SequencerRunWizardDTO as sr";
+    String query = "from SequencerRun as sr";
 
         List list = this.getHibernateTemplate().find(query);
         Log.trace("Hibernate query found " + list.size() + "sequencer runs");
@@ -302,25 +270,6 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
             localLogger.error("SequencerRunDAOHibernate insert SequencerRun registration is null");
         } else if (registration.isLIMSAdmin() || sequencerRun.givesPermission(registration)) {
             localLogger.info("insert sequencer run object");
-            insert(sequencerRun);
-            return (sequencerRun.getSwAccession());
-        } else {
-            localLogger.error("sequencerRunDAOHibernate insert not authorized");
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public Integer insert(Registration registration, SequencerRunWizardDTO sequencerRun) {
-        if (registration == null) {
-            localLogger.error("SequencerRunDAOHibernate insert SequencerRunWizardDTO registration is null");
-        } else if (registration.isLIMSAdmin() || sequencerRun.givesPermission(registration)) {
-            localLogger.info("insert SequencerRunWizardDTO object");
             insert(sequencerRun);
             return (sequencerRun.getSwAccession());
         } else {

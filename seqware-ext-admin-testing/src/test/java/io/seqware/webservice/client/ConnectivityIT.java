@@ -25,6 +25,7 @@ import org.junit.Assert;
 import net.sourceforge.seqware.pipeline.plugins.ExtendedTestDatabaseCreator;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.restlet.data.Status;
 
 /**
  * Tests for the admin web service
@@ -46,6 +47,7 @@ public class ConnectivityIT {
         ClientResponse response = client.findRange_XML(ClientResponse.class, "1", "5");
         GenericType<List<Organism>> genericType = new GenericType<List<Organism>>() {
         };
+        Assert.assertEquals(Status.SUCCESS_OK.getCode(), response.getStatus());
         List<Organism> data = response.getEntity(genericType);
         Assert.assertTrue("no organisms found", data.size() > 0);
 

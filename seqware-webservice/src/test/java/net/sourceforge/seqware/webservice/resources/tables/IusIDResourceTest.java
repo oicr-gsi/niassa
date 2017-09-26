@@ -18,39 +18,33 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class IusIDResourceTest extends DatabaseResourceIDTest {
+public class IusIDResourceTest extends DatabaseResourceIDTest<IUS> {
 
-    public IusIDResourceTest() {
-        super("/ius/6112");
-        jo = new JaxbObject<>();
-        o = new IUS();
-    }
+	public IusIDResourceTest() {
+		super("/ius/6112", IUS.class);
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof IUS) {
-            IUS e = (IUS) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
+	@Override
+	protected int testObject(IUS e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 
-        } else {
-            System.err.println("Object is not an instance of IUS");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	public void testPut() {
 
-    @Override
-    public void testPut() {
+	}
 
-    }
+	@Override
+	public void testDelete() {
+	}
 
 }

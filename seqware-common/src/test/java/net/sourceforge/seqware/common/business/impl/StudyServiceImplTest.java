@@ -1,52 +1,44 @@
 package net.sourceforge.seqware.common.business.impl;
 
-import java.util.List;
-import java.util.Set;
-import net.sourceforge.seqware.common.BaseUnit;
-import net.sourceforge.seqware.common.business.StudyService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.hibernate.InSessionExecutions;
-import net.sourceforge.seqware.common.model.Processing;
-import net.sourceforge.seqware.common.model.Study;
-import net.sourceforge.seqware.common.util.Log;
-import org.hibernate.Session;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.SessionFactory;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import net.sourceforge.seqware.common.AbstractTestCase;
+import net.sourceforge.seqware.common.business.StudyService;
+import net.sourceforge.seqware.common.model.Processing;
+import net.sourceforge.seqware.common.model.Study;
+import net.sourceforge.seqware.common.util.Log;
 
 /**
  * <p>
  * StudyServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class StudyServiceImplTest extends BaseUnit {
+public class StudyServiceImplTest extends AbstractTestCase {
 
-    private static StudyService ss;
+    @Autowired
+    StudyService studyService;
 
-    /**
-     * <p>
-     * Constructor for StudyServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public StudyServiceImplTest() throws Exception {
-        super();
-        ss = BeanFactory.getStudyServiceBean();
-    }
+    @Autowired
+    SessionFactory sessionFactory;
 
     // @AfterClass
     // public static void tearDownAfterClass() throws Exception {
     // DatabaseCreator.markDatabaseChanged();
     // }
-
+    
     /**
      * <p>
      * testFindByTitle.
@@ -54,19 +46,18 @@ public class StudyServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByTitle() {
-
-        List<Study> studySensitive = ss.findByTitle("AbcCo_Exome_Sequencing");
+        List<Study> studySensitive = studyService.findByTitle("AbcCo_Exome_Sequencing");
         // Should return one item.
-        assertNotNull(studySensitive);
+        assertEquals(1, studySensitive.size());
 
-        List<Study> studyInsensitive = ss.findByTitle("abcco_Exome_Sequencing");
+        List<Study> studyInsensitive = studyService.findByTitle("abcco_Exome_Sequencing");
         // Should return one item.
-        assertNotNull(studyInsensitive);
+        assertEquals(1, studyInsensitive.size());
 
         // Look for not existing Title
-        List<Study> studyNotExist = ss.findByTitle("Not Exist");
+        List<Study> studyNotExist = studyService.findByTitle("Not Exist");
         // Should return one item.
-        assertNull(studyNotExist);
+        assertEquals(0, studyNotExist.size());
     }
 
     // @Test
@@ -77,7 +68,7 @@ public class StudyServiceImplTest extends BaseUnit {
     // // Must be 2 studies for that registrationId
     // assertEquals("Expected 2, got "+studies.size(), 2, studies.size());
     // }
-
+    
     /**
      * <p>
      * testFindBySWAccession.
@@ -85,7 +76,7 @@ public class StudyServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindBySWAccession() {
-        Study study = ss.findBySWAccession(120);
+        Study study = studyService.findBySWAccession(120);
         assertNotNull(study);
         assertEquals("AbcCo_Exome_Sequencing", study.getTitle());
     }
@@ -97,28 +88,21 @@ public class StudyServiceImplTest extends BaseUnit {
      */
     @Test
     public void testUpdateDetached() {
-        Session session = getSession();
-        Study study = ss.findByID(12);
-        // detach object closing the session
-        removeSession(session);
+        Study study = studyService.findByID(12);
+        sessionFactory.getCurrentSession().evict(study); //detach object
 
-        // create new session
-        session = getSession();
-        Study newStudy = ss.findByID(12);
+        Study newStudy = studyService.findByID(12);
         assertFalse(study == newStudy);
 
         // Update detached object
         study.setTitle("New Title");
 
         // Let's try to attach object
-        Study attachedNewly = ss.updateDetached(study);
+        Study attachedNewly = studyService.updateDetached(study);
         assertEquals("New Title", attachedNewly.getTitle());
-        removeSession(session);
 
-        session = getSession();
-        Study updatedStudy = ss.findByID(12);
+        Study updatedStudy = studyService.findByID(12);
         assertEquals("New Title", updatedStudy.getTitle());
-        removeSession(session);
     }
 
     /**
@@ -128,13 +112,10 @@ public class StudyServiceImplTest extends BaseUnit {
      */
     @Test
     public void testNoLazyInitializationException() {
-        // Bind Session to the thread to prevent LazyInitializationException
-        InSessionExecutions.bindSessionToThread();
-        Study study = ss.findByID(10);
+        Study study = studyService.findByID(10);
         Set<Processing> processings = study.getProcessings();
         Log.info("Procissings count: " + processings.size());
         Log.info("Owner is " + study.getOwner().getFirstName());
-        InSessionExecutions.unBindSessionFromTheThread();
     }
 
     /**
@@ -144,7 +125,6 @@ public class StudyServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        StudyService studyService = BeanFactory.getStudyServiceBean();
         // List<Study> foundStudies = studyService.findByCriteria("HuRef", false);
         // assertEquals(1, foundStudies.size());
 

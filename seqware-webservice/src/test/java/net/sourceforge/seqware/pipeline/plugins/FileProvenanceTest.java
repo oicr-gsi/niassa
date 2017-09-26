@@ -34,11 +34,14 @@ import org.junit.Test;
  */
 public class FileProvenanceTest extends ExtendedPluginTest {
 
+    private BasicTestDatabaseCreator dbCreator;
+    
     @Before
     @Override
     public void setUp() {
         super.setUp();
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
     }
 
     public FileProvenanceTest() {

@@ -17,6 +17,13 @@
 package net.sourceforge.seqware.webservice.resources.filters;
 
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
+
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
 import net.sourceforge.seqware.common.util.Log;
@@ -24,11 +31,6 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
-import org.junit.Assert;
-import org.junit.Test;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ResourceException;
 
 /**
  * 
@@ -85,7 +87,7 @@ public class ExperimentIDFilterTest extends AbstractResourceTest {
         try {
             Representation rep = resource.get();
             String text = rep.getText();
-            parent = (ExperimentList) XmlTools.unMarshal(jaxb, parent, text);
+            parent = (ExperimentList) XmlTools.unMarshal(jaxb, ExperimentList.class, text);
             rep.exhaust();
             rep.release();
         } catch (ResourceException e) {

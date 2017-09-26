@@ -91,6 +91,18 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
     }
 
     /**
+     * @return the DEFAULT_DB_HOST
+     */
+    @Override
+    protected String getDEFAULT_DB_PORT() {
+        if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_PORT.getSettingKey())) {
+            return settings.get(SqwKeys.EXTENDED_TEST_DB_PORT.getSettingKey());
+        }
+        Log.debug("Could not retrieve extended test db port, using default from unit tests");
+        return super.getDEFAULT_DB_PORT();
+    }
+
+    /**
      * Unfortunately, postgres does not allow the straight dropdb and createdb when tomcat is used (perhaps we leave open a connection)
      */
     public static void resetDatabaseWithUsers() {

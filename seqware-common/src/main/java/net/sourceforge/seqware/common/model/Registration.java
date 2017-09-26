@@ -9,6 +9,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * Registration
  * 
@@ -41,6 +45,8 @@ public class Registration extends PermissionsAware implements Serializable, Comp
     }
 
     private static final long serialVersionUID = -6290711918776330816L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer registrationId;
     private String emailAddress;
     private String password;

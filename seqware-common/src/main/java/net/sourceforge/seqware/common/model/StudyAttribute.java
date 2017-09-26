@@ -4,6 +4,10 @@ package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 //Generated 09.12.2011 15:01:20 by Hibernate Tools 3.2.4.GA
 
 /**
@@ -15,6 +19,8 @@ import java.io.Serializable;
 public class StudyAttribute extends Attribute<Study, StudyAttribute> implements Serializable {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int studyAttributeId;
     private Study study;
     private String tag;

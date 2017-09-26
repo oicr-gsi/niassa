@@ -343,8 +343,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 sa = convertTagValueUnitSetToAttributeSet(sample.getSampleAttributes(), SampleAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateSample(librarySampleNameAcc, sa);
         }
@@ -419,8 +418,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 ia = convertTagValueUnitSetToAttributeSet(barcode.getIusAttributes(), IUSAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateIUS(swAccession, ia);
         }
@@ -481,8 +479,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 la = convertTagValueUnitSetToAttributeSet(lane.getLaneAttributes(), LaneAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateLane(swAccession, la);
         }
@@ -529,8 +526,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 ra = convertTagValueUnitSetToAttributeSet(run.getRunAttributes(), SequencerRunAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateSequencerRun(swAccession, ra);
         }
@@ -584,8 +580,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 ea = convertTagValueUnitSetToAttributeSet(run.getExperimentAttributes(), ExperimentAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateExperiment(experimentAccession, ea);
         }
@@ -625,8 +620,7 @@ public class BatchMetadataInjection extends Metadata {
             try {
                 sa = convertTagValueUnitSetToAttributeSet(run.getStudyAttributes(), StudyAttribute.class);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+            	throw new RuntimeException(e);
             }
             metadata.annotateStudy(studyAccession, sa);
         }

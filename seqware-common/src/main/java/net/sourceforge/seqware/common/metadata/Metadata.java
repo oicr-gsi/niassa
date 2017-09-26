@@ -1,8 +1,21 @@
 package net.sourceforge.seqware.common.metadata;
 
+import java.io.Writer;
+import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
@@ -17,6 +30,7 @@ import net.sourceforge.seqware.common.model.LaneAttribute;
 import net.sourceforge.seqware.common.model.LibrarySelection;
 import net.sourceforge.seqware.common.model.LibrarySource;
 import net.sourceforge.seqware.common.model.LibraryStrategy;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.ParentAccessionModel;
 import net.sourceforge.seqware.common.model.Platform;
@@ -35,14 +49,6 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
-
-import java.io.Writer;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
 
 public interface Metadata {
 
@@ -168,7 +174,7 @@ public interface Metadata {
 
     /**
      * <p>
-     * addSample.
+     * addIUS.
      * </p>
      *
      * @param laneAccession
@@ -180,7 +186,72 @@ public interface Metadata {
      * @return a {@link net.sourceforge.seqware.common.module.ReturnValue} object.
      */
 
-    ReturnValue addIUS(Integer laneAccession, Integer sampleAccession, String name, String description, String barcode, boolean skip);
+    public ReturnValue addIUS(Integer laneAccession, Integer sampleAccession, String name, String description, String barcode, boolean skip);
+
+    /**
+     * Creates an IUS object that is linked to the specified LimsKey.
+     *
+     * @param limsKeyAccession
+     * @param skip
+     *
+     * @return the IUS SWID/accession.
+     */
+    public Integer addIUS(Integer limsKeyAccession, boolean skip);
+    
+    /**
+     * Creates a LimsKey with the specified Lims provider, ID, version, and lastModified date.
+     * 
+     * @param provider
+     * @param id
+     * @param version
+     * @param lastModified
+     * @return the LimsKey SWID/accession.
+     */
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified);
+    
+    /**
+     * Get the LimsKey from SWID/accession.
+     *
+     * @param limsKeyAccession
+     * @return {@link net.sourceforge.seqware.common.model.LimsKey}
+     */
+    public LimsKey getLimsKey(int limsKeyAccession);
+
+    /**
+     * Replaces the persisted IUS with the provided IUS.
+     *
+     * Warning: This includes Empty or null fields.
+     *
+     * @param ius
+     */
+    public void updateIUS(IUS ius);
+
+    /**
+     * Replaces the persisted LimsKey with the provided LimsKey.
+     *
+     * Warning: This includes Empty or null fields.
+     *
+     * @param limsKey
+     */
+    public void updateLimsKey(LimsKey limsKey);
+
+    /**
+     * Deletes the orphaned IUS.
+     *
+     * Deletion of IUSes with references will result in a run time exception.
+     *
+     * @param iusAccession
+     */
+    public void deleteIUS(Integer iusAccession);
+
+    /**
+     * Deletes the orphaned IUS.
+     *
+     * Deletion of IUSes with references will result in a run time exception.
+     *
+     * @param limsKeyAcccession
+     */
+    public void deleteLimsKey(Integer limsKeyAcccession);
 
     /**
      * <p>
@@ -457,6 +528,18 @@ public interface Metadata {
      * @return a {@link net.sourceforge.seqware.common.model.WorkflowRun} object.
      */
     WorkflowRun getWorkflowRun(int workflowRunAccession);
+
+    /**
+     * <p>
+     * getWorkflowRun and linked IUSes.
+     * </p>
+     *
+     * @param workflowRunAccession
+     *                             a int.
+     *
+     * @return a {@link net.sourceforge.seqware.common.model.WorkflowRun} object.
+     */
+    WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession);
 
     /**
      * Get workflow run by status cmd (oozie job id in oozie).
@@ -1167,6 +1250,15 @@ public interface Metadata {
     List<IUS> getIUSFrom(int laneOrSampleAccession);
 
     /**
+     * Get LimsKey that is associated with an IUS.
+     *
+     * @param iusAccession the sw_accession/swid of the IUS
+     *
+     * @return the LimsKey or null if there is no LimsKey associated with the IUS
+     */
+    public LimsKey getLimsKeyFrom(Integer iusAccession);
+
+    /**
      * Get experiments from a study.
      *
      * @param studyAccession
@@ -1249,4 +1341,44 @@ public interface Metadata {
      * @return
      */
     Study getStudy(int swAccession);
-}
+    /**
+     * Get all AnalysisProvenance objects from the SeqWare MetaDB.
+     * 
+     * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
+     */
+    public List<AnalysisProvenanceDto> getAnalysisProvenance();
+    
+    /**
+     * Get AnalysisProvenance objects from the SeqWare MetaDB that pass the user provided filters.
+     *
+     * @param filters
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
+     */
+    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters);
+
+    /**
+     * Get all SampleProvenance objects from the SeqWare MetaDB.
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.SampleProvenanceDto} objects
+     */
+    public List<SampleProvenanceDto> getSampleProvenance();
+
+    /**
+     * Refresh the SampleProvenance object cache.
+     *
+     */
+    public void refreshSampleProvenance();
+
+    /**
+     * Get all LaneProvenance objects from the SeqWare MetaDB.
+     *
+     * @return List of {@link net.sourceforge.seqware.common.dto.LaneProvenanceDto} objects
+     */
+    public List<LaneProvenanceDto> getLaneProvenance();
+
+    /**
+     * Refresh the LaneProvenance object cache.
+     *
+     */
+    public void refreshLaneProvenance();}

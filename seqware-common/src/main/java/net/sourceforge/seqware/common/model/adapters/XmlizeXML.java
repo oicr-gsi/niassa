@@ -52,7 +52,7 @@ public class XmlizeXML extends XmlAdapter<String, String> {
      */
     @Override
     public String marshal(String bt) throws Exception {
-        String out = StringEscapeUtils.escapeXml(bt);
+    String out = StringEscapeUtils.escapeXml11(bt);
         out = StringEscapeUtils.escapeEcmaScript(out);
         return out;
     }

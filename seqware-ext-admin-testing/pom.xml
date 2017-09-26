@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent> 
-        <version>1.2.0-alpha.1-SNAPSHOT</version> 
+        <version>1.99.1-SNAPSHOT</version> 
         <groupId>com.github.seqware</groupId> 
         <artifactId>seqware</artifactId> 
         <relativePath>../pom.xml</relativePath> 
@@ -67,6 +67,10 @@
             <type>jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.restlet.jee</groupId>
+            <artifactId>org.restlet</artifactId>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,7 +111,7 @@
                     <plugin>
                         <groupId>org.glassfish.embedded</groupId>
                         <artifactId>maven-embedded-glassfish-plugin</artifactId>
-                        <version>3.1.2.2</version>
+                        <version>4.1.1</version>
                         <configuration>
                             <autoDelete>true</autoDelete>
                             <app>${project.parent.basedir}/seqware-admin-webservice/target/seqware-admin-webservice-${project.version}.war</app>

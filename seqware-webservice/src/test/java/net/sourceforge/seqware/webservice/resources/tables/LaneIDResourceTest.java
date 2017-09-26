@@ -18,38 +18,28 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class LaneIDResourceTest extends DatabaseResourceIDTest {
+public class LaneIDResourceTest extends DatabaseResourceIDTest<Lane> {
 
-    public LaneIDResourceTest() {
-        super("/lanes/4714");
-        jo = new JaxbObject<>();
-        o = new Lane();
-    }
+	public LaneIDResourceTest() {
+		super("/lanes/4714", Lane.class);
+	}
 
-    @Override
-    public void testPut() {
+	@Override
+	public void testPut() {
 
-    }
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof Lane) {
-            Lane e = (Lane) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
-
-        } else {
-            System.err.println("Object is not an instance of Lane");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	protected int testObject(Lane e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 }

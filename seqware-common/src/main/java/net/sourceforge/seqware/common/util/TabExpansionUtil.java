@@ -69,7 +69,6 @@ public class TabExpansionUtil {
                 buff.append(StringUtils.repeat(" ", maxHeader - header[j].length()));
                 buff.append("| ");
                 buff.append(col);
-                buff.append(StringUtils.repeat(" ", maxContent - col.length()));
                 buff.append("\n");
                 j++;
             }

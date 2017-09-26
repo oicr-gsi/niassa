@@ -1,5 +1,9 @@
 package net.sourceforge.seqware.common.model;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 //default package
 //Generated 09.12.2011 15:01:20 by Hibernate Tools 3.2.4.GA
 
@@ -12,6 +16,8 @@ package net.sourceforge.seqware.common.model;
 public class ProcessingStudies implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int processingStudiesId;
     private Processing processing;
     private Study study;

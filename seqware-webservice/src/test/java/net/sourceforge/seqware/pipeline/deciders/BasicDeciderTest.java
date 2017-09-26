@@ -40,7 +40,6 @@ import net.sourceforge.seqware.pipeline.plugins.PluginTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -78,18 +77,17 @@ public class BasicDeciderTest extends PluginTest {
 
     private final List<String> fastq_gz = new ArrayList<>();
 
-    private final BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
-
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-        Reports.triggerProvenanceReport();
-    }
+    private BasicTestDatabaseCreator dbCreator;
 
     @Before
     @Override
     public void setUp() {
         super.setUp();
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
+        Reports.triggerProvenanceReport();
+        
         instance = new TestingDecider();
         // instance = new BasicDecider();
         instance.setMetadata(metadata);
@@ -99,7 +97,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsWorkflowRunWithFailureStatus() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         boolean pendingStatus = decider.determineStatus(metadata.getWorkflowRun(6602).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.OTHER;
         boolean failedStatus = decider.determineStatus(metadata.getWorkflowRun(6603).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.FAILED;
         boolean completedStatus = decider.determineStatus(metadata.getWorkflowRun(6604).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.COMPLETED;
@@ -113,7 +111,7 @@ public class BasicDeciderTest extends PluginTest {
         // we need to use a valid workflow now that we filter with valid parent workflows
         // this is actually a bit misnamed, we return all files that are associated with all studies
         String[] params = { "--all", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860,4", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860,4", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -125,7 +123,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testFilesForOneStudy() {
         String[] params = { "--study-name", "AbcCo_Exome_Sequencing", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -136,7 +134,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testFilesForInvalidStudyName() {
         String[] params = { "--study-name", "_INVALID_STUDY_NAME_", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         try {
             launchAndCaptureOutput(params);
             // we need to override handleGroupByAttribute in order to count the number of expected files
@@ -151,7 +149,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testFilesForOneSample() {
         String[] params = { "--sample-name", "Exome_ABC015069_Test_2", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -163,7 +161,7 @@ public class BasicDeciderTest extends PluginTest {
     public void testFilesForInvalidRootSample() {
         String[] params = { "--sample-name", "Exome_ABC015069_Test_2", "--wf-accession", "4773", "--root-sample-name",
                 "OBC_0001_DOES_NOT_EXIST", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         try {
             launchAndCaptureOutput(params);
             // we need to override handleGroupByAttribute in order to count the number of expected files
@@ -178,7 +176,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testFilesForOneSequencerRun() {
         String[] params = { "--sequencer-run-name", "SRKDKJKLFJKLJ90039", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -189,7 +187,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testFilesForInvalidSequencerRunName() {
         String[] params = { "--sequencer-run-name", "_INVALID_SEQUENCER_RUN_NAME_", "--wf-accession", "4773", "--parent-wf-accessions",
-                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--test" };
+                "2861,4767,4768,4769,4773,4780,4778,4775,4774,5692,6594,6595,6596,6597,6598,6599,6685,6692,2860", "--dry-run" };
         boolean testPassed = false;
         try {
             launchAndCaptureOutput(params);
@@ -208,7 +206,7 @@ public class BasicDeciderTest extends PluginTest {
 
     @Test
     public void testNumberOfChecks() {
-        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--test" };
+        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--dry-run" };
         launchAndCaptureOutput(params);
         // int launchesDetected = StringUtils.countMatches(redirected, "java -jar");
         // we need to override handleGroupByAttribute in order to count the number of expected files
@@ -229,7 +227,7 @@ public class BasicDeciderTest extends PluginTest {
                 "4773",
                 "--meta-types",
                 "text/h-tumour,application/vcf-4-gzip,text/annovar-tags,application/zip-report-bundle,txt,chemical/seq-na-fastq-gzip,application/bam,text/vcf-4,chemical/seq-na-fastq",
-                "--test" };
+                "--dry-run" };
         launchAndCaptureOutput(params);
         // int launchesDetected = StringUtils.countMatches(redirected, "java -jar");
         // we need to override handleGroupByAttribute in order to count the number of expected files
@@ -250,7 +248,7 @@ public class BasicDeciderTest extends PluginTest {
         instance.setMetadata(metadata);
 
         // a AlwaysBlockFinalCheckDecider decider should never launch
-        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--ignore-previous-runs", "--test" };
+        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--ignore-previous-runs", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -275,7 +273,7 @@ public class BasicDeciderTest extends PluginTest {
         instance.setMetadata(metadata);
 
         // a halting decider should launch twice after denying one launch
-        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--ignore-previous-runs", "--test" };
+        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--ignore-previous-runs", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -300,7 +298,7 @@ public class BasicDeciderTest extends PluginTest {
         instance.setMetadata(metadata);
 
         // a halting decider should launch twice after denying one launch
-        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--test" };
+        String[] params = { "--all", "--wf-accession", "6685", "--parent-wf-accessions", "4767", "--dry-run" };
         launchAndCaptureOutput(params);
         // we need to override handleGroupByAttribute in order to count the number of expected files
         TestingDecider decider = (TestingDecider) instance;
@@ -320,7 +318,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testMetaTypes() {
         String[] params = { "--all", "--wf-accession", "4773", "--meta-types", "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip",
-                "--test" };
+                "--dry-run" };
         launchAndCaptureOutput(params);
         TestingDecider decider = (TestingDecider) instance;
         // we expect to see 133 files in total
@@ -333,7 +331,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testSEQWARE1297DoNotLaunchProcessingWorkflows() {
         String[] params = { "--sample", "Sample_Tumour", "--wf-accession", "2860", "--meta-types",
-                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--test" };
+                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--dry-run" };
         launchAndCaptureOutput(params);
         TestingDecider decider = (TestingDecider) instance;
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
@@ -350,7 +348,7 @@ public class BasicDeciderTest extends PluginTest {
         // see
         // "select sh.*, s.* FROM sample_hierarchy sh , (select DISTINCT s.sample_id from workflow_run wr, ius_workflow_runs iwr, ius, sample s WHERE status = 'pending' AND wr.workflow_run_id=iwr.workflow_run_id AND iwr.ius_id=ius.ius_id AND ius.sample_id=s.sample_id) sq, sample s WHERE sh.sample_id=sq.sample_id AND s.sample_id=sh.parent_id;"
         String[] params = new String[] { "--sample", "", "--wf-accession", "4773", "--meta-types",
-                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "10", "--test" };
+                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "10", "--dry-run" };
         launchAndCaptureOutput(params);
         TestingDecider decider = (TestingDecider) instance;
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
@@ -359,7 +357,7 @@ public class BasicDeciderTest extends PluginTest {
                 decider.getLaunches() == 36);
 
         params = new String[] { "--sample", "", "--wf-accession", "4773", "--meta-types",
-                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "1", "--test" };
+                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "1", "--dry-run" };
         launchAndCaptureOutput(params);
         Assert.assertTrue("output 2 does not contain the correct number of files, we saw " + decider.getFileCount(),
                 decider.getFileCount() == 47);
@@ -370,7 +368,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testSEQWARE1918RerunMax0() {
         String[] params = new String[] { "--sample", "", "--wf-accession", "4773", "--meta-types",
-                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "10", "--test" };
+                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "10", "--dry-run" };
         launchAndCaptureOutput(params);
         TestingDecider decider = (TestingDecider) instance;
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
@@ -379,7 +377,7 @@ public class BasicDeciderTest extends PluginTest {
                 decider.getLaunches() == 36);
 
         params = new String[] { "--sample", "", "--wf-accession", "4773", "--meta-types",
-                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "0", "--test" };
+                "application/bam,text/vcf-4,chemical/seq-na-fastq-gzip", "--rerun-max", "0", "--dry-run" };
         launchAndCaptureOutput(params);
         Assert.assertTrue("output 2 does not contain the correct number of files, we saw " + decider.getFileCount(),
                 decider.getFileCount() == 47);
@@ -392,7 +390,7 @@ public class BasicDeciderTest extends PluginTest {
         dbCreator.runUpdate("update workflow_run set status = 'completed' where sw_accession = 6481;");
         metadata.fileProvenanceReportTrigger();
         String[] params = new String[] { "--all", "", "--wf-accession", "4773", "--meta-types", "application/bam", "--force-run-all",
-                "--test" };
+                "--dry-run" };
         launchAndCaptureOutput(params);
         TestingDecider decider = (TestingDecider) instance;
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
@@ -403,7 +401,7 @@ public class BasicDeciderTest extends PluginTest {
 
     @Test
     public void testDecidingWithAttributes() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
+    new BasicTestDatabaseCreator().resetDatabaseWithUsers();
         Reports.triggerProvenanceReport();
         
         // swap out the decider
@@ -494,7 +492,7 @@ public class BasicDeciderTest extends PluginTest {
                 "4",
                 "--meta-types",
                 "text/h-tumour,application/vcf-4-gzip,text/annovar-tags,application/zip-report-bundle,txt,chemical/seq-na-fastq-gzip,application/bam,text/vcf-4,chemical/seq-na-fastq",
-                "--test" };
+                "--dry-run" };
         launchAndCaptureOutput(params);
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
                 decider.getFileCount() == 17);
@@ -532,7 +530,7 @@ public class BasicDeciderTest extends PluginTest {
                 "4",
                 "--meta-types",
                 "text/h-tumour,application/vcf-4-gzip,text/annovar-tags,application/zip-report-bundle,txt,chemical/seq-na-fastq-gzip,application/bam,text/vcf-4,chemical/seq-na-fastq",
-                "--test" };
+                "--dry-run" };
         launchAndCaptureOutput(params);
         Assert.assertTrue("output does not contain the correct number of files, we saw " + decider.getFileCount(),
                 decider.getFileCount() == 17);
@@ -726,7 +724,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_Same() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -742,7 +740,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_SameSize_different_set() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -758,7 +756,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_More() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -775,7 +773,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_Less() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -795,7 +793,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Same() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -816,7 +814,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_BothEmpty() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
 
         List<String> filesToRun = new ArrayList<>();
 
@@ -832,7 +830,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Bigger() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -854,7 +852,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_SameButDifferent() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -875,7 +873,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Smaller() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -894,7 +892,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Disjoint() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();

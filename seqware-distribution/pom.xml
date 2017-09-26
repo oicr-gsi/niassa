@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <version>1.2.0-alpha.1-SNAPSHOT</version>
+        <version>1.99.1-SNAPSHOT</version>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
         <relativePath>../pom.xml</relativePath>
@@ -20,9 +20,18 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
                 <executions>
                     <execution>
                         <id>generate_markdown</id>

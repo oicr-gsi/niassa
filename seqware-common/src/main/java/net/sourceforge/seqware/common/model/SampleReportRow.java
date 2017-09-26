@@ -1,5 +1,9 @@
 package net.sourceforge.seqware.common.model;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * <p>
  * SampleReportRow class.
@@ -10,7 +14,9 @@ package net.sourceforge.seqware.common.model;
  */
 public class SampleReportRow {
 
-    private Integer rowId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer rowId;
     private Study study;
     private Sample childSample;
     private Workflow workflow;

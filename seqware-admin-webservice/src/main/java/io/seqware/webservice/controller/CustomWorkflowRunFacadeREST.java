@@ -199,8 +199,8 @@ public class CustomWorkflowRunFacadeREST extends WorkflowRunFacadeREST {
             return null;
         }
         // if the workflow run is not in a settled state, then abort
-        if (!(data.getStatus().equals(WorkflowRunStatus.completed.name()) || data.getStatus().equals(WorkflowRunStatus.failed.name()) || data
-                .getStatus().equals(WorkflowRunStatus.cancelled.name()))) {
+        if (!(data.getStatus() == null || data.getStatus().isEmpty() || data.getStatus().equals(WorkflowRunStatus.completed.name())
+                || data.getStatus().equals(WorkflowRunStatus.failed.name()) || data.getStatus().equals(WorkflowRunStatus.cancelled.name()))) {
             UtilityREST.throwExceptionWithMessage("Unsettled workflow run blocking deletion: " + data.getSwAccession());
         }
         Set<Processing> affectedProcessing = new HashSet<>();

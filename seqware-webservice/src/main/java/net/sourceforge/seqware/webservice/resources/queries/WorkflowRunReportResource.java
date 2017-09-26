@@ -16,12 +16,17 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import io.seqware.common.model.WorkflowRunStatus;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.hibernate.WorkflowRunReport;
 import net.sourceforge.seqware.common.hibernate.reports.WorkflowRunReportRow;
 import net.sourceforge.seqware.common.model.File;
@@ -50,6 +55,7 @@ public class WorkflowRunReportResource extends BasicRestlet {
 
     private static final String STATUS = "status";
     private final Logger logger = Logger.getLogger(WorkflowRunReportResource.class);
+    private final ObjectMapper mapper;
 
     /**
      * <p>
@@ -61,6 +67,10 @@ public class WorkflowRunReportResource extends BasicRestlet {
      */
     public WorkflowRunReportResource(Context context) {
         super(context);
+
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JodaModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     /** {@inheritDoc} */
@@ -184,6 +194,7 @@ public class WorkflowRunReportResource extends BasicRestlet {
         builder.append("Library Sample SWIDs").append("\t");
         builder.append("Identity Sample Names").append("\t");
         builder.append("Identity Sample SWIDs").append("\t");
+        builder.append("IUS-LimsKeys").append("\t");
         // following three fields are for "all"
         builder.append("Input File Meta-Types").append("\t");
         builder.append("Input File SWIDs").append("\t");
@@ -250,6 +261,9 @@ public class WorkflowRunReportResource extends BasicRestlet {
         parseSamples(builder, wrrr.getLibrarySamples());
         parseSamples(builder, wrrr.getIdentitySamples());
 
+        builder.append(parseIusLimsKeyDtos(wrrr.getIusLimsKeyDtos()));
+        builder.append("\t");
+
         parseFiles(builder, wrrr.getAllInputFiles());
         parseFiles(builder, wrrr.getImmediateInputFiles());
         parseFiles(builder, wrrr.getOutputFiles());
@@ -265,14 +279,16 @@ public class WorkflowRunReportResource extends BasicRestlet {
         StringBuilder sampleNames = new StringBuilder();
         StringBuilder sampleSWIDs = new StringBuilder();
         for (Sample s : samples) {
-            if (sampleNames.length() != 0) {
-                sampleNames.append(",");
+            if (s != null) {
+                if (sampleNames.length() != 0) {
+                    sampleNames.append(",");
+                }
+                if (sampleSWIDs.length() != 0) {
+                    sampleSWIDs.append(",");
+                }
+                sampleNames.append(s.getName());
+                sampleSWIDs.append(s.getSwAccession());
             }
-            if (sampleSWIDs.length() != 0) {
-                sampleSWIDs.append(",");
-            }
-            sampleNames.append(s.getName());
-            sampleSWIDs.append(s.getSwAccession());
         }
         builder.append(sampleNames.toString()).append("\t");
         builder.append(sampleSWIDs.toString()).append("\t");
@@ -300,6 +316,13 @@ public class WorkflowRunReportResource extends BasicRestlet {
         builder.append(fileTypes.toString()).append("\t");
         builder.append(fileSWIDs.toString()).append("\t");
         builder.append(filePaths.toString()).append("\t");
+    }
 
+    private String parseIusLimsKeyDtos(Collection<IusLimsKeyDto> iusLimsKeyDtos) {
+        try {
+            return mapper.writeValueAsString(iusLimsKeyDtos);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

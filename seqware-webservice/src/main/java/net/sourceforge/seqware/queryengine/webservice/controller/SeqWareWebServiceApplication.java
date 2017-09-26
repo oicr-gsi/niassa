@@ -8,11 +8,14 @@ import net.sourceforge.seqware.webservice.resources.filters.ExperimentIDFilter;
 import net.sourceforge.seqware.webservice.resources.filters.IUSIDFilter;
 import net.sourceforge.seqware.webservice.resources.filters.LaneIDFilter;
 import net.sourceforge.seqware.webservice.resources.filters.SampleIDFilter;
+import net.sourceforge.seqware.webservice.resources.queries.AnalysisProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.EnvironmentResource;
 import net.sourceforge.seqware.webservice.resources.queries.FileProvenanceResource;
+import net.sourceforge.seqware.webservice.resources.queries.LaneProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.ProcessIdProcessResource;
 import net.sourceforge.seqware.webservice.resources.queries.RunWorkflowResource;
 import net.sourceforge.seqware.webservice.resources.queries.SampleHierarchyResource;
+import net.sourceforge.seqware.webservice.resources.queries.SampleProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.TriggerFileProvenanceResource;
 import net.sourceforge.seqware.webservice.resources.queries.WorkflowReportResource;
 import net.sourceforge.seqware.webservice.resources.queries.WorkflowRunIDProcessingsResource;
@@ -38,6 +41,7 @@ import net.sourceforge.seqware.webservice.resources.tables.LaneResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibrarySelectionResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibrarySourceResource;
 import net.sourceforge.seqware.webservice.resources.tables.LibraryStrategyResource;
+import net.sourceforge.seqware.webservice.resources.tables.LimsKeyResource;
 import net.sourceforge.seqware.webservice.resources.tables.OrganismResource;
 import net.sourceforge.seqware.webservice.resources.tables.PlatformResource;
 import net.sourceforge.seqware.webservice.resources.tables.ProcessIDResource;
@@ -159,11 +163,16 @@ public class SeqWareWebServiceApplication extends WadlApplication {
         router.attach("/files/", slashRedirect);
         router.attach("/files/{fileId}", FileIDResource.class);
 
+        router.attach("/limskey", LimsKeyResource.class);
+        router.attach("/limskey/", slashRedirect);
+        router.attach("/limskey/{limsKeyId}", LimsKeyResource.class);
         router.attach("/ius", IusResource.class);
         router.attach("/ius/", slashRedirect);
         router.attach("/ius/{iusId}", IusIDResource.class);
         router.attach("/ius/{iusId}/lane", LaneIDFilter.class);
 
+        router.attach("/ius/{iusId}/{object}", IusIDResource.class);
+        
         router.attach("/lanes", LaneResource.class);
         router.attach("/lanes/", slashRedirect);
         router.attach("/lanes/{laneId}", LaneIDResource.class);
@@ -229,6 +238,12 @@ public class SeqWareWebServiceApplication extends WadlApplication {
          */
         router.attach("/reports/file-provenance", new FileProvenanceResource(getContext()));
         router.attach("/reports/file-provenance/generate", new TriggerFileProvenanceResource(getContext()));
+
+        router.attach("/reports/analysis-provenance", AnalysisProvenanceResource.class);
+        router.attach("/reports/sample-provenance", SampleProvenanceResource.class);
+        router.attach("/reports/sample-provenance/{operation}", SampleProvenanceResource.class);
+        router.attach("/reports/lane-provenance", LaneProvenanceResource.class);
+        router.attach("/reports/lane-provenance/{operation}", LaneProvenanceResource.class);
 
         // the following collides with the non-variable paths.
         // router.attach("/reports/studies/{studyId}", new CycleCheckResource(getContext()));

@@ -43,7 +43,7 @@ public class BasicDeciderET {
 
     @Test
     public void runBasicDecider() throws IOException {
-        String listCommand = "-p net.sourceforge.seqware.pipeline.deciders.BasicDecider -- --all --wf-accession 6685 --parent-wf-accessions 4767 --test";
+        String listCommand = "-p net.sourceforge.seqware.pipeline.deciders.BasicDecider -- --all --wf-accession 6685 --parent-wf-accessions 4767 --dry-run";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
         Log.info(listOutput);
         Assert.assertTrue("expected to see 3 launches, found " + StringUtils.countMatches(listOutput, "java -jar"),
@@ -68,7 +68,7 @@ public class BasicDeciderET {
                 + SEQWARE_VERSION
                 + ".jar:"
                 + seqwareJar.getAbsolutePath()
-                + " net.sourceforge.seqware.pipeline.runner.PluginRunner -p com.github.seqware.HelloWorldDecider -- --all --wf-accession 6685 --parent-wf-accessions 4767 --test";
+                + " net.sourceforge.seqware.pipeline.runner.PluginRunner -p com.github.seqware.HelloWorldDecider -- --all --wf-accession 6685 --parent-wf-accessions 4767 --dry-run";
         genOutput = ITUtility.runArbitraryCommand(command, 0, createTempDir);
         Log.info(genOutput);
         Assert.assertTrue("expected to see 1 launches, found " + StringUtils.countMatches(genOutput, "java -jar"),

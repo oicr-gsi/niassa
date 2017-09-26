@@ -18,6 +18,12 @@ package net.sourceforge.seqware.common.util.testtools;
 
 import io.seqware.metadb.util.TestDatabaseCreator;
 import io.seqware.pipeline.SqwKeys;
+import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_HOST;
+import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_NAME;
+import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_PASSWORD;
+import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_PORT;
+import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_USER;
+import java.util.HashMap;
 import java.util.Map;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
@@ -32,7 +38,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
  */
 public class BasicTestDatabaseCreator extends TestDatabaseCreator {
 
-    private static Map<String, String> settings = null;
+    private Map<String, String> settings = null;
 
     public BasicTestDatabaseCreator() {
         try {
@@ -40,6 +46,22 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         } catch (Exception e) {
             Log.fatal("Could not read .seqware/settings, this will likely crash basic integration tests", e);
         }
+    }
+    
+    public BasicTestDatabaseCreator(Map<String, String> settings) {
+        this.settings = settings;
+    }
+    
+    public static BasicTestDatabaseCreator getFromSystemProperties() {
+        Map<String, String> settings = new HashMap<>();
+        settings.put(BASIC_TEST_DB_NAME.getSettingKey(), System.getProperty("seqware_meta_db_name"));
+        settings.put(BASIC_TEST_DB_PORT.getSettingKey(), System.getProperty("seqware_meta_db_port"));
+        settings.put("POSTGRE_USER", System.getProperty("seqware_meta_db_user"));
+        settings.put("POSTGRE_PASSWORD", System.getProperty("seqware_meta_db_password"));
+        settings.put(BASIC_TEST_DB_USER.getSettingKey(), System.getProperty("seqware_meta_db_user"));
+        settings.put(BASIC_TEST_DB_PASSWORD.getSettingKey(), System.getProperty("seqware_meta_db_password"));
+        settings.put(BASIC_TEST_DB_HOST.getSettingKey(), System.getProperty("seqware_meta_db_host"));
+        return new BasicTestDatabaseCreator(settings);
     }
 
     /**
@@ -89,12 +111,47 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         Log.debug("Could not retrieve basic test db host, using default from unit tests");
         return super.getDEFAULT_DB_HOST();
     }
+    
+    /**
+     * @return the DEFAULT_DB_PORT
+     */
+    @Override
+    protected String getDEFAULT_DB_PORT() {
+        if (settings.containsKey(SqwKeys.BASIC_TEST_DB_PORT.getSettingKey())) {
+            return settings.get(SqwKeys.BASIC_TEST_DB_PORT.getSettingKey());
+        }
+        Log.debug("Could not retrieve basic test db port, using default from unit tests");
+        return super.getDEFAULT_DB_PORT();
+    }
+    
+    /**
+     * @return the POSTGRE_USER
+     */
+    @Override
+    protected String getPOSTGRE_USER() {
+        if (settings.containsKey("POSTGRE_USER")) {
+            return settings.get("POSTGRE_USER");
+        }
+        Log.debug("Could not retrieve postgres user name, using default from unit tests");
+        return super.getPOSTGRE_USER();
+    }
+
+    /**
+     * @return the POSTGRE_PASSWORD
+     */
+    @Override
+    protected String getPOSTGRE_PASSWORD() {
+        if (settings.containsKey("POSTGRE_PASSWORD")) {
+            return settings.get("POSTGRE_PASSWORD");
+        }
+        Log.debug("Could not retrieve postgres password, using default from unit tests");
+        return super.getPOSTGRE_PASSWORD();
+    }
 
     /**
      * Unfortunately, postgres does not allow the straight dropdb and createdb when tomcat is used (perhaps we leave open a connection)
      */
-    public static void resetDatabaseWithUsers() {
-        BasicTestDatabaseCreator creator = new BasicTestDatabaseCreator();
-        creator.basicResetDatabaseWithUsers();
+    public void resetDatabaseWithUsers() {
+        basicResetDatabaseWithUsers();
     }
 }

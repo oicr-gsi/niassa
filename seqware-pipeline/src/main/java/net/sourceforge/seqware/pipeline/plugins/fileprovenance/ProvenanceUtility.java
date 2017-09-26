@@ -54,7 +54,8 @@ public class ProvenanceUtility {
                 FileProvenanceParam.organism), WORKFLOW_RUN_STATUS("workflow-run-status", "Workflow run status", true,
                 FileProvenanceParam.workflow_run_status), PROCESSING_STATUS("processing-status", "Processing status", true,
                 FileProvenanceParam.processing_status), PROCESSING("processing-SWID", "processing sw_accession", true,
-                FileProvenanceParam.processing);
+                FileProvenanceParam.processing),
+        LANE_NAME("lane-name", "Full lane name", false, FileProvenanceParam.lane);
 
         public final String human_str;
         public final String desc;
@@ -156,8 +157,10 @@ public class ProvenanceUtility {
                         SequencerRun run = metadata.getSequencerRunByName(value);
                         swaStrings.add(String.valueOf(run.getSwAccession()));
                     }
+                } else if (filter == HumanProvenanceFilters.LANE_NAME) {
+                    //not supported by seqware
                 } else {
-                    throw new RuntimeException("No handler for filter type");
+                    throw new RuntimeException("No handler for filter type = [" + filter.toString() + "]");
                 }
                 map.put(filter.mappedParam, new ImmutableList.Builder<String>().addAll(swaStrings).build());
             }

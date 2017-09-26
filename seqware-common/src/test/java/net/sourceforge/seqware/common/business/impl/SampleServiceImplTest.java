@@ -1,35 +1,26 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
-import net.sourceforge.seqware.common.BaseUnit;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.SampleService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Sample;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
  * SampleServiceImplTest class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class SampleServiceImplTest extends BaseUnit {
+public class SampleServiceImplTest extends AbstractTestCase {
 
-    /**
-     * <p>
-     * Constructor for SampleServiceImplTest.
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     *             if any.
-     */
-    public SampleServiceImplTest() throws Exception {
-        super();
-    }
+    @Autowired
+    SampleService sampleService;
 
     /**
      * <p>
@@ -38,8 +29,6 @@ public class SampleServiceImplTest extends BaseUnit {
      */
     @Test
     public void testFindByCriteria() {
-        SampleService sampleService = BeanFactory.getSampleServiceBean();
-
         List<Sample> foundSamples = sampleService.findByCriteria("Sample", false);
         assertEquals(2, foundSamples.size());
 

@@ -75,14 +75,14 @@ public class PlatformResource extends DatabaseResource {
         JaxbObject<PlatformList> jaxbTool = new JaxbObject<>();
 
         PlatformList list = new PlatformList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (Platform obj : objects) {
             Platform dto = copier.hibernate2dto(Platform.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, PlatformList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

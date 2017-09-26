@@ -23,7 +23,6 @@ import static net.sourceforge.seqware.pipeline.plugins.PluginTest.metadata;
 import org.apache.commons.dbutils.handlers.ArrayListHandler;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -33,14 +32,14 @@ import org.junit.Test;
  */
 public class FileLinkerTest extends ExtendedPluginTest {
 
-    @BeforeClass
-    public static void beforeClass() {
-        BasicTestDatabaseCreator.resetDatabaseWithUsers();
-    }
-
+    private BasicTestDatabaseCreator dbCreator;
+    
     @Before
     @Override
     public void setUp() {
+        dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
+        
         instance = new FileLinker();
         super.setUp();
     }
@@ -57,7 +56,6 @@ public class FileLinkerTest extends ExtendedPluginTest {
         String s = getOut();
         String firstWorkflowRun = getAndCheckSwid(s);
 
-        BasicTestDatabaseCreator dbCreator = new BasicTestDatabaseCreator();
         List<Object[]> runQuery = dbCreator
                 .runQuery(
                         new ArrayListHandler(),

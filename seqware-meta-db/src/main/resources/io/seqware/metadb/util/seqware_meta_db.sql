@@ -1205,14 +1205,39 @@ CREATE TABLE invoice_attribute (
 
 ALTER TABLE public.invoice_attribute OWNER TO seqware;
 
+
+CREATE TABLE lims_key (
+    lims_key_id integer NOT NULL,
+    provider text NOT NULL,
+    id text NOT NULL,
+    version text NOT NULL,
+    last_modified timestamp with time zone NOT NULL,
+    sw_accession integer DEFAULT nextval('sw_accession_seq'::regclass),
+    create_tstmp timestamp without time zone NOT NULL,
+    update_tstmp timestamp without time zone NOT NULL
+);
+ALTER TABLE lims_key
+    ADD CONSTRAINT lims_key_pkey PRIMARY KEY (lims_key_id);
+CREATE SEQUENCE lims_key_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+ALTER TABLE public.lims_key_id_seq OWNER TO seqware;
+ALTER SEQUENCE lims_key_id_seq OWNED BY lims_key.lims_key_id;
+ALTER TABLE lims_key ALTER COLUMN lims_key_id SET DEFAULT nextval('lims_key_id_seq '::regclass);
+ALTER TABLE public.lims_key OWNER TO seqware;
+
 --
 -- Name: ius; Type: TABLE; Schema: public; Owner: seqware; Tablespace: 
 --
 
 CREATE TABLE ius (
     ius_id integer NOT NULL,
-    sample_id integer NOT NULL,
-    lane_id integer NOT NULL,
+    sample_id integer,
+    lane_id integer,
+    lims_key_id integer,
     owner_id integer,
     name text,
     alias text,
@@ -3798,6 +3823,13 @@ CREATE INDEX experiment_id_sample ON sample USING btree (experiment_id);
 
 
 --
+-- Name: file_attribute_file_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX file_attribute_file_id_idx ON file_attribute USING btree (file_id);
+
+
+--
 -- Name: file_id_processing_files; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
 --
 
@@ -3809,6 +3841,13 @@ CREATE INDEX file_id_processing_files ON processing_files USING btree (file_id);
 --
 
 CREATE INDEX file_id_workflow_run_input_files ON workflow_run_input_files USING btree (file_id);
+
+
+--
+-- Name: file_meta_type_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX file_meta_type_idx ON file USING btree (meta_type);
 
 
 --
@@ -3833,10 +3872,38 @@ CREATE INDEX index_processing_relationship_parent_id ON processing_relationship 
 
 
 --
+-- Name: ius_attribute_ius_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX ius_attribute_ius_id_idx ON ius_attribute USING btree (ius_id);
+
+
+--
 -- Name: ius_id_ius_workflow_runs; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
 --
 
 CREATE INDEX ius_id_ius_workflow_runs ON ius_workflow_runs USING btree (ius_id);
+
+
+--
+-- Name: ius_lims_key_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX ius_lims_key_id_idx ON ius USING btree (lims_key_id);
+
+
+--
+-- Name: ius_update_tstmp_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX ius_update_tstmp_idx ON ius USING btree (update_tstmp);
+
+
+--
+-- Name: lane_attribute_lane_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX lane_attribute_lane_id_idx ON lane_attribute USING btree (lane_id);
 
 
 --
@@ -3847,10 +3914,59 @@ CREATE INDEX parent_sample_hierarchy ON sample_hierarchy USING btree (parent_id)
 
 
 --
+-- Name: processing_attribute_processing_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX processing_attribute_processing_id_idx ON processing_attribute USING btree (processing_id);
+
+
+--
 -- Name: processing_id_processing_files; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
 --
 
 CREATE INDEX processing_id_processing_files ON processing_files USING btree (processing_id);
+
+
+--
+-- Name: processing_ius_ius_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX processing_ius_ius_id_idx ON processing_ius USING btree (ius_id);
+
+
+--
+-- Name: processing_ius_processing_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX processing_ius_processing_id_idx ON processing_ius USING btree (processing_id);
+
+
+--
+-- Name: processing_update_tstmp_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX processing_update_tstmp_idx ON processing USING btree (update_tstmp);
+
+
+--
+-- Name: processing_workflow_run_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX processing_workflow_run_id_idx ON processing USING btree (workflow_run_id);
+
+
+--
+-- Name: sample_attribute_sample_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX sample_attribute_sample_id_idx ON sample_attribute USING btree (sample_id);
+
+
+--
+-- Name: sample_experiment_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX sample_experiment_id_idx ON sample USING btree (experiment_id);
 
 
 --
@@ -3910,6 +4026,20 @@ CREATE UNIQUE INDEX sw_accession_workflow_run ON workflow_run USING btree (sw_ac
 
 
 --
+-- Name: workflow_attribute_workflow_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX workflow_attribute_workflow_id_idx ON workflow_attribute USING btree (workflow_id);
+
+
+--
+-- Name: workflow_run_attribute_workflow_run_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX workflow_run_attribute_workflow_run_id_idx ON workflow_run_attribute USING btree (workflow_run_id);
+
+
+--
 -- Name: workflow_run_id_ius_workflow_runs; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
 --
 
@@ -3928,6 +4058,27 @@ CREATE INDEX workflow_run_id_workflow_run_input_files ON workflow_run_input_file
 --
 
 CREATE INDEX workflow_run_processing ON processing USING btree (workflow_run_id);
+
+
+--
+-- Name: workflow_run_update_tstmp_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX workflow_run_update_tstmp_idx ON workflow_run USING btree (update_tstmp);
+
+
+--
+-- Name: workflow_run_workflow_id_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX workflow_run_workflow_id_idx ON workflow_run USING btree (workflow_id);
+
+
+--
+-- Name: workflow_update_tstmp_idx; Type: INDEX; Schema: public; Owner: seqware; Tablespace: 
+--
+
+CREATE INDEX workflow_update_tstmp_idx ON workflow USING btree (update_tstmp);
 
 
 --
@@ -4233,6 +4384,12 @@ ALTER TABLE ONLY ius
 ALTER TABLE ONLY ius
     ADD CONSTRAINT ius__sample_fk FOREIGN KEY (sample_id) REFERENCES sample(sample_id);
 
+--
+-- Name: ius__lims_key_fk; Type: FK CONSTRAINT; Schema: public; Owner: seqware
+--
+
+ALTER TABLE ONLY ius
+    ADD CONSTRAINT ius__lims_key_fk FOREIGN KEY (lims_key_id) REFERENCES lims_key(lims_key_id);
 
 --
 -- Name: ius_attribute_ius_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: seqware

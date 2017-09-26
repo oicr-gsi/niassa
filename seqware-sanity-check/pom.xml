@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <version>1.2.0-alpha.1-SNAPSHOT</version>
-        <groupId>com.github.seqware</groupId>
-        <artifactId>seqware</artifactId>
-        <relativePath>../pom.xml</relativePath>
+    <parent> 
+        <version>1.99.1-SNAPSHOT</version> 
+        <groupId>com.github.seqware</groupId> 
+        <artifactId>seqware</artifactId> 
+        <relativePath>../pom.xml</relativePath> 
     </parent>
 
     <artifactId>seqware-sanity-check</artifactId>
@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.seqware</groupId>
+            <artifactId>seqware-ext-admin-testing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.seqware</groupId>
             <artifactId>seqware-webservice</artifactId>
             <type>war</type>
             <scope>test</scope>
@@ -59,13 +63,6 @@
                     <artifactId>netty</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>seqware-ext-admin-testing</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -122,6 +119,10 @@
                 <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
