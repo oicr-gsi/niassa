@@ -1028,7 +1028,6 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>1.1</version>
                     <configuration>
-                        <pubScmUrl>scm:git:ssh://git@github.com/SeqWare/seqware.github.com.git</pubScmUrl>
                         <content>${project.build.directory}/site/</content>
                         <tryUpdate>true</tryUpdate>
                         <skipDeletedFiles>true</skipDeletedFiles>
