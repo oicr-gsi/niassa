@@ -85,7 +85,7 @@
         <repository>
             <id>seqware.sourceforge.net</id>
             <name>SeqWare Maven Repository</name>
-            <url>http://seqwaremaven.oicr.on.ca/artifactory/seqware-release</url>
+            <url>http://artifacts.oicr.on.ca/artifactory/seqware-release</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -96,7 +96,7 @@
         <repository>
             <id>snapshot.seqware.sourceforge.net</id>
             <name>SeqWare Snapshot Maven Repository</name>
-            <url>http://seqwaremaven.oicr.on.ca/artifactory/seqware-snapshot</url>
+            <url>http://artifacts.oicr.on.ca/artifactory/seqware-snapshot</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -107,7 +107,7 @@
         <repository>
             <id>dependencies.gsi</id>
             <name>GSI Dependencies Maven Snapshot Repository</name>
-            <url>https://seqwaremaven.oicr.on.ca/artifactory/seqware-dependencies</url>
+            <url>https://artifacts.oicr.on.ca/artifactory/gsi-dependencies</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -140,7 +140,7 @@
         <repository>
             <id>dependencies.seqware.sourceforge.net</id>
             <name>SeqWare Dependencies Maven Repository</name>
-            <url>http://seqwaremaven.oicr.on.ca/artifactory/seqware-dependencies</url>
+            <url>https://artifacts.oicr.on.ca/artifactory/seqware-dependencies</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
