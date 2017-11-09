@@ -208,11 +208,6 @@ This version of SeqWare uses the Oozie-SGE workflow engine to run workflows. Thi
 
 Go to [seqware\_full](https://github.com/SeqWare/seqware_full) for setup instructions
 
-
-## Copyright
-
-Copyright 2008-2015 Brian D O'Connor, OICR, UNC, and Nimbus Informatics, LLC
-
 ## Contributors
 
 Please see our [partners and contributors](http://seqware.github.com/partners/)
