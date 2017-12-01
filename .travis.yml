@@ -34,6 +34,10 @@ language: java
 jdk:
   - oraclejdk8
 
+addons:
+  postgresql: "9.4"
+services:
+  - postgresql
 
 env:  
   global:
@@ -55,4 +59,7 @@ cache:
   directories:
   - "$HOME/.m2"
 
-script: mvn clean install
+before_script:
+  - psql -c 'create database travis_seqware_test_db;' -U postgres
+
+script: mvn clean install -DskipITs=false -Denforcer.skip=true -Dseqware_meta_db_host=localhost -Dseqware_meta_db_port=5432 -Dseqware_meta_db_name=travis_seqware_test_db -Dseqware_meta_db_user=postgres -Dseqware_meta_db_password=''
