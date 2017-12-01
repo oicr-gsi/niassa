@@ -39,7 +39,7 @@ env:
   global:
     - MAVEN_SETTINGS="${TRAVIS_BUILD_DIR}/gsi-config"
     - MAVEN_OPTS="-Xms1g -Xmx2g"
-    - SEQWARE_SETTINGS="${TRAVIS_BUILD_DIR}/niassa/.travis/settings"
+    - SEQWARE_SETTINGS="${TRAVIS_BUILD_DIR}/.travis/settings"
 
 
 git:
@@ -49,7 +49,7 @@ before_install:
     - git clone https://github.com/oicr-gsi/gsi-config.git "${MAVEN_SETTINGS}"
     - cp "${MAVEN_SETTINGS}/settings.xml" "${HOME}/.m2/settings.xml"
     - 'echo pr slug ${TRAVIS_PULL_REQUEST_SLUG} && echo repo slug ${TRAVIS_REPO_SLUG}'
-    - cp "${TRAVIS_BUILD_DIR}/niassa/.travis/toolchains.xml" "${HOME}/.m2/"
+    - cp "${TRAVIS_BUILD_DIR}/.travis/toolchains.xml" "${HOME}/.m2/"
 
 cache:
   directories:
