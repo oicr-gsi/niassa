@@ -29,7 +29,7 @@
 #sudo: required 
 
 dist : trusty
-
+sudo: required
 language: java
 jdk:
   - oraclejdk8
