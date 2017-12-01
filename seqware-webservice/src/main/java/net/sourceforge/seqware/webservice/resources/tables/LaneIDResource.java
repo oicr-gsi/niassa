@@ -40,6 +40,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -52,6 +54,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class LaneIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(LaneIDResource.class);
 
     /**
      * <p>
@@ -113,7 +116,7 @@ public class LaneIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newLane = (Lane) XmlTools.unMarshal(jo, Lane.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("LaneIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
         }
         try {
@@ -197,7 +200,7 @@ public class LaneIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("LaneIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

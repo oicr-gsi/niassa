@@ -36,6 +36,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -48,6 +50,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class WorkflowRunResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunResource.class);
 
     /**
      * <p>
@@ -123,7 +126,7 @@ public class WorkflowRunResource extends DatabaseResource {
             String text = entity.getText();
             p = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("WorkflowRunResource.postJaxb exception:",e);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
         } catch (SAXException ex) {
             throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);

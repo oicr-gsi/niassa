@@ -103,6 +103,7 @@ import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
+import net.sourceforge.seqware.common.util.Log;
 
 /**
  * Convenience class for converting objects into JAXB XML.
@@ -174,7 +175,7 @@ public class JaxbObject<T> {
                         ArrayList.class, IntegerList.class, IntegerSet.class);
             }
         } catch (JAXBException e) {
-            e.printStackTrace();
+            Log.error("JaxbObject constructor exception:", e);
         }
     }
 
@@ -212,7 +213,7 @@ public class JaxbObject<T> {
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(JaxbObject.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JAXBException jbe) {
-            jbe.printStackTrace();
+            Log.error("JaxbObject.marshalToDocument exception:",jbe);
             throw jbe;
         }
         return doc;
@@ -242,7 +243,7 @@ public class JaxbObject<T> {
             StringBuffer buffer = writer.getBuffer();
             output = buffer.toString();
         } catch (JAXBException jbe) {
-            jbe.printStackTrace();
+            Log.error("JaxbObject.marshal exception:",jbe);
             throw jbe;
         }
         return output;
@@ -266,7 +267,7 @@ public class JaxbObject<T> {
             JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
             object = o.getValue();
         } catch (JAXBException jbe) {
-            jbe.printStackTrace();
+            Log.error("JaxbObject.unMarshal exception:",jbe);
             throw jbe;
         }
         return object;
@@ -291,7 +292,7 @@ public class JaxbObject<T> {
             JAXBElement<T> o = m.unmarshal(d, expectedType);
             object = o.getValue();
         } catch (JAXBException jbe) {
-            jbe.printStackTrace();
+            Log.error("JaxbObject.unMarshal exception2:",jbe);
             throw jbe;
         }
         return object;

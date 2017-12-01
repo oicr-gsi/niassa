@@ -23,6 +23,9 @@ import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
 import net.sourceforge.seqware.pipeline.module.PluginMethod;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.openide.util.Lookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,7 +56,7 @@ public class PluginRunner {
     private Plugin plugin = null;
     private Metadata meta = null;
     private HashMap<String, ArrayList<String>> map = new HashMap<>();
-
+    private final Logger logger = LoggerFactory.getLogger(PluginRunner.class);
     /**
      * <p>
      * main.
@@ -148,7 +151,7 @@ public class PluginRunner {
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+           logger.error("PluginRunner.getSyntax I/O exception:",e);
         }
         throw new ExitException(ReturnValue.INVALIDARGUMENT);
     }
@@ -233,7 +236,7 @@ public class PluginRunner {
                 Log.error("Could not find the Plugin class for '" + pluginName + "'");
                 throw new ExitException(ReturnValue.INVALIDPLUGIN);
             } catch (Throwable e) {
-                e.printStackTrace();
+                logger.error("PluginRunner.setupPlugin Throwable exception:",e);
                 Log.error(e);
                 throw new ExitException(ReturnValue.FAILURE);
             }

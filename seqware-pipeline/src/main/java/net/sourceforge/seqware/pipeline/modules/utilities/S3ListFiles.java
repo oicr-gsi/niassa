@@ -30,6 +30,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -49,7 +50,7 @@ public class S3ListFiles extends Module {
     protected String accessKey = null;
     protected String secretKey = null;
     private static final String[] Q = new String[] { "", "K", "M", "G", "T", "P", "E" };
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(S3ListFiles.class);
     /**
      * <p>
      * getOptionParser.
@@ -90,7 +91,7 @@ public class S3ListFiles extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("S3ListFiles.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -125,7 +126,7 @@ public class S3ListFiles extends Module {
         } catch (OptionException e) {
             ret.setStderr(e.getMessage() + System.getProperty("line.separator") + this.get_syntax());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
-            e.printStackTrace();
+            logger.error("S3ListFiles.do_verify_parameters Option exception:",e);
             return ret;
         }
 
@@ -171,7 +172,7 @@ public class S3ListFiles extends Module {
                 accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                 secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_verify_input exception:",e);
                 return null;
             }
         }
@@ -209,8 +210,7 @@ public class S3ListFiles extends Module {
             try {
                 tabWriter = new BufferedWriter(new FileWriter(tabOutFile));
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_run I/O exception:",e);
             }
         }
 
@@ -276,7 +276,7 @@ public class S3ListFiles extends Module {
                         accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                         secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error("S3ListFiles.do_run exception:",e);
                         return null;
                     }
                 }
@@ -336,8 +336,7 @@ public class S3ListFiles extends Module {
                                     }
                                     bucketMap.put(objectSummary.getKey(), objectSummary.getSize());
                                 } catch (Exception e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                    logger.error("S3ListFiles.do_run exception 2:",e);
                                 }
                             }
 
@@ -433,8 +432,7 @@ public class S3ListFiles extends Module {
                 }
                 tabWriter.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_run I/O exception 2: ",e);
             }
         }
 

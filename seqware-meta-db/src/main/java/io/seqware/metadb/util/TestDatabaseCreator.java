@@ -197,7 +197,6 @@ public class TestDatabaseCreator {
         try (Connection connectionToPostgres = createConnection(getPOSTGRE_DB(), getPOSTGRE_USER(), getPOSTGRE_PASSWORD())) {
             unLoadDatabase(connectionToPostgres);
         } catch (Exception e) {
-            // e.printStackTrace();
             logger.info("TestDatabaseCreator.dropDatabase" + e.getMessage());
         }
     }
@@ -213,7 +212,6 @@ public class TestDatabaseCreator {
             connectionToPostgres.createStatement().execute("drop schema if exists public cascade;");
             connectionToPostgres.createStatement().execute("create schema public;");
         } catch (Exception e) {
-            // e.printStackTrace();
             logger.info("TestDatabaseCreator.dropDatabaseWithUsers" + e.getMessage());
         }
     }

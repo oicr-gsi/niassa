@@ -45,6 +45,8 @@ import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleMethod;
 import net.sourceforge.seqware.pipeline.module.StderrRedirect;
 import net.sourceforge.seqware.pipeline.module.StdoutRedirect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // FIXME: auto-adding to rc.data, support "," delimited
 // FIXME: When adding STDOUT/STDERR to metadb, we should add a timestamp or something else to make it easier to merge. Right now, it is hard to tell which stdout message corresponds to which step in stderr
@@ -83,7 +85,8 @@ public class Runner {
 	// Runner twice, the value of the previous stdout/stderr will be kept.
 	private final StringBuffer stdout = new StringBuffer();
 	private final StringBuffer stderr = new StringBuffer();
-
+        private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+        
 	public Runner() {
 		PARSER.acceptsAll(Arrays.asList("help", "h", "?"), "Provides this help message.");
 		PARSER.accepts("module", "Required: Specifies the module to run. All modules implement the ModuleInterface.")
@@ -210,8 +213,8 @@ public class Runner {
 		try {
 			parser.printHelpOn(System.err);
 		} catch (IOException e) {
-			e.printStackTrace(System.err);
-		}
+                    logger.error("Runner.getSyntax I/O exception:",e);
+                }
 		throw new ExitException(-1);
 	}
 
@@ -560,9 +563,9 @@ public class Runner {
 			Log.error("Could not find the Module class for '" + moduleName + "'");
 			throw new ExitException(-1);
 		} catch (Throwable e) {
-			e.printStackTrace();
-			Log.error(e);
-			throw new ExitException(-1);
+                        logger.error("Runner.setupModuleApp Throwable exception:",e);
+                        Log.error(e);
+                        throw new ExitException(-1);
 		}
 		app.setParameters(options.valuesOf(nonOptionSpec));
 	}

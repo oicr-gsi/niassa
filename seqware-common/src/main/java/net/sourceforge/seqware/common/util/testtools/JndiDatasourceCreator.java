@@ -9,6 +9,8 @@ import javax.naming.NoInitialContextException;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 /**
@@ -20,7 +22,8 @@ import org.springframework.mock.jndi.SimpleNamingContextBuilder;
  * @version $Id: $Id
  */
 public class JndiDatasourceCreator {
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(JndiDatasourceCreator.class);
+
     private static final String JNDI_NAME = "SeqWareMetaDB";
 
     /**
@@ -75,7 +78,7 @@ public class JndiDatasourceCreator {
             builder.bind("java:comp/env/jdbc/" + JNDI_NAME, ds);
             builder.activate();
         } catch (NamingException ex) {
-            ex.printStackTrace();
+            LOGGER.error("JndiDatasourceCreator.create naming exception:",ex);
         }
     }
 

@@ -33,6 +33,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -45,6 +47,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class FileIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(FileIDResource.class);
 
     /**
      * <p>
@@ -92,10 +95,10 @@ public class FileIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newFile = (File) XmlTools.unMarshal(jo, File.class, text);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            logger.error("FileIDResource.put SAX exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("FileIDResource.put IO exception:",e);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
         }
         try {
@@ -144,7 +147,7 @@ public class FileIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("FileIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

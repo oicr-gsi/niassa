@@ -64,6 +64,7 @@ import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.webservice.resources.tables.FileChildWorkflowRunsResource;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -73,7 +74,7 @@ public class MetadataWSTest {
 
     protected Metadata instance;
     private BasicTestDatabaseCreator dbCreator;
-
+    
     public static Metadata newTestMetadataInstance() {
         // if an alternative database is set, then we need to redirect to look at the defined REST URL
         Map<String, String> settings = ConfigTools.getSettings();
@@ -128,7 +129,7 @@ public class MetadataWSTest {
             configFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ini").toURI());
             templateFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ftl").toURI());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("MetadataWSTest.testAddWorkflow URIsyntax exception:",e);
         }
         java.io.File provisionDir = new java.io.File("/u/seqware/provisioned-bundles"
                 + "/sqwprod/Workflow_Bundle_GATKRecalibrationAndVariantCalling_" + "1.2.29_SeqWare_0.10.0/");
@@ -183,7 +184,7 @@ public class MetadataWSTest {
             configFile = new java.io.File(MetadataWSTest.class.getResource("novoalign.ini").toURI());
             templateFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ftl").toURI());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("MetadataWSTest.testAddNovoAlignWorkflow exception:",e);
         }
         java.io.File provisionDir = new java.io.File("/u/seqware/provisioned-bundles"
                 + "/sqwprod/Workflow_Bundle_GATKRecalibrationAndVariantCalling_" + "1.2.29_SeqWare_0.10.0/");
@@ -250,7 +251,7 @@ public class MetadataWSTest {
                 Assert.fail("No rows in ResultSet");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error("MetadataWSTest.testTimestamp exception:",ex);
             Assert.fail("SQL Exception");
         } finally {
             DBAccess.close();
@@ -276,7 +277,7 @@ public class MetadataWSTest {
             }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error("MetadataWSTest.testCount exception:",ex);
             Assert.fail("SQL Exception");
         } finally {
             DBAccess.close();

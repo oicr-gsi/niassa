@@ -136,12 +136,15 @@ import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @version $Id: $Id
  */
 public class MetadataWS implements Metadata {
+        private final Logger logger = LoggerFactory.getLogger(MetadataWS.class);
 
 	static {
 		// deal with restlet's annoying logging implementation details
@@ -195,7 +198,7 @@ public class MetadataWS implements Metadata {
 			ret.setAttribute("sw_accession", workflow.getSwAccession().toString());
 			ret.setReturnValue(workflow.getWorkflowId());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addWorkflow exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -312,7 +315,7 @@ public class MetadataWS implements Metadata {
 			study = ll.addStudy(study);
 			ret.setAttribute("sw_accession", study.getSwAccession().toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addStudy exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -383,7 +386,7 @@ public class MetadataWS implements Metadata {
 			ret.setAttribute("sw_accession", e.getSwAccession().toString());
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addExperiment exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -504,7 +507,7 @@ public class MetadataWS implements Metadata {
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addSequencerRun exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -562,7 +565,7 @@ public class MetadataWS implements Metadata {
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addLane exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -599,7 +602,7 @@ public class MetadataWS implements Metadata {
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addIUS exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -627,7 +630,7 @@ public class MetadataWS implements Metadata {
 			Log.fatal("NotFoundException, e");
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addIUS exception:",e);
 			return null;
 		}
 	}
@@ -652,7 +655,7 @@ public class MetadataWS implements Metadata {
 			Log.fatal("NotFoundException, e");
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addLimsKey exception:",e);
 			return null;
 		}
 	}
@@ -729,7 +732,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findPlatforms();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getPlatforms exception:",ex);
 		}
 		return null;
 	}
@@ -739,7 +742,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findOrganisms();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getOrganisms exception:",ex);
 		}
 		return null;
 	}
@@ -749,7 +752,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findStudyTypes();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getStudyTypes exception:",ex);
 		}
 		return null;
 	}
@@ -759,7 +762,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibraryStrategies();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibraryStrategies exception:",ex);
 		}
 		return null;
 	}
@@ -769,7 +772,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibrarySelections();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibrarySelections exception:",ex);
 		}
 		return null;
 	}
@@ -779,7 +782,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibrarySources();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibrarySource exception:",ex);
 		}
 		return null;
 	}
@@ -939,13 +942,13 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.addWorkflowParam(wp);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.addWorkflowParam IO exception:",ex);
 			return new ReturnValue(ReturnValue.FILENOTREADABLE);
 		} catch (JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.addWorkflowParam JAXB exception:",ex);
 			return new ReturnValue(ReturnValue.FAILURE);
 		} catch (ResourceException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.addWorkflowParam Resource exception:",ex);
 			return new ReturnValue(ReturnValue.FAILURE);
 		}
 		// looks like we need to get back a workflow param object back from the database
@@ -1007,10 +1010,10 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.addWorkflowParamValue(wpv);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addWorkflowParamValue IO exception:",e);
 			return new ReturnValue(ReturnValue.FAILURE);
 		} catch (JAXBException e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addWorkflowParamValue JAXB exception:",e);
 			return new ReturnValue(ReturnValue.FILENOTREADABLE);
 		}
 		return new ReturnValue(ReturnValue.SUCCESS);
@@ -1058,13 +1061,12 @@ public class MetadataWS implements Metadata {
 		ReturnValue ret = new ReturnValue();
 		try {
 			Processing p = ll.addProcessing(processing);
-			Log.debug("~~~~~~~~~~~~Processing id: " + p.getProcessingId() + " swa:" + p.getSwAccession());
 			addParentsAndChildren(p, parentIds, childIds);
 
 			ret.setReturnValue(p.getProcessingId());
 			ret.setExitStatus(ReturnValue.SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addProcessingEventWithParentsAndChildren exception:",e);
 			return new ReturnValue(ReturnValue.FAILURE);
 		}
 		return ret;
@@ -1102,7 +1104,7 @@ public class MetadataWS implements Metadata {
 			wr = ll.addWorkflowRun(wr);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.add_workflow_run exception:",e);
 			return 0;
 		}
 		return (wr.getWorkflowRunId());
@@ -1125,7 +1127,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processingId, processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.add_workflow_run_ancestor exception:",e);
 		}
 	}
 
@@ -1140,10 +1142,10 @@ public class MetadataWS implements Metadata {
 			Processing p = ll.findProcessing("?id=" + processingID);
 			addParentsAndChildren(p, convertIDs(parentIDs, "?id="), convertIDs(childIDs, "?id="));
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.associate_processing_event_with_parents_and_child IO exception:",ex);
 			ret.setExitStatus(ReturnValue.INVALIDFILE);
 		} catch (JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.associate_processing_event_with_parents_and_child JAXB exception:",ex);
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 		}
 		return ret;
@@ -1172,7 +1174,7 @@ public class MetadataWS implements Metadata {
 			map = convertWorkflowToMap(workflow);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_info exception:",e);
 		}
 		return map;
 	}
@@ -1216,7 +1218,7 @@ public class MetadataWS implements Metadata {
 			WorkflowRun wr = ll.findWorkflowRun("?id=" + workflowRunId);
 			accession = wr.getSwAccession();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_run_accession exception:",e);
 		}
 		return accession;
 
@@ -1231,7 +1233,7 @@ public class MetadataWS implements Metadata {
 		try {
 			wf = ll.findWorkflow("/" + Integer.toString(workflowAccession));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.getWorkflow exception:",e);
 		}
 		return (wf);
 	}
@@ -1286,7 +1288,7 @@ public class MetadataWS implements Metadata {
 			id = wr.getWorkflowRunId();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_run_id exception:",e);
 		}
 		return id;
 	}
@@ -1334,7 +1336,7 @@ public class MetadataWS implements Metadata {
 			}
 			return success;
 		} catch (JAXBException | IOException e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.linkWorkflowRunAndParent JAXB/IO exception:",e);
 			return false;
 		}
 	}
@@ -1349,7 +1351,7 @@ public class MetadataWS implements Metadata {
 			Processing processing = ll.findProcessing("?id=" + processingId);
 			accession = processing.getSwAccession();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.mapProcessingIdToAccession exception:",e);
 		}
 		return accession;
 	}
@@ -1373,7 +1375,7 @@ public class MetadataWS implements Metadata {
 			addParentsAndChildren(processing, convertIDs(parentIDs, "?id="), convertIDs(childIDs, "?id="));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.processing_event_to_task_group exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1450,7 +1452,7 @@ public class MetadataWS implements Metadata {
 			Log.debug("Completed update to web service");
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_event exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1475,7 +1477,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processing.getSwAccession(), processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_status exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1504,7 +1506,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processing.getSwAccession(), processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_workflow_run exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1537,7 +1539,7 @@ public class MetadataWS implements Metadata {
 
 			ll.updateWorkflowRun("/" + accession, wr);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_workflow_run exception:",e);
 		}
 		ReturnValue ret = new ReturnValue();
 		ret.setReturnValue(accession);
@@ -1655,7 +1657,7 @@ public class MetadataWS implements Metadata {
 			}
 
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.listInstalledWorkflows JAXB/IO exception:",ex);
 		}
 		return (sb.toString());
 
@@ -1795,7 +1797,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findStudies();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getAllStudies IO/JAXB exception:",ex);
 		}
 		return null;
 	}
@@ -1812,7 +1814,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findSequencerRuns();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getAllSequencerRuns exception:",ex);
 		}
 		return null;
 	}
@@ -2659,7 +2661,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findWorkflowRunsByFiles(fileAccessions, search_type);
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getWorkflowRunsAssociatedWithFiles IO/JAXB exception:",ex);
 		}
 		return null;
 	}
@@ -3573,7 +3575,7 @@ public class MetadataWS implements Metadata {
 			} catch (SAXException ex) {
 				Log.error("MetadataWS.findObject with search string " + searchString + " encountered error "
 						+ ex.getMessage());
-				ex.printStackTrace();
+				logger.error("MetadataWS.getObject SAX exception:",ex);
 				parent = null;
 			} catch (ResourceException e) {
 				// note: this happens ona regular basis with calls that attempt to locate the
@@ -3786,7 +3788,7 @@ public class MetadataWS implements Metadata {
 				}
 			} catch (ResourceException e) {
 				Log.error("MetadataWS.addObject " + e.getMessage());
-				e.printStackTrace();
+				logger.error("MetadataWS.addObject exception2:",e);
 				throw new RuntimeException(e);
 			} finally {
 				if (result != null) {

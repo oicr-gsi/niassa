@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a very simple module is used to save both a processing event and 0 or more files to the metadb. It does absolutely no computation
@@ -48,7 +49,7 @@ public class GenericMetadataSaver extends Module {
 
     private OptionSet options = null;
     private ArrayList<String> cmdParameters = null;
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(GenericMetadataSaver.class);
     /**
      * getOptionParser is an internal method to parse command line args.
      * 
@@ -86,7 +87,7 @@ public class GenericMetadataSaver extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("GenericMetadataSaver.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -155,7 +156,7 @@ public class GenericMetadataSaver extends Module {
             // ret.setStdout(ret.getStdout()+"Output: "+(String)options.valueOf("output-file")+"\n");
 
         } catch (OptionException e) {
-            e.printStackTrace();
+            logger.error("GenericMetadataSaver.init Options exception:",e);
             ret.setStderr(e.getMessage());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }

@@ -38,6 +38,8 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -48,6 +50,7 @@ import java.util.TreeSet;
  * @version $Id: $Id
  */
 public class WorkflowIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowIDResource.class);
 
     /**
      * <p>
@@ -116,7 +119,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newWorkflow = (Workflow) XmlTools.unMarshal(jo, Workflow.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("WorkflowIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex.getMessage());
         }
         try {
@@ -183,7 +186,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("WorkflowIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

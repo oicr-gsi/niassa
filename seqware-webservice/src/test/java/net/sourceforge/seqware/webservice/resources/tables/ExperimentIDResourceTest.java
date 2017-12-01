@@ -18,12 +18,15 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class ExperimentIDResourceTest extends DatabaseResourceIDTest<Experiment> {
+    private final Logger logger = LoggerFactory.getLogger(ExperimentIDResourceTest.class);
 
 	public ExperimentIDResourceTest() {
 		super("/experiments/6157", Experiment.class);
@@ -48,7 +51,7 @@ public class ExperimentIDResourceTest extends DatabaseResourceIDTest<Experiment>
 		 * resource.put(test); String result = rep.getText(); rep.exhaust();
 		 * rep.release(); System.out.println("id = " + id); System.out.println(result);
 		 * Assert.assertTrue("ID is not in representation:" + result,
-		 * result.contains(id)); } catch (Exception e) { e.printStackTrace();
+		 * result.contains(id)); } catch (Exception e) { logger.error("ExperimentIDResourceTest.testPut exception:",e);
 		 * Assert.fail(e.getMessage());
 		 * 
 		 * }

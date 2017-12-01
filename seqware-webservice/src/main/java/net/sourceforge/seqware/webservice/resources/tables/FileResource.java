@@ -36,6 +36,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -48,6 +50,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class FileResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(FileResource.class);
 
     /**
      * <p>
@@ -159,11 +162,11 @@ public class FileResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("FileResource.postJaxb IO exception:",e);
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e);
         }
         // catch (Exception e) {
-        // e.printStackTrace();
+        // logger.error("FileResource.postJaxb exception:",e);
         // getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         // }
 

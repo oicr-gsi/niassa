@@ -153,10 +153,10 @@ public class SequencerRunResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("SequencerRunResource.postJaxb IO exception:",e);
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SequencerRunResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

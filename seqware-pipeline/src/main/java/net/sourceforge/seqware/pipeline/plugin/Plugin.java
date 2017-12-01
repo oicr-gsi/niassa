@@ -10,6 +10,8 @@ import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -26,6 +28,7 @@ public abstract class Plugin implements PluginInterface {
     protected String[] params = null;
     protected Metadata metadata = null;
     protected Map<String, String> config = null;
+    private final Logger logger = LoggerFactory.getLogger(Plugin.class);
 
     /**
      * <p>
@@ -89,8 +92,7 @@ public abstract class Plugin implements PluginInterface {
             parser.formatHelpWith(new BuiltinHelpFormatter(160, 2));
             parser.printHelpOn(System.out);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Plugin.get_syntax I/O exception:",e);
         }
         return ("");
     }

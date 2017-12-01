@@ -31,12 +31,15 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class IUSIDFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(IUSIDFilterTest.class);
 
     public IUSIDFilterTest() {
         super("");
@@ -118,10 +121,10 @@ public class IUSIDFilterTest extends AbstractResourceTest {
             rep.exhaust();
             rep.release();
         } catch (ResourceException e) {
-            e.printStackTrace();
+            logger.error("IUSIDFilterTest.getIUSs resource exception:",e);
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("IUSIDFilterTest.getIUSs general exception:",e);
             throw e;
         }
         return parent.getList();

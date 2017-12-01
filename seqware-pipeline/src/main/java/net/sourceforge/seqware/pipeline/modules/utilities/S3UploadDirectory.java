@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -36,6 +37,7 @@ import java.util.logging.Logger;
 public class S3UploadDirectory extends Module {
 
     protected OptionSet options = null;
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(S3UploadDirectory.class);
 
     @Override
 	public OptionParser getOptionParser() {
@@ -57,7 +59,7 @@ public class S3UploadDirectory extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("S3UploadDirectory.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -83,7 +85,7 @@ public class S3UploadDirectory extends Module {
         } catch (OptionException e) {
             ret.setStderr(e.getMessage() + System.getProperty("line.separator") + this.get_syntax());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
-            e.printStackTrace();
+            logger.error("S3UploadDirectory.do_verify_parameters option exception: ",e);
             return ret;
         }
 

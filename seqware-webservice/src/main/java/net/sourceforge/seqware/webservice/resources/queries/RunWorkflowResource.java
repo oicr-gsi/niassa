@@ -35,6 +35,8 @@ import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -45,6 +47,7 @@ import org.restlet.data.Status;
  * @version $Id: $Id
  */
 public class RunWorkflowResource extends BasicRestlet {
+    private final Logger logger = LoggerFactory.getLogger(RunWorkflowResource.class);
 
     /**
      * <p>
@@ -80,7 +83,7 @@ public class RunWorkflowResource extends BasicRestlet {
                 JaxbObject<WorkflowRunList2> jaxbTool = new JaxbObject<>();
                 line = jaxbTool.marshal(list, WorkflowRunList2.class);
             } catch (JAXBException ex) {
-                ex.printStackTrace();
+                logger.error("RunWorkflowResource.handle JAXB exception:",ex);
                 response.setStatus(Status.SERVER_ERROR_INTERNAL);
             }
             response.setEntity(line, MediaType.APPLICATION_XML);

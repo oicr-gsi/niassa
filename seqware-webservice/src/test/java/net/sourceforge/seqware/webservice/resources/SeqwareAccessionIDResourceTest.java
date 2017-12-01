@@ -18,13 +18,15 @@ package net.sourceforge.seqware.webservice.resources;
 
 import org.junit.Assert;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class SeqwareAccessionIDResourceTest extends AbstractResourceTest {
-
+    private final Logger logger = LoggerFactory.getLogger(SeqwareAccessionIDResourceTest.class);
     public SeqwareAccessionIDResourceTest() {
         super("/SWA/1");
     }
@@ -42,7 +44,7 @@ public class SeqwareAccessionIDResourceTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("SeqwareAccessionIDResourceTest.testPut exception:",e);
         } finally {
             resource.release();
         }
@@ -58,7 +60,7 @@ public class SeqwareAccessionIDResourceTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("SeqwareAccessionIDResourceTest.testGet exception:",e);
         } finally {
             resource.release();
         }
@@ -91,7 +93,7 @@ public class SeqwareAccessionIDResourceTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("SeqwareAccessionIDResourceTest.testDelete exception:",e);
         } finally {
             resource.release();
         }

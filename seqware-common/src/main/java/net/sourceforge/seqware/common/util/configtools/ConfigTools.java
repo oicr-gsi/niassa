@@ -8,6 +8,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -18,6 +20,7 @@ import net.sourceforge.seqware.common.util.maptools.MapTools;
  * @version $Id: $Id
  */
 public class ConfigTools {
+    private final Logger logger = LoggerFactory.getLogger(ConfigTools.class);
 
     /** Constant <code>SEQWARE_SETTINGS_PROPERTY="SEQWARE_SETTINGS"</code> */
     public static final String SEQWARE_SETTINGS_PROPERTY = "SEQWARE_SETTINGS";
@@ -96,7 +99,7 @@ public class ConfigTools {
                 // needed/recommended environmental variable set
                 // (e.g. SEQWARE_SETTINGS). SEQWARE_SETTINGS by default points
                 // to ~/.seqware/settings.");
-                // e.printStackTrace();
+                // logger.error("ConfigTools.getProperty exception:",e);
                 value = null;
             }
         }

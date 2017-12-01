@@ -41,6 +41,8 @@ import net.sourceforge.seqware.common.model.lists.SampleList;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -51,6 +53,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class SampleResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(SampleResource.class);
 
     /**
      * <p>
@@ -235,7 +238,7 @@ public class SampleResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

@@ -84,7 +84,7 @@ public class XmlTools {
     // } catch (JAXBException e) {
     // builder.append(o.toString());
     // builder.append(" could not be converted to XML");
-    // e.printStackTrace();
+    // logger.error("XmlTools.marshalToDocument exception",e);
     // }
     // String xml = builder.toString();
     // builder = null;

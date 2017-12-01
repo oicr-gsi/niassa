@@ -31,6 +31,7 @@ import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import org.apache.commons.codec.binary.Base64;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -49,7 +50,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class ProvisionDependenciesBundle extends Module {
 
     private OptionSet options = null;
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(ProvisionDependenciesBundle.class);
     /**
      * <p>
      * getOptionParser.
@@ -83,7 +84,7 @@ public class ProvisionDependenciesBundle extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("ProvisionDependenciesBundle.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }

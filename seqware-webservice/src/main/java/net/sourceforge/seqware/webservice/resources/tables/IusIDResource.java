@@ -46,6 +46,8 @@ import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -56,6 +58,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class IusIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(IusIDResource.class);
 
     /**
      * <p>
@@ -113,7 +116,7 @@ public class IusIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newIUS = (IUS) XmlTools.unMarshal(jo, IUS.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("IusIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
         }
         try {
@@ -212,7 +215,7 @@ public class IusIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("IusIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

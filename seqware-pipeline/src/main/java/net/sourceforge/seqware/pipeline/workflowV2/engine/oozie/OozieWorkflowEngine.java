@@ -19,6 +19,7 @@ import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowAction;
 import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.client.WorkflowJob.Status;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of the WorkflowEngine with a Oozie back-end.
@@ -36,7 +37,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     private final File nfsWorkDir;
     private final Configuration conf;
     private final Path hdfsWorkDir;
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(OozieWorkflowEngine.class);
     /**
      * 
      * @param objectModel
@@ -319,7 +320,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // return null;
     // return wfJob.getStatus().toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception:",e);
     // return null;
     // }
     // }
@@ -346,7 +347,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // }
     // return sb.toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception2:",e);
     // return null;
     // }
     // }
@@ -370,7 +371,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // }
     // return sb.toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception3:",e);
     // return null;
     // }
     // }

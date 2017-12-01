@@ -32,6 +32,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -44,6 +46,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class StudyResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(StudyResource.class);
 
     /**
      * <p>
@@ -144,7 +147,7 @@ public class StudyResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("StudyResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

@@ -9,6 +9,8 @@ import joptsimple.OptionParser;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -43,7 +45,7 @@ public abstract class Module implements ModuleInterface {
     protected int processingAccession;
 
     List<String> parameters = new ArrayList<>();
-
+    private final Logger logger = LoggerFactory.getLogger(Module.class);
     /**
      * Getter for the file where the stdout will be redirected. By default, the stdout will be redirected before the do_run() method and
      * turned off after do_run() method. However, this can be changed via the @StdoutRedirect annotation on the module class
@@ -233,7 +235,7 @@ public abstract class Module implements ModuleInterface {
         try {
             parser.printHelpOn(output);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Module.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
         return (output.toString());
@@ -255,7 +257,7 @@ public abstract class Module implements ModuleInterface {
             // left off here, need to look at the options that are available
             parser.printHelpOn(output);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Module.get_galaxy_xml I/O exception:",e);
             return (e.getMessage());
         }
         return (output.toString());

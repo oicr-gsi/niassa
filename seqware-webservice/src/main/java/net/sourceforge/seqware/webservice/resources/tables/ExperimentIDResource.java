@@ -38,6 +38,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -50,6 +52,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class ExperimentIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(ExperimentIDResource.class);
 
     /**
      * <p>
@@ -99,7 +102,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newObj = (Experiment) XmlTools.unMarshal(jo, Experiment.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("ExperimentIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
         }
         try {
@@ -213,7 +216,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("ExperimentIDResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

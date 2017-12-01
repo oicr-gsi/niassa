@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an empty module mainly for testing purpose. Created by IntelliJ IDEA. User: xiao Date: 7/21/11 Time: 3:53 PM To change this
@@ -15,7 +17,8 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public class TestModule extends Module {
-
+    private static final Logger logger = LoggerFactory.getLogger(TestModule.class);
+    
     /**
      * {@inheritDoc}
      * 
@@ -101,7 +104,7 @@ public class TestModule extends Module {
         try {
             printStream = new PrintStream(new FileOutputStream(file));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("TestModule.main File not found exception:",e);
         }
 
         Log.info("1");

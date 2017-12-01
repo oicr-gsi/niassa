@@ -209,7 +209,7 @@ public class MetadataDB implements Metadata {
                 DbUtils.closeQuietly(ps);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("MetadataDB.set_processing_update_tstmp_if_null SQL exception:",e);
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -686,7 +686,7 @@ public class MetadataDB implements Metadata {
             id = InsertAndReturnNewPrimaryKey(sql.toString(), "workflow_run_workflow_run_id_seq");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("MetadataDB.add_workflow_run exception:",e);
             return (0);
         }
         return (id);
@@ -1028,7 +1028,7 @@ public class MetadataDB implements Metadata {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("MetadataDB.update_processing_event SQL exception:",e);
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -1250,7 +1250,7 @@ public class MetadataDB implements Metadata {
             executeUpdate(sql);
         } catch (SQLException e) {
             logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
-            e.printStackTrace();
+            logger.error("MetadataDB.updateWorkflow SQL exception:",e);
             ret.setExitStatus(ReturnValue.SQLQUERYFAILED);
         }
         return ret;

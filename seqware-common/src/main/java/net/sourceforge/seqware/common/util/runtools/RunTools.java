@@ -8,6 +8,8 @@ import java.util.Map;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.iotools.BufferedReaderThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -18,6 +20,7 @@ import net.sourceforge.seqware.common.util.iotools.BufferedReaderThread;
  * @version $Id: $Id
  */
 public class RunTools {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunTools.class);
 
     /**
      * <p>
@@ -98,7 +101,7 @@ public class RunTools {
                 ret.setExitStatus(ReturnValue.PROGRAMFAILED);
             }
 
-            e.printStackTrace();
+            LOGGER.error("RunTools.runCommand exception:",e);
             ret.setStderr(e.getMessage());
             return ret;
         }
@@ -177,7 +180,7 @@ public class RunTools {
                 Log.error("An exception was thrown but the return code was 0 - success", e);
                 ret.setExitStatus(ReturnValue.PROGRAMFAILED);
             }
-            e.printStackTrace();
+            LOGGER.error("RunTools.waitAndGetReturn exception:",e);
             ret.getStderr().concat(e.getMessage());
         }
 

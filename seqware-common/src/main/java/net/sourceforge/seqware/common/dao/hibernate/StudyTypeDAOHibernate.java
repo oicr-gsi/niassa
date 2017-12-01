@@ -8,6 +8,8 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor=Exception.class)
 public class StudyTypeDAOHibernate extends HibernateDaoSupport implements StudyTypeDAO {
+    private final Logger logger = LoggerFactory.getLogger(StudyTypeDAOHibernate.class);
 
     /**
      * <p>
@@ -110,7 +113,7 @@ public class StudyTypeDAOHibernate extends HibernateDaoSupport implements StudyT
             beanUtils.copyProperties(dbObject, studyType);
             return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("StudyTypeDAOHibernate.updateDetached IllegalAccessException or InvocationTargetException exception:",e);
         }
         return null;
     }
