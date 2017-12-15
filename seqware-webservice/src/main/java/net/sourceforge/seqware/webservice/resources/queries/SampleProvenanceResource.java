@@ -43,7 +43,7 @@ public class SampleProvenanceResource extends BasicResource {
             JaxbObject<SampleProvenanceDtoList> jaxbTool = new JaxbObject<>();
             SampleProvenanceDtoList list = new SampleProvenanceDtoList();
             list.setSampleProvenanceDtos(service.list());
-            return XmlTools.marshalToDocument(jaxbTool, list);
+            return XmlTools.marshalToDocument(jaxbTool, list, SampleProvenanceDtoList.class);
         }
     };
 

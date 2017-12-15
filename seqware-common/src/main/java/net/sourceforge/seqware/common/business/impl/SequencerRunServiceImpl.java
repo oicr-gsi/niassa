@@ -1,10 +1,10 @@
 package net.sourceforge.seqware.common.business.impl;
 
-import io.seqware.common.model.SequencerRunStatus;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TreeSet;
+
+import io.seqware.common.model.SequencerRunStatus;
 import net.sourceforge.seqware.common.business.SequencerRunService;
 import net.sourceforge.seqware.common.dao.FileDAO;
 import net.sourceforge.seqware.common.dao.LaneDAO;
@@ -12,14 +12,13 @@ import net.sourceforge.seqware.common.dao.SequencerRunDAO;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 import net.sourceforge.seqware.common.util.Log;
 
 /**
  * <p>
  * SequencerRunServiceImpl class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -39,10 +38,10 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Sets a private member variable with an instance of an implementation of SequencerRunDAO. This method is called by the Spring
      * framework at run time.
-     * 
+     *
      * @see SequencerRunDAO
      */
     @Override
@@ -53,7 +52,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
     /**
      * Sets a private member variable with an instance of an implementation of LaneDAO. This method is called by the Spring framework at run
      * time.
-     * 
+     *
      * @param laneDAO
      *            implementation of LaneDAO
      * @see LaneDAO
@@ -65,7 +64,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
     /**
      * Sets a private member variable with an instance of an implementation of FileDAO. This method is called by the Spring framework at run
      * time.
-     * 
+     *
      * @param fileDAO
      *            implementation of FileDAO
      * @see FileDAO
@@ -76,9 +75,9 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Inserts an instance of SequencerRun into the database.
-     * 
+     *
      * @return
      */
     @Override
@@ -107,64 +106,10 @@ public class SequencerRunServiceImpl implements SequencerRunService {
         return (sequencerRunDAO.insert(sequencerRun));
     }
 
-    /**
-     * This is being used to create a new SequencerRun object and the correct number of assocated Lanes
-     * 
-     * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
-     * @return
-     */
-    @Override
-    public Integer insert(SequencerRunWizardDTO sequencerRun) {
-
-        sequencerRun.setCreateTimestamp(new Date());
-
-        Log.stderr("Counts: " + sequencerRun.getLaneCount());
-        TreeSet<Lane> list = new TreeSet<>();
-        for (int i = 1; i <= sequencerRun.getLaneCount(); i++) {
-            Log.stderr("HERE: " + i);
-            Lane lane = new Lane();
-            // need to fill out the name field since that is used to distinguish in
-            // the treeset
-            // which doesn't allow for duplicates!
-            if (lane.getName() == null || "".equals(lane.getName())) {
-                // do this if the LIMS hasn't already filled this in
-                lane.setName(sequencerRun.getName() + "_lane_" + i);
-                lane.setLaneIndex(i - 1);
-            }
-            lane.setCreateTimestamp(new Date());
-            lane.setSequencerRun(sequencerRun);
-            laneDAO.insert(lane);
-            list.add(lane);
-        }
-        sequencerRun.setLanes(list);
-        Log.stderr("Lanes count: " + list.size());
-        /*
-         * //FIXME: need to set the names of each lane!! TreeSet <Lane> list = new TreeSet<Lane>(); //FIXME: why do I have to manually set
-         * these!?!?! sequencerRun.getLane1().setCreateTimestamp(new Date()); sequencerRun.getLane2().setCreateTimestamp(new Date());
-         * sequencerRun.getLane3().setCreateTimestamp(new Date()); sequencerRun.getLane4().setCreateTimestamp(new Date());
-         * sequencerRun.getLane5().setCreateTimestamp(new Date()); sequencerRun.getLane6().setCreateTimestamp(new Date());
-         * sequencerRun.getLane7().setCreateTimestamp(new Date()); sequencerRun.getLane8().setCreateTimestamp(new Date());
-         * sequencerRun.getLane1().setSequencerRun(sequencerRun); sequencerRun.getLane2().setSequencerRun(sequencerRun);
-         * sequencerRun.getLane3().setSequencerRun(sequencerRun); sequencerRun.getLane4().setSequencerRun(sequencerRun);
-         * sequencerRun.getLane5().setSequencerRun(sequencerRun); sequencerRun.getLane6().setSequencerRun(sequencerRun);
-         * sequencerRun.getLane7().setSequencerRun(sequencerRun); sequencerRun.getLane8().setSequencerRun(sequencerRun);
-         * list.add(sequencerRun.getLane1()); list.add(sequencerRun.getLane2()); list.add(sequencerRun.getLane3());
-         * list.add(sequencerRun.getLane4()); list.add(sequencerRun.getLane5()); list.add(sequencerRun.getLane6());
-         * list.add(sequencerRun.getLane7()); list.add(sequencerRun.getLane8()); sequencerRun.setLanes(list);
-         */
-
-        if (sequencerRun.getProcess()) {
-            sequencerRun.setStatus(SequencerRunStatus.Complete);
-        } else {
-            sequencerRun.setStatus(null);
-        }
-        return (sequencerRunDAO.insert(sequencerRun));
-    }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of SequencerRun in the database.
      */
     @Override
@@ -181,7 +126,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Deletes an instance of SequencerRun in the database.
      */
     @Override
@@ -237,7 +182,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of SequencerRun in the database by the SequencerRun emailAddress, and copies the SequencerRun properties to an
      * instance of SequencerRun.
      */
@@ -256,8 +201,8 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /** {@inheritDoc} */
     @Override
-    public SequencerRun findByID(Integer expID) {
-        SequencerRun sequencerRun = null;
+  public SequencerRun findByID(Integer expID) {
+    SequencerRun sequencerRun = null;
         if (expID != null) {
             try {
                 sequencerRun = sequencerRunDAO.findByID(expID);
@@ -302,7 +247,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Determines if an email address has already been used.
      */
     @Override
@@ -363,22 +308,11 @@ public class SequencerRunServiceImpl implements SequencerRunService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override
     public Integer insert(Registration registration, SequencerRun sequencerRun) {
-        sequencerRun.setCreateTimestamp(new Date());
-        return (sequencerRunDAO.insert(registration, sequencerRun));
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public Integer insert(Registration registration, SequencerRunWizardDTO sequencerRun) {
         sequencerRun.setCreateTimestamp(new Date());
         return (sequencerRunDAO.insert(registration, sequencerRun));
     }

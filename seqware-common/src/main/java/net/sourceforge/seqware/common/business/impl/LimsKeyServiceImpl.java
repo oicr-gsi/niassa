@@ -18,13 +18,17 @@ package net.sourceforge.seqware.common.business.impl;
 
 import java.util.Date;
 import java.util.List;
-import net.sourceforge.seqware.common.model.LimsKey;
+
+import javax.persistence.PersistenceException;
+
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+
 import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
-import net.sourceforge.seqware.common.err.DataIntegrityException;
+import net.sourceforge.seqware.common.model.LimsKey;
 
 /**
  *
@@ -47,7 +51,7 @@ public class LimsKeyServiceImpl implements LimsKeyService {
 
     @Override
     public Integer insert(LimsKey limsKey) {
-        Date d = new Date();
+    	Date d = new Date();
         limsKey.setCreateTimestamp(d);
         limsKey.setUpdateTimestamp(d);
         return dao.insert(limsKey);
@@ -60,7 +64,7 @@ public class LimsKeyServiceImpl implements LimsKeyService {
     }
 
     @Override
-    public void delete(LimsKey limsKey) throws DataIntegrityException{
+    public void delete(LimsKey limsKey) throws ConstraintViolationException, PersistenceException{
         dao.delete(limsKey);
     }
 

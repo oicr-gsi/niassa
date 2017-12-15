@@ -42,7 +42,7 @@ public class FileResourceTest extends DatabaseResourceTest {
             file.setFilePath("http://testing.my.file.txt");
             file.setMetaType("txt");
 
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<File>(), file);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<File>(), file, File.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
             rep.exhaust();
             rep.release();

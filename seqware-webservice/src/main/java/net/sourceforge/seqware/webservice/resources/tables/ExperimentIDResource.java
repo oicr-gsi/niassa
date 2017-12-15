@@ -78,7 +78,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
         Experiment dto = copier.hibernate2dto(Experiment.class, experiment, new Class<?>[] { ExperimentSpotDesign.class,
                 ExperimentLibraryDesign.class, ExperimentAttribute.class }, createCollectionPropertyNames);
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Experiment.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
@@ -97,7 +97,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
         JaxbObject<Experiment> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            newObj = (Experiment) XmlTools.unMarshal(jo, new Experiment(), text);
+            newObj = (Experiment) XmlTools.unMarshal(jo, Experiment.class, text);
         } catch (SAXException | IOException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -205,7 +205,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Experiment detachedLane = copier.hibernate2dto(Experiment.class, exp);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedLane);
+            Document line = XmlTools.marshalToDocument(jo, detachedLane, Experiment.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/experiments/" + detachedLane.getSwAccession());

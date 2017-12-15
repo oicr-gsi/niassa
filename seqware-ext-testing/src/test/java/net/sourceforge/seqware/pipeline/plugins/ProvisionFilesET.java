@@ -16,10 +16,6 @@
  */
 package net.sourceforge.seqware.pipeline.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Random;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
@@ -27,6 +23,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, ProvisionFiles
@@ -84,14 +86,14 @@ public class ProvisionFilesET {
         Assert.assertTrue("file locations do not differ: " + retrievedFile.getAbsolutePath() + "vs" + provisionedFile.getAbsolutePath(),
                 !retrievedFile.getAbsolutePath().equals(provisionedFile.getAbsolutePath()));
         Assert.assertTrue("file contents not the same",
-                FileUtils.readFileToString(retrievedFile).equals(FileUtils.readFileToString(provisionedFile)));
+                FileUtils.readFileToString(retrievedFile, StandardCharsets.UTF_8).equals(FileUtils.readFileToString(provisionedFile, StandardCharsets.UTF_8)));
     }
 
     public File provisionFileWithRandomInput(String sampleAccession) throws IOException {
         // create a random new file and check that the file we want to provision exists
         File inputFile = File.createTempFile("input", "out");
         final String content = "This is a funky funky test file";
-        FileUtils.write(inputFile, content);
+        FileUtils.write(inputFile, content, StandardCharsets.UTF_8);
 
         File metadataFile = File.createTempFile("metadata", "out");
 
@@ -111,11 +113,11 @@ public class ProvisionFilesET {
         // check that file was ended up being provisioned correctly
         File provisioned = new File(getDatastorePrefix() + inputFile.getName());
         Assert.assertTrue("file did not end up in final location", provisioned.exists());
-        String contents = FileUtils.readFileToString(provisioned).trim();
+        String contents = FileUtils.readFileToString(provisioned, StandardCharsets.UTF_8).trim();
         Assert.assertTrue("file contents not as expected", contents.equals(content));
 
         // check on metadata file
-        String metadataContent = FileUtils.readFileToString(metadataFile).trim();
+        String metadataContent = FileUtils.readFileToString(metadataFile, StandardCharsets.UTF_8).trim();
         try {
             int processingInt = Integer.parseInt(metadataContent);
             Log.info("provisioned file as sw_accession: " + processingInt);

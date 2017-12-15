@@ -16,8 +16,18 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Date;
+
+import org.junit.Test;
+import org.restlet.representation.Representation;
+import org.xml.sax.SAXException;
+
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LimsKey;
@@ -26,11 +36,6 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
-import org.joda.time.DateTime;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.restlet.representation.Representation;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -73,7 +78,7 @@ public class IusResourceTest extends DatabaseResourceTest {
     public void testPostWithLimsKey() {
         LimsKey lk = new LimsKey();
         lk.setId("1");
-        lk.setLastModified(new DateTime());
+        lk.setLastModified(ZonedDateTime.now());
         lk.setProvider("provider");
         lk.setVersion("1");
         try {
@@ -95,7 +100,7 @@ public class IusResourceTest extends DatabaseResourceTest {
         LimsKey returnedLimsKey = null;
         try {
             Representation rep = ClientResourceInstance.getChild("/ius/" + ius.getSwAccession() + "/limskey").get();
-            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), rep.getText());
+            returnedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), LimsKey.class, rep.getText());
             rep.exhaust();
             rep.release();
         } catch (Exception e) {

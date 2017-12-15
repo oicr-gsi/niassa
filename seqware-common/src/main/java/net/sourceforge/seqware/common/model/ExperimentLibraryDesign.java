@@ -1,6 +1,11 @@
 package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -18,6 +23,8 @@ public class ExperimentLibraryDesign implements Serializable, Comparable<Experim
 	 * 
 	 */
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer experimentLibraryDesignId;
     private String name;
     private String description;

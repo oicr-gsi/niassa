@@ -16,14 +16,6 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
@@ -52,6 +44,14 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * <p>
@@ -143,7 +143,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, WorkflowRun.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
 
     }
@@ -210,10 +210,12 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
         wr.setTemplate(newWR.getTemplate());
         wr.setSeqwareRevision(newWR.getSeqwareRevision());
         wr.setUserName(newWR.getUserName());
-        wr.setUpdateTimestamp(new Date());
+//        wr.setUpdateTimestamp(new Date());
         wr.setStdErr(newWR.getStdErr());
         wr.setStdOut(newWR.getStdOut());
         wr.setWorkflowEngine(newWR.getWorkflowEngine());
+        wr.setSgeNameIdMap(newWR.getSgeNameIdMap());
+
         if (newWR.getInputFileAccessions() != null) {
             Log.debug("Saving " + wr.getInputFileAccessions().size() + " input files");
             wr.getInputFileAccessions().addAll(newWR.getInputFileAccessions());
@@ -267,6 +269,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 wr.getWorkflowRunParams().addAll(createWorkflowRunParameters);
             }
         }
+
         wrs.update(registration, wr);
 
         // direct DB calls
@@ -301,7 +304,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             try {
                 String text = entity.getText();
                 Log.debug(text);
-                newWR = (WorkflowRun) XmlTools.unMarshal(jo, new WorkflowRun(), text);
+                newWR = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
             } catch (SAXException | IOException ex) {
                 Log.fatal(ex, ex);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -311,7 +314,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 WorkflowRun wr = updateWorkflowRun(newWR);
 
                 Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(wr));
+                Document line = XmlTools.marshalToDocument(jo, copier.hibernate2dto(wr), WorkflowRun.class);
                 toreturn = XmlTools.getRepresentation(line);
                 getResponse().setEntity(toreturn);
                 getResponse().setLocationRef(getRequest().getRootRef() + "/workflowruns/" + newWR.getSwAccession());

@@ -1,13 +1,18 @@
 package io.seqware.pipeline.plugins;
 
-import io.seqware.Engines;
-import io.seqware.common.model.WorkflowRunStatus;
-import io.seqware.pipeline.SqwKeys;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.openide.util.lookup.ServiceProvider;
+
+import io.seqware.Engines;
+import io.seqware.common.model.WorkflowRunStatus;
+import io.seqware.pipeline.SqwKeys;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.WorkflowRun;
@@ -17,15 +22,13 @@ import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.apache.commons.io.FileUtils;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * The Workflow Rescheduler can schedule a new workflow based on the configuration of a previously launched workflow.
- *
+ * 
  * This will typically be used to re-schedule failed workflow runs that should be re-run totally from scratch. A new workflow will be
  * re-scheduled using the same parameters that a specified workflow-run used.
- *
+ * 
  * @author dyuen
  * @version 1.1.0
  */
@@ -37,7 +40,7 @@ public class WorkflowRescheduler extends Plugin {
     private final ArgumentAcceptingOptionSpec<String> hostSpec;
     private final ArgumentAcceptingOptionSpec<String> outFileSpec;
     private final ArgumentAcceptingOptionSpec<String> workflowRunSpec;
-    private final List<Integer> rescheduledWorkflowRunSwids = new ArrayList<>();
+  private final List<Integer> rescheduledWorkflowRunSwids = new ArrayList<>();
 
     public WorkflowRescheduler() {
         super();
@@ -53,6 +56,10 @@ public class WorkflowRescheduler extends Plugin {
                 .withRequiredArg();
     }
 
+  public List<Integer> getRescheduledWorkflowRunSwids() {
+    return rescheduledWorkflowRunSwids;
+  }
+
     private String getEngineParam() {
         String engine = options.valueOf(workflowEngineSpec);
         if (engine == null) {
@@ -63,10 +70,6 @@ public class WorkflowRescheduler extends Plugin {
         }
 
         return engine;
-    }
-
-    public List<Integer> getRescheduledWorkflowRunSwids() {
-        return rescheduledWorkflowRunSwids;
     }
 
     @Override
@@ -115,23 +118,22 @@ public class WorkflowRescheduler extends Plugin {
                 List<String> workflowRunSWIDs = options.valuesOf(this.workflowRunSpec);
                 for (String runSWID : workflowRunSWIDs) {
 
-                    WorkflowRun oldWorkflowRun = metadata.getWorkflowRunWithIuses(Integer.parseInt(runSWID));
+          WorkflowRun oldWorkflowRun = metadata.getWorkflowRunWithIuses(Integer.parseInt(runSWID));
 
-                    if (oldWorkflowRun == null) {
-                        Log.error("Workflow run SWID = [" + runSWID + "] not found.");
-                        return new ReturnValue(ExitStatus.INVALIDARGUMENT);
-                    }
+          if (oldWorkflowRun == null) {
+            Log.error("Workflow run SWID = [" + runSWID + "] not found.");
+            return new ReturnValue(ExitStatus.INVALIDARGUMENT);
+          }
 
-                    // get IUSes that the old workflow run is linked to
-                    List<Integer> linkedIusSwids = new ArrayList<>();
-                    if (oldWorkflowRun.getIus() == null || oldWorkflowRun.getIus().isEmpty()) {
-                        Log.warn("Workflow run [" + runSWID + "] does not have any linked IUSes.");
-                    } else {
-                        for (IUS ius : oldWorkflowRun.getIus()) {
-                            linkedIusSwids.add(ius.getSwAccession());
-                        }
-                    }
-
+          // get IUSes that the old workflow run is linked to
+          List<Integer> linkedIusSwids = new ArrayList<>();
+          if (oldWorkflowRun.getIus() == null || oldWorkflowRun.getIus().isEmpty()) {
+            Log.warn("Workflow run [" + runSWID + "] does not have any linked IUSes.");
+          } else {
+            for (IUS ius : oldWorkflowRun.getIus()) {
+              linkedIusSwids.add(ius.getSwAccession());
+            }
+          }
                     // create a new workflow run
                     int newWorkflowRunID = this.metadata.add_workflow_run(oldWorkflowRun.getWorkflowAccession());
                     // this translation here is ugly, do we still need to do this?
@@ -150,8 +152,8 @@ public class WorkflowRescheduler extends Plugin {
                     oldWorkflowRun.setDax(null);
                     oldWorkflowRun.setStdOut(null);
                     oldWorkflowRun.setStdErr(null);
-                    oldWorkflowRun.setIus(null);
-                    oldWorkflowRun.setLanes(null);
+          oldWorkflowRun.setIus(null);
+          oldWorkflowRun.setLanes(null);
 
                     // override host and engine if needed
                     if (options.has(hostSpec)) {
@@ -163,24 +165,22 @@ public class WorkflowRescheduler extends Plugin {
                         oldWorkflowRun.setWorkflowEngine(engine);
                     }
 
-                    // update the new workflow run using the old workflow run info
+                    Log.info("You are re-scheduling workflow-run " + runSWID + " to " + workflowRunAccessionInt);
                     this.metadata.updateWorkflowRun(oldWorkflowRun);
-                    rescheduledWorkflowRunSwids.add(workflowRunAccessionInt);
+          rescheduledWorkflowRunSwids.add(workflowRunAccessionInt);
 
-                    // link new workflow run to the old workflow run's IUSes
-                    for (Integer iusSwid : linkedIusSwids) {
-                        try {
-                            this.metadata.linkWorkflowRunAndParent(newWorkflowRunID, iusSwid);
-                        } catch (Exception e) {
-                            Log.error("Could not link workflow run SWID = [" + runSWID + "] to its parents: " + linkedIusSwids.toString());
-                            throw Rethrow.rethrow(e);
-                        }
-                    }
-
-                    Log.info("Workflow run [" + runSWID + "] rescheduled to [" + workflowRunAccessionInt + "]");
+          // link new workflow run to the old workflow run's IUSes
+          for (Integer iusSwid : linkedIusSwids) {
+            try {
+              this.metadata.linkWorkflowRunAndParent(newWorkflowRunID, iusSwid);
+            } catch (Exception e) {
+              Log.error("Could not link workflow run SWID = [" + runSWID + "] to its parents: " + linkedIusSwids.toString());
+              throw Rethrow.rethrow(e);
+            }
+          }
 
                     if (options.has(outFileSpec)) {
-                        FileUtils.write(outputFile, String.valueOf(newWorkflowRun) + "\n", true);
+                        FileUtils.write(outputFile, String.valueOf(newWorkflowRun) + "\n", StandardCharsets.UTF_8,true);
                     }
                 }
 

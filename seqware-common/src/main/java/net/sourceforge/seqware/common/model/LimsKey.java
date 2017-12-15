@@ -17,125 +17,150 @@
 package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Date;
+
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
+
+import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 
 /**
  *
  * @author mlaszloffy
  */
 @XmlRootElement
-public class LimsKey implements Serializable, ca.on.oicr.gsi.provenance.model.LimsKey, FirstTierModel {
+public class LimsKey implements Serializable, FirstTierModel {
 
-    private Integer limsKeyId;
-    private Integer swAccession;
-    private String provider;
-    private String id;
-    private String version;
-    private DateTime lastModified;
-    private Date createTimestamp;
-    private Date updateTimestamp;
+	private static final long serialVersionUID = 1L;
+	@Id
+	private Integer limsKeyId;
+	private Integer swAccession;
+	private String provider;
+	private String id;
+	private String version;
 
-    public Integer getLimsKeyId() {
-        return limsKeyId;
-    }
+	private ZonedDateTime lastModified;
+	private Date createTimestamp;
+	private Date updateTimestamp;
 
-    public void setLimsKeyId(Integer limsKeyId) {
-        this.limsKeyId = limsKeyId;
-    }
+	public Integer getLimsKeyId() {
+		return limsKeyId;
+	}
 
-    @Override
-    public Integer getSwAccession() {
-        return swAccession;
-    }
+	public void setLimsKeyId(Integer limsKeyId) {
+		this.limsKeyId = limsKeyId;
+	}
 
-    public void setSwAccession(Integer swAccession) {
-        this.swAccession = swAccession;
-    }
+	@Override
+	public Integer getSwAccession() {
+		return swAccession;
+	}
 
-    @Override
-    public String getProvider() {
-        return provider;
-    }
+	public void setSwAccession(Integer swAccession) {
+		this.swAccession = swAccession;
+	}
 
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
+	public String getProvider() {
+		return provider;
+	}
 
-    @Override
-    public String getId() {
-        return id;
-    }
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    @Override
-    public String getVersion() {
-        return version;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	public String getVersion() {
+		return version;
+	}
 
-    @Override
-    @XmlJavaTypeAdapter(DateTimeAdapter.class)
-    public DateTime getLastModified() {
-        return lastModified;
-    }
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
-    public void setLastModified(DateTime lastModified) {
-        this.lastModified = lastModified;
-    }
+	@XmlJavaTypeAdapter(DateTimeAdapter.class)
+	public ZonedDateTime getLastModified() {
+		return lastModified;
+	}
 
-    public Date getCreateTimestamp() {
-        return createTimestamp;
-    }
+	public void setLastModified(ZonedDateTime lastModified) {
+		this.lastModified = lastModified;
+	}
 
-    public void setCreateTimestamp(Date createTimestamp) {
-        this.createTimestamp = createTimestamp;
-    }
+	public Date getCreateTimestamp() {
+		return createTimestamp;
+	}
 
-    public Date getUpdateTimestamp() {
-        return updateTimestamp;
-    }
+	public void setCreateTimestamp(Date createTimestamp) {
+		this.createTimestamp = createTimestamp;
+	}
 
-    public void setUpdateTimestamp(Date updateTimestamp) {
-        this.updateTimestamp = updateTimestamp;
-    }
+	public Date getUpdateTimestamp() {
+		return updateTimestamp;
+	}
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this, true);
-    }
+	public void setUpdateTimestamp(Date updateTimestamp) {
+		this.updateTimestamp = updateTimestamp;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final LimsKey other = (LimsKey) obj;
-        return EqualsBuilder.reflectionEquals(other, this, true);
-    }
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, true);
+	}
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof LimsKey))
+			return false;
+		final LimsKey other = (LimsKey) obj;
+		EqualsBuilder b = new EqualsBuilder();
+		b.append(getLimsKeyId(), other.getLimsKeyId());
+		b.append(getSwAccession(), other.getSwAccession());
+		b.append(getProvider(), other.getProvider());
+		b.append(getId(), other.getId());
+		b.append(getVersion(), other.getVersion());
+		b.append(getLastModified() == null ? null : getLastModified().toInstant(),
+				other.getLastModified() == null ? null : other.getLastModified().toInstant());
+		b.append(getCreateTimestamp(), other.getCreateTimestamp());
+		b.append(getUpdateTimestamp(), other.getUpdateTimestamp());
+		return b.isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+
+	public LimsKey asDetached() {
+		LimsKey detachedLimsKey = new LimsKey();
+		detachedLimsKey.setCreateTimestamp(getCreateTimestamp());
+		detachedLimsKey.setId(getId());
+		detachedLimsKey.setLastModified(getLastModified());
+		detachedLimsKey.setLimsKeyId(getLimsKeyId());
+		detachedLimsKey.setProvider(getProvider());
+		detachedLimsKey.setSwAccession(getSwAccession());
+		detachedLimsKey.setUpdateTimestamp(getUpdateTimestamp());
+		detachedLimsKey.setVersion(getVersion());
+		return detachedLimsKey;
+	}
 
 }

@@ -18,38 +18,28 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class WorkflowRunIDResourceTest extends DatabaseResourceIDTest {
+public class WorkflowRunIDResourceTest extends DatabaseResourceIDTest<WorkflowRun> {
 
-    public WorkflowRunIDResourceTest() {
-        super("/workflowruns/6060");
-        jo = new JaxbObject<>();
-        o = new WorkflowRun();
-    }
+	public WorkflowRunIDResourceTest() {
+		super("/workflowruns/6060", WorkflowRun.class);
+	}
 
-    @Override
-    public void testPut() {
+	@Override
+	public void testPut() {
 
-    }
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof WorkflowRun) {
-            WorkflowRun e = (WorkflowRun) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
-
-        } else {
-            System.err.println("Object is not an instance of WorkflowRun");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	protected int testObject(WorkflowRun e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 }

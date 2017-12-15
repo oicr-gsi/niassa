@@ -8,13 +8,13 @@ import net.sourceforge.seqware.common.model.ShareWorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
  * ShareWorkflowRunDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -30,7 +30,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Inserts an instance of ShareWorkflowRun into the database.
      */
     @Override
@@ -40,7 +40,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of ShareWorkflowRun in the database.
      */
     @Override
@@ -51,7 +51,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of ShareWorkflowRun in the database.
      */
     @Override
@@ -62,7 +62,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of ShareWorkflowRun in the database by the ShareWorkflowRun ID.
      */
     @Override
@@ -79,7 +79,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of ShareWorkflowRun in the database by the ShareWorkflowRun ID.
      */
     @Override
@@ -101,9 +101,9 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
         String query = "from ShareWorkflowRun as shareWorkflowRun where shareWorkflowRun.swAccession = ?";
         ShareWorkflowRun shareWorkflowRun = null;
         Object[] parameters = { swAccession };
-        List<ShareWorkflowRun> list = this.getHibernateTemplate().find(query, parameters);
+        List<ShareWorkflowRun> list = (List<ShareWorkflowRun>) this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            shareWorkflowRun = (ShareWorkflowRun) list.get(0);
+            shareWorkflowRun = list.get(0);
         }
         return shareWorkflowRun;
     }
@@ -142,7 +142,7 @@ public class ShareWorkflowRunDAOHibernate extends HibernateDaoSupport implements
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, shareWorkflowRun);
-            return (ShareWorkflowRun) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,11 @@
 package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -15,6 +20,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class Platform implements Serializable, Comparable<Platform>, SecondTierModel {
     private static final long serialVersionUID = 3681345328115990568L;
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer platformId;
     private String name;
     private String description;

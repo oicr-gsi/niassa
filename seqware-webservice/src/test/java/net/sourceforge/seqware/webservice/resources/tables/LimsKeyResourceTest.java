@@ -16,15 +16,20 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
-import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
-import net.sourceforge.seqware.common.model.IUS;
-import net.sourceforge.seqware.common.model.LimsKey;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import static org.junit.Assert.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import org.junit.Test;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
 
 /**
  *
@@ -43,7 +48,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         testLimsKey.setProvider("provider1");
         testLimsKey.setId("remoteId1");
         testLimsKey.setVersion("3053981115502a01b1115696117cf53d8824a848");
-        testLimsKey.setLastModified(DateTime.parse("2016-01-01T00:00:00Z"));
+        testLimsKey.setLastModified(ZonedDateTime.parse("2016-01-01T00:00:00Z"));
 
         limsKeyClient = new SeqwareResourceClient<>(LimsKey.class, getRelativeURI());
         iusClient = new SeqwareResourceClient<>(IUS.class, "/ius");
@@ -113,7 +118,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         lk.setProvider("provider");
         lk.setId("id");
         lk.setVersion("version");
-        lk.setLastModified(DateTime.now());
+        lk.setLastModified(ZonedDateTime.now());
         try {
             lk = limsKeyClient.post(lk);
         } catch (IOException | SAXException ex) {
@@ -127,7 +132,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         String expectedProvider = "provider";
         String expectedId = "id";
         String expectedVersion = "version";
-        DateTime expectedLastModified = new DateTime(DateTimeZone.UTC);
+        ZonedDateTime expectedLastModified = ZonedDateTime.now(ZoneId.of("Z"));
 
         lk.setProvider(expectedProvider);
         lk.setId(expectedId);
@@ -152,7 +157,7 @@ public class LimsKeyResourceTest extends DatabaseResourceTest {
         lk.setProvider("provider");
         lk.setId("id");
         lk.setVersion("version");
-        lk.setLastModified(DateTime.now());
+        lk.setLastModified(ZonedDateTime.now());
 
         try {
             limsKeyClient.delete(lk);

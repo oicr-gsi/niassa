@@ -75,30 +75,30 @@ public class SampleProvenanceResourceTest extends DatabaseResourceTest {
 
         try {
             //ensure sample provenance is cached incase "invalidate" is called first (below)
-            new <SampleProvenanceDtoList>Get("/reports/sample-provenance", new SampleProvenanceDtoList()).call();
+            new Get<>("/reports/sample-provenance", SampleProvenanceDtoList.class).call();
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
 
-        List<Future<GetResult>> futures = new ArrayList<>();
+        List<Future<GetResult<SampleProvenanceDtoList>>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(50);
-        CompletionService<GetResult> completionService = new ExecutorCompletionService(executorService);
+        CompletionService<GetResult<SampleProvenanceDtoList>> completionService = new ExecutorCompletionService<>(executorService);
 
-        List<Callable> callables = new ArrayList<>();
+        List<Callable<GetResult<SampleProvenanceDtoList>>> callables = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            callables.add(new <SampleProvenanceDtoList>Get("/reports/sample-provenance", new SampleProvenanceDtoList()));
-            callables.add(new Get("/reports/sample-provenance/refresh"));
-            callables.add(new Get("/reports/sample-provenance/invalidate"));
+            callables.add(new Get<>("/reports/sample-provenance", SampleProvenanceDtoList.class));
+            callables.add(new Get<>("/reports/sample-provenance/refresh", null));
+            callables.add(new Get<>("/reports/sample-provenance/invalidate", null));
         }
 
         Collections.shuffle(callables);
-        for (Callable c : callables) {
+        for (Callable<GetResult<SampleProvenanceDtoList>> c : callables) {
             futures.add(completionService.submit(c));
         }
 
         while (futures.size() > 0) {
 
-            Future<GetResult> completedTask = null;
+            Future<GetResult<SampleProvenanceDtoList>> completedTask = null;
             try {
                 completedTask = completionService.take();
             } catch (InterruptedException ex) {
@@ -109,7 +109,7 @@ public class SampleProvenanceResourceTest extends DatabaseResourceTest {
                     fail("Null completed task");
                 } else {
                     futures.remove(completedTask);
-                    GetResult r = completedTask.get();
+                    GetResult<SampleProvenanceDtoList> r = completedTask.get();
 
                     assertNotNull(r.getStatus());
 

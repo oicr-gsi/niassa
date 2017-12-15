@@ -89,9 +89,9 @@ public class StudyResource extends DatabaseResource {
         } else {
             studies = (List<Study>) testIfNull(ss.list());
         }
-        JaxbObject jaxbTool = new JaxbObject<>();
+        JaxbObject<StudyList> jaxbTool = new JaxbObject<>();
         StudyList eList = new StudyList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Study study : studies) {
             CollectionPropertyName<Study>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(
@@ -99,7 +99,7 @@ public class StudyResource extends DatabaseResource {
             Study dto = copier.hibernate2dto(Study.class, study, new Class[] { StudyType.class }, createCollectionPropertyNames);
             eList.add(dto);
         }
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, StudyList.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
 
     }
@@ -121,7 +121,7 @@ public class StudyResource extends DatabaseResource {
             String text = entity.getText();
             Study p = null;
             try {
-                p = (Study) XmlTools.unMarshal(jo, new Study(), text);
+                p = (Study) XmlTools.unMarshal(jo, Study.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -137,7 +137,7 @@ public class StudyResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Study detachedStudy = copier.hibernate2dto(Study.class, study);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedStudy);
+            Document line = XmlTools.marshalToDocument(jo, detachedStudy, Study.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/studies/" + detachedStudy.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

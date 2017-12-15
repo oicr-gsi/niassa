@@ -1,17 +1,25 @@
 package net.sourceforge.seqware.common;
 
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.ContextLoader;
+
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.ExperimentLibraryDesignService;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignReadSpecService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignService;
-import net.sourceforge.seqware.common.business.FileAttributeService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
+import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.business.LaneService;
 import net.sourceforge.seqware.common.business.LibrarySelectionService;
 import net.sourceforge.seqware.common.business.LibraryService;
 import net.sourceforge.seqware.common.business.LibrarySourceService;
 import net.sourceforge.seqware.common.business.LibraryStrategyService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.OrganismService;
 import net.sourceforge.seqware.common.business.PlatformService;
 import net.sourceforge.seqware.common.business.ProcessingExperimentsService;
@@ -23,6 +31,7 @@ import net.sourceforge.seqware.common.business.ProcessingSequencerRunsService;
 import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.ProcessingStudiesService;
 import net.sourceforge.seqware.common.business.RegistrationService;
+import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.business.SampleReportService;
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.business.SequencerRunService;
@@ -34,15 +43,6 @@ import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.util.Log;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.context.ContextLoader;
-import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
-import net.sourceforge.seqware.common.business.LaneProvenanceService;
-import net.sourceforge.seqware.common.business.LimsKeyService;
-import net.sourceforge.seqware.common.business.SampleProvenanceService;
 
 /**
  * <p>
@@ -97,9 +97,6 @@ public class ContextImpl {
 
     @Autowired
     private ValidationReportService validationReportService;
-
-    @Autowired
-    private FileAttributeService fileAttributeService;
     
     private AnalysisProvenanceService analysisProvenanceService;
     
@@ -731,17 +728,6 @@ public class ContextImpl {
      */
     public void setValidationReportService(ValidationReportService validationReportService) {
         this.validationReportService = validationReportService;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>fileAttributeService</code>.
-     * </p>
-     * 
-     * @return a {@link net.sourceforge.seqware.common.business.FileAttributeService} object.
-     */
-    public FileAttributeService getFileAttributeService() {
-        return fileAttributeService;
     }
 
     public StudyTypeService getStudyTypeService() {

@@ -28,15 +28,16 @@ import org.restlet.representation.Representation;
  * 
  * @author mtaschuk
  */
-public abstract class DatabaseResourceIDTest extends AbstractResourceTest {
+public abstract class DatabaseResourceIDTest<T> extends AbstractResourceTest {
 
     protected String id;
-    protected JaxbObject jo;
-    protected Object o;
+    protected JaxbObject<T> jo = new JaxbObject<>();
+    protected final Class<T> type;
     private Logger logger = Logger.getLogger(DatabaseResourceIDTest.class);
 
-    public DatabaseResourceIDTest(String relativeURI) {
+    public DatabaseResourceIDTest(String relativeURI, Class<T> type) {
         super(relativeURI);
+		this.type = type;
         String[] array = relativeURI.split("/");
         id = array[array.length - 1];
         logger.debug("ID is " + id);
@@ -67,7 +68,7 @@ public abstract class DatabaseResourceIDTest extends AbstractResourceTest {
             rep = resource.get();
             String text = rep.getText();
             logger.debug(text);
-            Object obj = XmlTools.unMarshal(jo, o, text);
+            T obj = XmlTools.unMarshal(jo, type, text);
 
             int result = testObject(obj);
             if (result == ReturnValue.INVALIDFILE) {
@@ -95,7 +96,7 @@ public abstract class DatabaseResourceIDTest extends AbstractResourceTest {
             rep.release();
             Assert.fail("No Post on " + getRelativeURI());
         } catch (Exception e) {
-            Assert.assertEquals("Method Not Allowed", e.getMessage());
+            Assert.assertTrue("Method Not Allowed", e.getMessage().contains("Method Not Allowed"));
         }
     }
 
@@ -114,5 +115,5 @@ public abstract class DatabaseResourceIDTest extends AbstractResourceTest {
         }
     }
 
-    protected abstract int testObject(Object o);
+    protected abstract int testObject(T o);
 }

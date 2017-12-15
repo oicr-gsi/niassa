@@ -1,6 +1,11 @@
 package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -15,7 +20,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class LibrarySelection implements Serializable, Comparable<LibrarySelection>, SecondTierModel {
     private static final long serialVersionUID = 3611345318915990568L;
 
-    private Integer librarySelectionId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer librarySelectionId;
     private String name;
     private String description;
 

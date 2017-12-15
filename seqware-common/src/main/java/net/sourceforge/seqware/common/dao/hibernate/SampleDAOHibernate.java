@@ -20,13 +20,13 @@ import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
  * SampleDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -45,31 +45,31 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Inserts an instance of Sample into the database.
      */
     @Override
     public Integer insert(Sample sample) {
         this.getHibernateTemplate().save(sample);
-        this.getSession().flush();
+        this.currentSession().flush();
         return sample.getSwAccession();
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of Sample in the database.
      */
     @Override
     public void update(Sample sample) {
 
         this.getHibernateTemplate().update(sample);
-        getSession().flush();
+        currentSession().flush();
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * This deletion will result in just the sample being deleted but the IUS will remain. This will potentially cause orphans which is not
      * really at all good. A better solution is to never delete but just use a deletion attribute.
      */
@@ -182,7 +182,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
                 + "where (s_rec.parent_id = p_sam.sample_id or s_rec.child_id = p_sam.sample_id) "
                 + "and p_sam.processing_id = pf.processing_id ) )";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
                 .setInteger(2, sampleId).setInteger(3, sampleId).setInteger(4, sampleId).setInteger(5, sampleId).setInteger(6, sampleId)
                 .setInteger(7, sampleId).list();
 
@@ -286,7 +286,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
                 + "where (s_rec.parent_id = p_sam.sample_id or s_rec.child_id = p_sam.sample_id) "
                 + "and p_sam.processing_id = pf.processing_id ) ) LIMIT 1";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
                 .setInteger(2, sampleId).setInteger(3, sampleId).setInteger(4, sampleId).setInteger(5, sampleId).setInteger(6, sampleId)
                 .setInteger(7, sampleId).list();
 
@@ -391,7 +391,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         // "select * from File myfile where myfile.meta_type=? and myfile.file_id in( "
         // +
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
                 .setInteger(2, sampleId).setInteger(3, sampleId).setString(4, metaType).setInteger(5, sampleId).setInteger(6, sampleId)
                 .setInteger(7, sampleId).setInteger(8, sampleId).list();
 
@@ -482,7 +482,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
                 + "where (s_rec.parent_id = p_sam.sample_id or s_rec.child_id = p_sam.sample_id) "
                 + "and p_sam.processing_id = pf.processing_id ) ) LIMIT 1";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, sampleId).setInteger(1, sampleId)
                 .setInteger(2, sampleId).setInteger(3, sampleId).setString(4, metaType).setInteger(5, sampleId).setInteger(6, sampleId)
                 .setInteger(7, sampleId).setInteger(8, sampleId).list();
 
@@ -496,21 +496,21 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
      * processing_root_to_leaf (child_id, parent_id, sample_id) AS ( " + "SELECT p.child_id as child_id, p.parent_id, s.sample_id " + "FROM
      * processing_relationship p inner join processing_lanes l on (l.processing_id = p.parent_id) " + "inner join lane ln on (ln.lane_id =
      * l.lane_id) " + "inner join sample s on (s.sample_id = ln.sample_id) " + "where s.experiment_id = ? " +
-     * 
+     *
      * "UNION ALL " + "SELECT p.child_id, rl.parent_id, rl.sample_id " + "FROM processing_root_to_leaf rl, processing_relationship p
      * " + "WHERE p.parent_id = rl.child_id) " +
-     * 
+     *
      * "select s1.sample_id, count(f) from Sample s1 left join ( " + "select file_id f, p.sample_id sam from processing_root_to_leaf p, " +
      * "processing_files pf where p.parent_id = processing_id " + "UNION ALL " +
      * "select file_id f, p.sample_id sam from processing_root_to_leaf p, " + "processing_files pf where p.child_id = processing_id " +
      * "UNION ALL " + "select file_id f, s.sample_id sam from processing_files pf inner join processing_lanes l " + "on (l.processing_id =
      * pf.processing_id) " + "inner join lane ln on (ln.lane_id = l.lane_id) " + "inner join sample s on (s.sample_id = ln.sample_id)
      * " + "where s.experiment_id = 2) q on q.sam=s1.sample_id where s1.experiment_id = ? group by s1.sample_id" ;
-     * 
-     * List list = this.getSession().createSQLQuery(query).addEntity(Sample.class) .setInteger(0, expId).setInteger(1, expId).list();
-     * 
+     *
+     * List list = this.currentSession().createSQLQuery(query).addEntity(Sample.class) .setInteger(0, expId).setInteger(1, expId).list();
+     *
      * for (Object sample : list) { samples.add((Sample)sample); }
-     * 
+     *
      * return samples; }
      */
     /**
@@ -536,7 +536,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
         // , count(f) as countFile
 
-        List list = this.getSession().createSQLQuery(query).setInteger(0, expId).setInteger(1, expId).setInteger(2, expId).list();
+        List list = this.currentSession().createSQLQuery(query).setInteger(0, expId).setInteger(1, expId).setInteger(2, expId).list();
 
         Map<Integer, Integer> countFiles = new HashMap<>();
         for (Object resSet : list) {
@@ -581,7 +581,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
         // , count(f) as countFile
 
-        List list = this.getSession().createSQLQuery(query).setInteger(0, expId).setString(1, metaType).setString(2, metaType)
+        List list = this.currentSession().createSQLQuery(query).setInteger(0, expId).setString(1, metaType).setString(2, metaType)
                 .setString(3, metaType).setInteger(4, expId).setInteger(5, expId).list();
 
         Map<Integer, Integer> countFiles = new HashMap<>();
@@ -600,7 +600,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of Sample in the database by the Experiment name.
      */
     @Override
@@ -617,7 +617,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of Sample in the database by the Sample emailAddress.
      */
     @Override
@@ -634,7 +634,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of Sample in the database by the Sample emailAddress.
      */
     @Override
@@ -647,9 +647,9 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of Sample in the database by the Sample ID.
-     * 
+     *
      * @param id
      */
     @Override
@@ -673,9 +673,9 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         String query = "from Sample as sample where sample.swAccession = ?";
         Sample sample = null;
         Object[] parameters = { swAccession };
-        List<Sample> list = this.getHibernateTemplate().find(query, parameters);
+        List<Sample> list = (List<Sample>) this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            sample = (Sample) list.get(0);
+            sample = list.get(0);
         }
         return sample;
     }
@@ -688,7 +688,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
     public List<Sample> findByOwnerID(Integer registrationId) {
         String query = "from Sample as sample where sample.owner.registrationId = ?";
         Object[] parameters = { registrationId };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<Sample>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /**
@@ -701,7 +701,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
                 + " or cast(s.swAccession as string) like :sw " + " or s.name like :name order by s.title, s.name, s.description";
         String queryStringICase = "from Sample as s where lower(s.title) like :title " + " or lower(s.description) like :description "
                 + " or cast(s.swAccession as string) like :sw " + " or lower(s.name) like :name order by s.title, s.name, s.description";
-        Query query = isCaseSens ? this.getSession().createQuery(queryStringCase) : this.getSession().createQuery(queryStringICase);
+        Query query = isCaseSens ? this.currentSession().createQuery(queryStringCase) : this.currentSession().createQuery(queryStringICase);
         if (!isCaseSens) {
             criteria = criteria.toLowerCase();
         }
@@ -718,7 +718,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
      * <p>
      * listComplete.
      * </p>
-     * 
+     *
      * @return a {@link java.util.List} object.
      */
     @Override
@@ -727,7 +727,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         List<Sample> filteredList = new ArrayList<>();
         String query = "from Sample as sample";
         Object[] parameters = {};
-        list = this.getHibernateTemplate().find(query, parameters);
+        list = (List<Sample>) this.getHibernateTemplate().find(query, parameters);
         Log.stderr("The list: " + list);
         for (Sample sample : list) {
             Log.stderr("Curr sample: " + sample);
@@ -744,7 +744,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
      * <p>
      * listIncomplete.
      * </p>
-     * 
+     *
      * @return a {@link java.util.List} object.
      */
     @Override
@@ -753,7 +753,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         List<Sample> filteredList = new ArrayList<>();
         String query = "from Sample as sample";
         Object[] parameters = {};
-        list = this.getHibernateTemplate().find(query, parameters);
+        list = (List<Sample>) this.getHibernateTemplate().find(query, parameters);
         for (Sample sample : list) {
             if (sample.getLanes() == null || sample.getExpectedNumRuns() == null || sample.getLanes().size() < sample.getExpectedNumRuns()) {
                 filteredList.add(sample);
@@ -764,7 +764,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param registaration
      */
     @SuppressWarnings("unchecked")
@@ -780,8 +780,8 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
             parameters = null;
         }
 
-        list = this.getHibernateTemplate().find(query, parameters);
-        return (list);
+        list = (List<Sample>) this.getHibernateTemplate().find(query, parameters);
+        return list;
     }
 
     /**
@@ -793,7 +793,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         List<Sample> list;
         String query = "from Sample as sample where sample.experiment.study.studyId = ?";
         Object parameter = study.getStudyId();
-        list = this.getHibernateTemplate().find(query, parameter);
+        list = (List<Sample>) this.getHibernateTemplate().find(query, parameter);
         return list;
     }
 
@@ -822,7 +822,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         // + " AND s.sample_id not in (select child_id FROM sample_relationship)" +
         // " AND s.sample_id = ?";
         // Sample rootSample = (Sample)
-        // this.getSession().createSQLQuery(query).addEntity(Sample.class)
+        // this.currentSession().createSQLQuery(query).addEntity(Sample.class)
         // .setInteger(0, sample.getSampleId()).setInteger(1,
         // sample.getSampleId()).uniqueResult();
         // return rootSample;
@@ -838,7 +838,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, sample);
-            return (Sample) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             localLogger.error("Error updating detached sample", e);
         }
@@ -891,7 +891,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         } else if (registration.isLIMSAdmin() || sample.givesPermission(registration)) {
             localLogger.info("insert sample object");
             insert(sample);
-            this.getSession().flush();
+            this.currentSession().flush();
             swAccession = sample.getSwAccession();
         } else {
             localLogger.error("SampleDAOHibernate insert not authorized");
@@ -918,7 +918,7 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
 
     private Sample reattachSample(Sample sample) throws IllegalStateException, DataAccessResourceFailureException {
         Sample dbObject = sample;
-        if (!getSession().contains(sample)) {
+        if (!currentSession().contains(sample)) {
             dbObject = findByID(sample.getSampleId());
         }
         return dbObject;

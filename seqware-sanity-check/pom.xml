@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent> 
-        <version>1.1.2-gsi</version> 
+        <version>1.99.1-SNAPSHOT</version> 
         <groupId>com.github.seqware</groupId> 
         <artifactId>seqware</artifactId> 
         <relativePath>../pom.xml</relativePath> 
@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.seqware</groupId>
+            <artifactId>seqware-ext-admin-testing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.seqware</groupId>
             <artifactId>seqware-webservice</artifactId>
             <type>war</type>
             <scope>test</scope>
@@ -45,13 +49,20 @@
             <artifactId>seqware-pipeline</artifactId>
             <type>jar</type>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>seqware-ext-admin-testing</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jetty-util</artifactId>
+                    <groupId>org.mortbay.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -75,6 +86,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -108,6 +120,10 @@
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -115,13 +131,12 @@
             <artifactId>commons-exec</artifactId>
             <scope>runtime</scope>
         </dependency>
-
     </dependencies>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
     <build>
         <resources>
             <resource>
@@ -136,9 +151,9 @@
                     <archive>
                         <manifest>
                             <mainClass>io.seqware.pipeline.plugins.sanity.SanityCheck</mainClass>
-                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
-                         <manifestEntries>
+                        <manifestEntries>
                             <Implementation-Build>${buildNumber}</Implementation-Build>
                         </manifestEntries>
                     </archive>
@@ -181,13 +196,13 @@
                         </manifest>
                       </archive>
                     </configuration>
-                  </plugin>	     
+                  </plugin>
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
-			
+
                 <configuration>
                     <systemPropertyVariables>
                         <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
@@ -198,13 +213,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
-			
+
                 <configuration>
                     <systemPropertyVariables>
                         <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
                     </systemPropertyVariables>
                 </configuration>
-                        
+
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -232,7 +247,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe-plugin.version}</version>
-			
+
                         <configuration>
                             <includes>
                                 <include>**/IT*.java</include>
@@ -251,17 +266,18 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat6-maven-plugin</artifactId>
-                        <configuration>   
+                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.2</version>
+                        <configuration>
                             <contextFile>../seqware-webservice/target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
                             <webapps>
                                 <webapp>
-                                    <groupId>com.github.seqware</groupId> 
-                                    <artifactId>seqware-webservice</artifactId> 
-                                    <version>${project.version}</version> 
-                                    <type>war</type>                                     
-                                    <asWebapp>true</asWebapp>  
-                                </webapp>                           
+                                    <groupId>com.github.seqware</groupId>
+                                    <artifactId>seqware-webservice</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>war</type>
+                                    <asWebapp>true</asWebapp>
+                                </webapp>
                             </webapps>
                             <skip>${skipITs}</skip>
                         </configuration>

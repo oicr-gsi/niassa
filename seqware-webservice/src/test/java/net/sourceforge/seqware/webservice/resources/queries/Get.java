@@ -34,54 +34,55 @@ import org.xml.sax.SAXException;
  */
 public class Get<T> implements Callable<GetResult<T>> {
 
-    String url;
-    T expectedType;
+	String url;
+	Class<T> expectedType;
 
-    public Get(String url, T expectedType) {
-        this.url = url;
-        this.expectedType = expectedType;
-    }
+	public Get(String url, Class<T> expectedType) {
+		this.url = url;
+		this.expectedType = expectedType;
+	}
 
-    public Get(String url) {
-        this(url, null);
-    }
+	public Get(String url) {
+		this(url, null);
+	}
 
-    @Override
-    public GetResult<T> call() throws Exception {
-        GetResult<T> result = null;
-        try {
-            DateTime requestDate = DateTime.now().withMillisOfSecond(0);
-            
-            ClientResource c = ClientResourceInstance.getChild(url);
-            Representation rep = c.get();
-            
-            DateTime responseDate = null;
-            if(c.getResponse().getDate() != null){
-                responseDate = new DateTime(c.getResponse().getDate());
-            }
-            
-            DateTime lastModified = null;
-            if (rep.getModificationDate() != null) {
-                lastModified = new DateTime(rep.getModificationDate());
-            }
-            
-            T data = null;
-            if (expectedType != null) {
-                data = (T) XmlTools.unMarshal(new JaxbObject<>(), expectedType, rep.getText());
-            }
-            
-            result = new GetResult(data, c.getResponse().getStatus(), requestDate, responseDate, lastModified);
-            
-            rep.exhaust();
-            rep.release();
-            if (c.getResponseEntity() != null) {
-                c.getResponseEntity().release();
-            }
-            c.release();
-        } catch (ResourceException | IOException | SAXException e) {
-            Assert.fail(e.getMessage());
-        }
-        return result;
-    }
+	@Override
+	public GetResult<T> call() throws Exception {
+		GetResult<T> result = null;
+		try {
+			DateTime requestDate = DateTime.now().withMillisOfSecond(0);
+
+			ClientResource c = ClientResourceInstance.getChild(url);
+			Representation rep = c.get();
+
+			DateTime responseDate = null;
+			if (c.getResponse().getDate() != null) {
+				responseDate = new DateTime(c.getResponse().getDate());
+			}
+
+			DateTime lastModified = null;
+			if (rep.getModificationDate() != null) {
+				lastModified = new DateTime(rep.getModificationDate());
+			}
+			try {
+				T data = null;
+				if (expectedType != null) {
+					data = (T) XmlTools.unMarshal(new JaxbObject<>(), expectedType, rep.getText());
+				}
+
+				result = new GetResult<>(data, c.getResponse().getStatus(), requestDate, responseDate, lastModified);
+			} finally {
+				rep.exhaust();
+				rep.release();
+				if (c.getResponseEntity() != null) {
+					c.getResponseEntity().release();
+				}
+				c.release();
+			}
+		} catch (ResourceException | IOException | SAXException e) {
+			Assert.fail(e.getMessage());
+		}
+		return result;
+	}
 
 }

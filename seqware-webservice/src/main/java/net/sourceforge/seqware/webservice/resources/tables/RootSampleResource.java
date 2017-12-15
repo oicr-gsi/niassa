@@ -62,7 +62,7 @@ public class RootSampleResource extends DatabaseResource {
     public void getXml() {
         authenticate();
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-        JaxbObject jaxbTool;
+        JaxbObject<SampleList> jaxbTool;
         for (String key : queryValues.keySet()) {
             Log.debug("key: " + key + " -> " + queryValues.get(key));
         }
@@ -72,7 +72,7 @@ public class RootSampleResource extends DatabaseResource {
         jaxbTool = new JaxbObject<>();
         List<Sample> samples = (List<Sample>) testIfNull(ss.list());
         SampleList eList = new SampleList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Sample sample : samples) {
             if (sample.getParents().isEmpty()) {
@@ -80,7 +80,7 @@ public class RootSampleResource extends DatabaseResource {
                 eList.add(dto);
             }
         }
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, SampleList.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 }

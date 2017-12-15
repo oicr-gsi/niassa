@@ -79,19 +79,19 @@ public class SequencerRunResource extends DatabaseResource {
             SequencerRun study = testIfNull(ss.findByName(name));
             JaxbObject<SequencerRun> jaxbTool = new JaxbObject<>();
             SequencerRun dto = copier.hibernate2dto(SequencerRun.class, study, new Class<?>[] {}, createCollectionPropertyNames);
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, SequencerRun.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         } else {
             JaxbObject<SequencerRunList> jaxbTool = new JaxbObject<>();
             List<SequencerRun> runs = testIfNull(ss.list());
             SequencerRunList eList = new SequencerRunList();
-            eList.setList(new ArrayList());
+            eList.setList(new ArrayList<>());
 
             for (SequencerRun sequencerRun : runs) {
                 SequencerRun dto = copier.hibernate2dto(SequencerRun.class, sequencerRun, new Class<?>[] {}, createCollectionPropertyNames);
                 eList.add(dto);
             }
-            Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+            Document line = XmlTools.marshalToDocument(jaxbTool, eList, SequencerRunList.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         }
 
@@ -115,7 +115,7 @@ public class SequencerRunResource extends DatabaseResource {
             String text = entity.getText();
             SequencerRun o = null;
             try {
-                o = (SequencerRun) XmlTools.unMarshal(jo, new SequencerRun(), text);
+                o = (SequencerRun) XmlTools.unMarshal(jo, SequencerRun.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -146,7 +146,7 @@ public class SequencerRunResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             SequencerRun detachedSequencerRun = copier.hibernate2dto(SequencerRun.class, obj);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedSequencerRun);
+            Document line = XmlTools.marshalToDocument(jo, detachedSequencerRun, SequencerRun.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/sequencerruns/" + detachedSequencerRun.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

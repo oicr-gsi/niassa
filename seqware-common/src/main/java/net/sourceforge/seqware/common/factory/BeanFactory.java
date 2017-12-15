@@ -5,7 +5,6 @@ import net.sourceforge.seqware.common.business.ExperimentLibraryDesignService;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignReadSpecService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignService;
-import net.sourceforge.seqware.common.business.FileAttributeService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.LaneService;
@@ -44,7 +43,7 @@ import net.sourceforge.seqware.common.business.SampleProvenanceService;
  * <p>
  * Abstract BeanFactory class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -54,7 +53,7 @@ public abstract class BeanFactory {
      * <p>
      * getStudyServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.StudyService} object.
      */
     public static StudyService getStudyServiceBean() {
@@ -67,7 +66,7 @@ public abstract class BeanFactory {
      * <p>
      * getExperimentServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ExperimentService} object.
      */
     public static ExperimentService getExperimentServiceBean() {
@@ -78,7 +77,7 @@ public abstract class BeanFactory {
      * <p>
      * getFileServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.FileService} object.
      */
     public static FileService getFileServiceBean() {
@@ -100,7 +99,7 @@ public abstract class BeanFactory {
      * <p>
      * getIUSServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.IUSService} object.
      */
     public static IUSService getIUSServiceBean() {
@@ -111,7 +110,7 @@ public abstract class BeanFactory {
      * <p>
      * getLaneServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.LaneService} object.
      */
     public static LaneService getLaneServiceBean() {
@@ -122,7 +121,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingService} object.
      */
     public static ProcessingService getProcessingServiceBean() {
@@ -133,7 +132,7 @@ public abstract class BeanFactory {
      * <p>
      * getSampleServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.SampleService} object.
      */
     public static SampleService getSampleServiceBean() {
@@ -144,7 +143,7 @@ public abstract class BeanFactory {
      * <p>
      * getSequencerRunServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.SequencerRunService} object.
      */
     public static SequencerRunService getSequencerRunServiceBean() {
@@ -155,7 +154,7 @@ public abstract class BeanFactory {
      * <p>
      * getWorkflowRunServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowRunService} object.
      */
     public static WorkflowRunService getWorkflowRunServiceBean() {
@@ -166,7 +165,7 @@ public abstract class BeanFactory {
      * <p>
      * getWorkflowServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowService} object.
      */
     public static WorkflowService getWorkflowServiceBean() {
@@ -177,7 +176,7 @@ public abstract class BeanFactory {
      * <p>
      * getRegistrationServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.RegistrationService} object.
      */
     public static RegistrationService getRegistrationServiceBean() {
@@ -188,7 +187,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingRelationshipServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingRelationshipService} object.
      */
     public static ProcessingRelationshipService getProcessingRelationshipServiceBean() {
@@ -199,7 +198,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingExperimentServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingExperimentsService} object.
      */
     public static ProcessingExperimentsService getProcessingExperimentServiceBean() {
@@ -210,7 +209,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingIUSServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingIUSService} object.
      */
     public static ProcessingIUSService getProcessingIUSServiceBean() {
@@ -221,7 +220,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingLaneServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingLanesService} object.
      */
     public static ProcessingLanesService getProcessingLaneServiceBean() {
@@ -232,7 +231,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingSampleServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingSamplesService} object.
      */
     public static ProcessingSamplesService getProcessingSampleServiceBean() {
@@ -244,7 +243,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingSequencerRunsServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingSequencerRunsService} object.
      */
     public static ProcessingSequencerRunsService getProcessingSequencerRunsServiceBean() {
@@ -255,7 +254,7 @@ public abstract class BeanFactory {
      * <p>
      * getProcessingStudiesServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ProcessingStudiesService} object.
      */
     public static ProcessingStudiesService getProcessingStudiesServiceBean() {
@@ -266,7 +265,7 @@ public abstract class BeanFactory {
      * <p>
      * getWorkflowParamServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
      */
     public static WorkflowParamService getWorkflowParamServiceBean() {
@@ -278,7 +277,7 @@ public abstract class BeanFactory {
      * <p>
      * getWorkflowParamValueServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
      */
     public static WorkflowParamValueService getWorkflowParamValueServiceBean() {
@@ -290,7 +289,7 @@ public abstract class BeanFactory {
      * <p>
      * getSessionFactoryBean.
      * </p>
-     * 
+     *
      * @return a {@link org.hibernate.SessionFactory} object.
      */
     public static SessionFactory getSessionFactoryBean() {
@@ -302,7 +301,7 @@ public abstract class BeanFactory {
      * <p>
      * getPlatformServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.PlatformService} object.
      */
     public static PlatformService getPlatformServiceBean() {
@@ -313,7 +312,7 @@ public abstract class BeanFactory {
      * <p>
      * getSampleReportServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.SampleReportService} object.
      */
     public static SampleReportService getSampleReportServiceBean() {
@@ -324,7 +323,7 @@ public abstract class BeanFactory {
      * <p>
      * getLibraryServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.LibraryService} object.
      */
     public static LibraryService getLibraryServiceBean() {
@@ -335,7 +334,7 @@ public abstract class BeanFactory {
      * <p>
      * getFileValidationServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.ValidationReportService} object.
      */
     public static ValidationReportService getFileValidationServiceBean() {
@@ -346,7 +345,7 @@ public abstract class BeanFactory {
      * <p>
      * getStudyTypeServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.StudyTypeService} object.
      */
     public static StudyTypeService getStudyTypeServiceBean() {
@@ -357,7 +356,7 @@ public abstract class BeanFactory {
      * <p>
      * getLibrarySelectionServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.LibrarySelectionServiceBean} object.
      */
     public static LibrarySelectionService getLibrarySelectionServiceBean() {
@@ -368,7 +367,7 @@ public abstract class BeanFactory {
      * <p>
      * getLibrarySourceServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.LibrarySourceServiceBean} object.
      */
     public static LibrarySourceService getLibrarySourceServiceBean() {
@@ -379,7 +378,7 @@ public abstract class BeanFactory {
      * <p>
      * getLibraryStrategyServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.LibraryStrategyServiceBean} object.
      */
     public static LibraryStrategyService getLibraryStrategyServiceBean() {
@@ -390,22 +389,11 @@ public abstract class BeanFactory {
      * <p>
      * getOrganismServiceBean.
      * </p>
-     * 
+     *
      * @return a {@link net.sourceforge.seqware.common.business.OrganismServiceBean} object.
      */
     public static OrganismService getOrganismServiceBean() {
         return ContextImpl.getInstance().getOrganismService();
-    }
-
-    /**
-     * <p>
-     * getFileAttributeServiceBean.
-     * </p>
-     * 
-     * @return a {@link net.sourceforge.seqware.common.business.FileAttributeServiceBean} object.
-     */
-    public static FileAttributeService getFileAttributeServiceBean() {
-        return ContextImpl.getInstance().getFileAttributeService();
     }
 
     public static ExperimentLibraryDesignService getExperimentLibraryDesignServiceBean() {

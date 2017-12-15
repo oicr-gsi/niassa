@@ -66,30 +66,30 @@ public class LaneProvenanceResourceTest extends DatabaseResourceTest {
 
         try {
             //ensure lane provenance is cached incase "invalidate" is called first (below)
-            new <LaneProvenanceDtoList>Get("/reports/lane-provenance", new LaneProvenanceDtoList()).call();
+            new Get<LaneProvenanceDtoList>("/reports/lane-provenance", LaneProvenanceDtoList.class).call();
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
 
-        List<Future<GetResult>> futures = new ArrayList<>();
+        List<Future<GetResult<LaneProvenanceDtoList>>> futures = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(50);
-        CompletionService<GetResult> completionService = new ExecutorCompletionService(executorService);
+        CompletionService<GetResult<LaneProvenanceDtoList>> completionService = new ExecutorCompletionService<>(executorService);
 
-        List<Callable> callables = new ArrayList<>();
+        List<Callable<GetResult<LaneProvenanceDtoList>>> callables = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            callables.add(new <LaneProvenanceDtoList>Get("/reports/lane-provenance", new LaneProvenanceDtoList()));
-            callables.add(new Get("/reports/lane-provenance/refresh"));
-            callables.add(new Get("/reports/lane-provenance/invalidate"));
+            callables.add(new Get<>("/reports/lane-provenance", LaneProvenanceDtoList.class));
+            callables.add(new Get<>("/reports/lane-provenance/refresh", null));
+            callables.add(new Get<>("/reports/lane-provenance/invalidate", null));
         }
 
         Collections.shuffle(callables);
-        for (Callable c : callables) {
+        for (Callable<GetResult<LaneProvenanceDtoList>> c : callables) {
             futures.add(completionService.submit(c));
         }
 
         while (futures.size() > 0) {
 
-            Future<GetResult> completedTask = null;
+            Future<GetResult<LaneProvenanceDtoList>> completedTask = null;
             try {
                 completedTask = completionService.take();
             } catch (InterruptedException ex) {
@@ -100,7 +100,7 @@ public class LaneProvenanceResourceTest extends DatabaseResourceTest {
                     fail("Null completed task");
                 } else {
                     futures.remove(completedTask);
-                    GetResult r = completedTask.get();
+                    GetResult<LaneProvenanceDtoList> r = completedTask.get();
 
                     assertNotNull(r.getStatus());
 
@@ -109,9 +109,9 @@ public class LaneProvenanceResourceTest extends DatabaseResourceTest {
                     assertTrue(r.getRequestDate().isEqual(r.getResponseDate())
                             || r.getRequestDate().isBefore(r.getResponseDate()));
 
-                    Object data = r.getData();
-                    if (data instanceof LaneProvenanceDtoList) {
-                        List<LaneProvenanceDto> dtos = ((LaneProvenanceDtoList) data).getLaneProvenanceDtos();
+                    LaneProvenanceDtoList data = r.getData();
+                    if (data != null) {
+                        List<LaneProvenanceDto> dtos = data.getLaneProvenanceDtos();
 
                         assertNotNull(r.getDataLastModificationDate());
                         assertTrue(r.getResponseDate().isEqual(r.getDataLastModificationDate())

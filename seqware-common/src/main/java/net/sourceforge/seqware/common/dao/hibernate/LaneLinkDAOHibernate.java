@@ -1,15 +1,16 @@
 package net.sourceforge.seqware.common.dao.hibernate;
 
-import java.util.List;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import java.util.List;
 
 /**
  * <p>
  * LaneLinkDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -40,7 +41,7 @@ public class LaneLinkDAOHibernate extends HibernateDaoSupport implements LaneLin
     public List<LaneAttribute> findAll(Lane lane) {
         String query = "from LaneAttribute as ia where ia.lane.laneId = ?";
         Object[] parameters = { lane.getLaneId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<LaneAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 
 }

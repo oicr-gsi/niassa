@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,6 +30,8 @@ import org.slf4j.LoggerFactory;
 public class IUS extends PermissionsAware implements Serializable, Comparable<IUS>, ParentAccessionModel, Annotatable<IUSAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 3472028115923390568L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer iusId;
     private Lane lane;
     private Registration owner;
@@ -345,6 +351,7 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
      *
      * @return a {@link java.lang.Integer} object.
      */
+    @Override
     public Integer getSwAccession() {
         return swAccession;
     }

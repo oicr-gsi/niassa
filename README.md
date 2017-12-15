@@ -1,5 +1,9 @@
-[![Build Status](https://travis-ci.org/SeqWare/seqware.svg?branch=master)](https://travis-ci.org/SeqWare/seqware)
-[![DOI](https://zenodo.org/badge/4360/SeqWare/seqware.svg)](http://dx.doi.org/10.5281/zenodo.13358)
+[![Build Status](https://travis-ci.org/SeqWare/seqware.svg?branch=develop)](https://travis-ci.org/SeqWare/seqware)
+[![Join the chat at https://gitter.im/SeqWare/seqware](https://badges.gitter.im/SeqWare/seqware.svg)](https://gitter.im/SeqWare/seqware?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Coverity Scan](https://img.shields.io/coverity/scan/9681.svg?maxAge=2592000)](https://scan.coverity.com/projects/seqware-seqware)
+
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.33952.svg)](http://dx.doi.org/10.5281/zenodo.33952)
+
 
 ## Introduction 
 
@@ -40,7 +44,7 @@ approach on MacOS (or even another version of Linux).
 
 ###Java
 
-SeqWare requires Oracle JDK 1.7 or greater, we primarily write and test with JDK 1.7.x.
+SeqWare requires Oracle JDK 1.8 or greater, we primarily write and test with JDK 1.8.x.
 An example of instructions on how to update your Linux installation can be found [here](https://ccp.cloudera.com/display/CDH4DOC/Before+You+Install+CDH4+on+a+Single+Node#BeforeYouInstallCDH4onaSingleNode-InstalltheOracleJavaDevelopmentKit). You will need to use the method appropriate to your distribution to install this.
 
 ## Building 
@@ -92,6 +96,8 @@ When this is complete:
 (This runs all unit tests and integration tests that only require postgres as a prerequisite)
     mvn clean install -DskipITs=false -P extITs,embeddedTomcat
 (runs all unit tests and all integration tests including those that require Oozie)
+    mvn clean install -DskipITs=false -P longITs,embeddedTomcat
+(runs all unit tests and just the long integration tests that take longer than can run on Travis-CI)
 
 In the last case, the extended integration tests profile is used to trigger integration tests that run our command line utilities. 
 In order to point your command-line tools at the web service brought up by the integration tests, you will need to comment out your crontab and modify your SeqWare ~/.seqware/settings to include:
@@ -110,11 +116,11 @@ It is possible to disable our embedded tomcat instance and run against both a re
     EXTENDED_TEST_DB_USER=seqware
     EXTENDED_TEST_DB_PASSWORD=seqware
 
-Then set your SW_REST_URL to the web service that uses the above database and invoke the following command. Note that you will need to deploy the seqware-webservice war yourself. 
+Then set your SW\_REST\_URL to the web service that uses the above database and invoke the following command. Note that you will need to deploy the seqware-webservice war yourself. 
 
     mvn clean install -DskipITs=false -P 'extITs,!embeddedTomcat'
 
-Alternatively, if you wish to still use an embedded tomcat instance for testing, modify the properties at the beginning of your seqware-webservice/pom.xml to match the above databases and invoke the integration tests with your SW_REST_URL set to http://localhost:8889/seqware-webservice
+Alternatively, if you wish to still use an embedded tomcat instance for testing, modify the properties at the beginning of your seqware-webservice/pom.xml to match the above databases and invoke the integration tests with your SW\_REST\_URL set to http://localhost:8889/seqware-webservice
 
     mvn clean install -DskipITs=false -P extITs,embeddedTomcat
 
@@ -164,9 +170,43 @@ See our [Installation Guide](http://seqware.github.com/docs/2-installation/) for
 including links to a pre-configured virtual machine that can be used for
 testing, development, and deployment.
 
-## Copyright
+## seqware-docker
+This organization as a whole also documents the various docker distributions used by the SeqWare and Pancancer projects.
+Prerequisite containers can be resolved from Docker Hub which also runs continuous integration (except for seqware\_full which does not work in the docker hub environment). 
 
-Copyright 2008-2014 Brian D O'Connor, OICR, UNC, and Nimbus Informatics, LLC
+Install Docker using the following script. This will automatically setup AUFS which is recommended for performance reasons. 
+
+        curl -sSL https://get.docker.com/ | sudo sh
+        sudo usermod -aG docker ubuntu
+
+When using Ubuntu, we recommend 14.04. 
+After setting up, remember to exit your shell and log back in to refresh your environment.
+
+Currently, most of these containers (including all of the SeqWare ones) are available and served as [automated builds](https://registry.hub.docker.com/repos/seqware/) on Docker Hub. We are also working on [quay.io](https://quay.io/repository/?namespace=seqware). 
+
+### Java
+
+You will need Java 8 to extract the workflow .zip bundles.  Please install that version for your system.
+
+### SeqWare WhiteStar 
+
+This version of SeqWare uses the WhiteStar workflow engine to quickly run workflows without any dependencies on SGE, Oozie, Hadoop, or even the SeqWare webservice. These containers start quickly and with no running services or overhead. The trade-off is that running workflows is less robust and access to features such as throttling based on memory (SGE), retrying workflows (Oozie), or querying metadata (webservice) are not available.
+
+Go to [seqware\_whitestar](https://github.com/SeqWare/seqware_whitestar) for setup instructions
+
+#### Documentation Builder 
+
+Pre-requisite: SeqWare WhiteStar
+
+Used internally for the SeqWare project to build documentation via jenkins when changes are pushed to GitHub. 
+
+Go to [documentation\_builder](https://github.com/SeqWare/documentation_builder) for setup instructions
+
+### SeqWare Oozie-SGE 
+
+This version of SeqWare uses the Oozie-SGE workflow engine to run workflows. This requires SGE, Oozie, Hadoop, and the SeqWare webservice and thus containers are started with a script which spins up these services. These containers should be functionally very similar to full VMs spun up using [Bindle](https://github.com/CloudBindle/Bindle) and ansible-playbooks from [seqware-bag](https://github.com/SeqWare/seqware-bag).
+
+Go to [seqware\_full](https://github.com/SeqWare/seqware_full) for setup instructions
 
 ## Contributors
 

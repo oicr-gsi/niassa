@@ -3,6 +3,11 @@ package net.sourceforge.seqware.common.model;
 import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import net.sourceforge.seqware.common.security.PermissionsAware;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
@@ -22,6 +27,8 @@ import org.slf4j.LoggerFactory;
 public class File extends PermissionsAware implements Serializable, Comparable<File>, Annotatable<FileAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 3681322115923390568L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer fileId;
     private String filePath;
     private String type;

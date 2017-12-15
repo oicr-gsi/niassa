@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import net.sourceforge.seqware.common.security.PermissionsAware;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -24,6 +29,8 @@ public class Invoice extends PermissionsAware implements Serializable, Comparabl
      * LEFT OFF WITH: this needs to be finished
      */
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer invoiceId;
     private Registration owner;
     private Date startDate;
@@ -402,6 +409,7 @@ public class Invoice extends PermissionsAware implements Serializable, Comparabl
      *
      * @return a {@link java.lang.Integer} object.
      */
+    @Override
     public Integer getSwAccession() {
         return swAccession;
     }

@@ -41,7 +41,7 @@ public class ProcessResourceTest extends DatabaseResourceTest {
             Processing processing = new Processing();
             processing.setAlgorithm("test test " + System.currentTimeMillis());
 
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<Processing>(), processing);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<Processing>(), processing, Processing.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
             rep.exhaust();
             rep.release();

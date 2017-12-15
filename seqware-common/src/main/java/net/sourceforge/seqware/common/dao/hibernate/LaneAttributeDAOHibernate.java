@@ -3,13 +3,13 @@ package net.sourceforge.seqware.common.dao.hibernate;
 import java.util.List;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
  * LaneAttributeDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -40,6 +40,6 @@ public class LaneAttributeDAOHibernate extends HibernateDaoSupport implements La
     public List<LaneAttribute> findAll(Lane lane) {
         String query = "from LaneAttribute as ia where ia.lane.laneId = ?";
         Object[] parameters = { lane.getLaneId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<LaneAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 }

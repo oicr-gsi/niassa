@@ -17,28 +17,28 @@
 package net.sourceforge.seqware.webservice.resources.tables;
 
 import java.io.IOException;
-import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.model.LimsKey;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
-import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
+
+import javax.persistence.PersistenceException;
+
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
 import net.sourceforge.seqware.common.business.LimsKeyService;
-import net.sourceforge.seqware.common.err.DataIntegrityException;
+import net.sourceforge.seqware.common.factory.BeanFactory;
+import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.lists.LimsKeyList;
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
-import org.restlet.data.MediaType;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Delete;
-import org.restlet.resource.Put;
 
 /**
  *
@@ -59,13 +59,13 @@ public class LimsKeyResource extends BasicResource {
             Integer swid = parseClientInt((String) getRequestAttributes().get("limsKeyId"));
             LimsKey limsKey = (LimsKey) testIfNull(ss.findBySWAccession(swid));
             JaxbObject<LimsKey> jaxbTool = new JaxbObject<>();
-            line = XmlTools.marshalToDocument(jaxbTool, limsKey);
+            line = XmlTools.marshalToDocument(jaxbTool, limsKey, LimsKey.class);
         } else if (queryValues.get("id") != null) {
             //get by id
             Integer id = parseClientInt(queryValues.get("id"));
             LimsKey limsKey = (LimsKey) testIfNull(ss.findByID(id));
             JaxbObject<LimsKey> jaxbTool = new JaxbObject<>();
-            line = XmlTools.marshalToDocument(jaxbTool, limsKey);
+            line = XmlTools.marshalToDocument(jaxbTool, limsKey, LimsKey.class);
         } else {
             //get all
             JaxbObject<LimsKeyList> jaxbTool = new JaxbObject<>();
@@ -73,7 +73,7 @@ public class LimsKeyResource extends BasicResource {
             for (LimsKey key : testIfNull(ss.list())) {
                 limsKeyList.add(key);
             }
-            line = XmlTools.marshalToDocument(jaxbTool, limsKeyList);
+            line = XmlTools.marshalToDocument(jaxbTool, limsKeyList, LimsKeyList.class);
         }
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
@@ -89,7 +89,7 @@ public class LimsKeyResource extends BasicResource {
             String text = entity.getText();
             LimsKey o = null;
             try {
-                o = (LimsKey) XmlTools.unMarshal(jo, new LimsKey(), text);
+                o = (LimsKey) XmlTools.unMarshal(jo, LimsKey.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -100,11 +100,9 @@ public class LimsKeyResource extends BasicResource {
 
             //build dto to return
             LimsKey obj = (LimsKey) testIfNull(service.findBySWAccession(swAccession));
-            Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-            LimsKey detachedLimsKey = copier.hibernate2dto(LimsKey.class, obj);
-            detachedLimsKey.setLastModified(obj.getLastModified());  //hibernate dto copier does not set DateTime
+            LimsKey detachedLimsKey = obj.asDetached();
 
-            rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jo, detachedLimsKey));
+            rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jo, detachedLimsKey, LimsKey.class));
             getResponse().setEntity(rep);
             getResponse().setLocationRef(getRequest().getRootRef() + "/limskey/" + detachedLimsKey.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);
@@ -128,8 +126,7 @@ public class LimsKeyResource extends BasicResource {
 
         LimsKey updatedLimsKey = null;
         try {
-            JaxbObject<LimsKey> jo = new JaxbObject<>();
-            updatedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), new LimsKey(), entity.getText());
+            updatedLimsKey = (LimsKey) XmlTools.unMarshal(new JaxbObject<LimsKey>(), LimsKey.class, entity.getText());
         } catch (IOException | SAXException ex) {
             throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
         }
@@ -145,7 +142,7 @@ public class LimsKeyResource extends BasicResource {
 
         LimsKey newLimsKey = service.findBySWAccession(objectSwid);
 
-        Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), newLimsKey));
+        Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(new JaxbObject<LimsKey>(), newLimsKey, LimsKey.class));
         getResponse().setEntity(rep);
         getResponse().setLocationRef(getRequest().getRootRef() + "/limskey/" + newLimsKey.getSwAccession());
         getResponse().setStatus(Status.SUCCESS_CREATED);
@@ -167,7 +164,7 @@ public class LimsKeyResource extends BasicResource {
         try {
             service.delete(limsKey);
             getResponse().setStatus(Status.SUCCESS_OK);
-        } catch (DataIntegrityException ex) {
+        } catch (PersistenceException  ex) {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
         }
         return rep;

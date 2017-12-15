@@ -1,12 +1,9 @@
 package net.sourceforge.seqware.common.metadata;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import io.seqware.common.model.ProcessingStatus;
-import io.seqware.common.model.SequencerRunStatus;
-import io.seqware.common.model.WorkflowRunStatus;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,6 +13,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import io.seqware.common.model.ProcessingStatus;
+import io.seqware.common.model.SequencerRunStatus;
+import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
@@ -52,9 +57,6 @@ import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -217,7 +219,7 @@ public class MetadataNoConnection implements Metadata {
      * TODO: needs to support more relationship types, but will need to add to the SQL schema to support this
      */
     @Override
-    public boolean linkWorkflowRunAndParent(int workflowRunId, int parentAccession) throws SQLException {
+    public boolean linkWorkflowRunAndParent(int workflowRunId, int... parentAccession) throws SQLException {
         logger.info("No metadata connection");
         return (true);
     }
@@ -839,7 +841,7 @@ public class MetadataNoConnection implements Metadata {
     }
 
     @Override
-    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified) {
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

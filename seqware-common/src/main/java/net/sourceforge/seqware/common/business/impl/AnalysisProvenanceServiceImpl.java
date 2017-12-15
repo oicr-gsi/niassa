@@ -16,8 +16,6 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,16 +24,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
 import net.sourceforge.seqware.common.dao.IUSDAO;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -64,7 +66,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.list();
         } else {
-            return buildList(iusDAO.list(), Collections.EMPTY_MAP);
+            return buildList(iusDAO.list(), Collections.emptyMap());
         }
     }
 
@@ -87,12 +89,12 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             unfilteredAps = analysisProvenanceDAO.list();
         } else {
-            unfilteredAps = buildList(iusDAO.list(), Collections.EMPTY_MAP);
+            unfilteredAps = buildList(iusDAO.list(), Collections.emptyMap());
         }
 
         List<AnalysisProvenanceDto> aps = new ArrayList<>();
         for (AnalysisProvenanceDto ap : unfilteredAps) {
-            for (IusLimsKey ilk : ap.getIusLimsKeys()) {
+            for (IusLimsKeyDto ilk : ap.getIusLimsKeys()) {
                 if (targetIusSwid.equals(ilk.getIusSWID())) {
                     aps.add(ap);
                     break;
@@ -108,7 +110,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.getSupportedFilters();
         } else {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
     }
 

@@ -1,6 +1,5 @@
 package io.seqware.pipeline.plugins;
 
-import io.seqware.pipeline.SqwKeys;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -9,13 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import joptsimple.OptionException;
+
+import org.openide.util.lookup.ServiceProvider;
+
+import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * <p>
@@ -79,23 +80,6 @@ public class UserSettingsPlugin extends Plugin {
             Log.fatal(e);
         }
         return ("");
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue parse_parameters() {
-        ReturnValue ret = new ReturnValue();
-        try {
-            options = parser.parse(params);
-        } catch (OptionException e) {
-            get_syntax();
-            ret.setExitStatus(ReturnValue.INVALIDARGUMENT);
-        }
-        return ret;
     }
 
     /**

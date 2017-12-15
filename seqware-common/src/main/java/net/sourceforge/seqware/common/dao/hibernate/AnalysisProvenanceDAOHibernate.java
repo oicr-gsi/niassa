@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceSqlResultDto;
@@ -38,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  *
@@ -69,7 +69,7 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
 
     @Override
     public List<AnalysisProvenanceDto> list() {
-        return list(Collections.EMPTY_MAP);
+    return list(Collections.emptyMap());
     }
 
     @Override
@@ -79,7 +79,7 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
         StringBuilder sqlQueryBuilder = new StringBuilder();
         sqlQueryBuilder.append(analysisProvenanceAllSql);
 
-        Map<String, Collection> parameterList = new HashMap<>();
+    Map<String, Collection<?>> parameterList = new HashMap<>();
         List<String> sqlFilters = new ArrayList<>();
         if (filters == null || filters.isEmpty()) {
 
@@ -112,10 +112,11 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
 
         SQLQuery query = session.createSQLQuery(sqlQueryBuilder.toString());
 
-        for (Entry<String, Collection> e : parameterList.entrySet()) {
+    for (Entry<String, Collection<?>> e : parameterList.entrySet()) {
             query.setParameterList(e.getKey(), e.getValue());
         }
 
+    @SuppressWarnings("unchecked")
         List<AnalysisProvenanceDto> dtos = query.setResultTransformer(Transformers.aliasToBean(AnalysisProvenanceSqlResultDto.class)).list();
         return dtos;
     }

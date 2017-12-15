@@ -20,9 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
+
 import joptsimple.HelpFormatter;
 import joptsimple.OptionDescriptor;
-import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -31,8 +34,6 @@ import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * <p>
@@ -127,27 +128,6 @@ public class MarkdownPlugin extends Plugin {
         return ("");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#parse_parameters()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue parse_parameters() {
-        ReturnValue ret = new ReturnValue();
-        try {
-            options = parser.parse(params);
-        } catch (OptionException e) {
-            get_syntax();
-            ret.setExitStatus(ReturnValue.INVALIDARGUMENT);
-        }
-        return ret;
-    }
 
     /*
      * (non-Javadoc)

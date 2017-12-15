@@ -23,7 +23,7 @@ import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
 
 /**
@@ -39,20 +39,20 @@ public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyD
     @Override
     public Integer insert(LimsKey limsKey) {
         this.getHibernateTemplate().save(limsKey);
-        getSession().flush();
+    getSessionFactory().getCurrentSession().flush();
         return limsKey.getSwAccession();
     }
 
     @Override
     public void update(LimsKey limsKey) {
         this.getHibernateTemplate().update(limsKey);
-        getSession().flush();
+    getSessionFactory().getCurrentSession().flush();
     }
 
     @Override
     public void delete(LimsKey limsKey) {
         this.getHibernateTemplate().delete(limsKey);
-        getSession().flush();
+    getSessionFactory().getCurrentSession().flush();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyD
         String query = "from LimsKey as lk where lk.limsKeyId = ?";
         LimsKey limsKey = null;
         Object[] params = {id};
-        List list = this.getHibernateTemplate().find(query, params);
+        List<?> list = this.getHibernateTemplate().find(query, params);
         if (list.size() > 0) {
             limsKey = (LimsKey) list.get(0);
         }
@@ -72,7 +72,7 @@ public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyD
         String query = "from LimsKey as lk where lk.swAccession = ?";
         LimsKey limsKey = null;
         Object[] params = {swAccession};
-        List list = this.getHibernateTemplate().find(query, params);
+        List<?> list = this.getHibernateTemplate().find(query, params);
         if (list.size() > 0) {
             limsKey = (LimsKey) list.get(0);
         }
@@ -85,7 +85,7 @@ public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyD
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, limsKey);
-            return (LimsKey) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             logger.error("Error updating detached ius", e);
         }

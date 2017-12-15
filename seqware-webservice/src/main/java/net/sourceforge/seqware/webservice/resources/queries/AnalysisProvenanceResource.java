@@ -58,7 +58,7 @@ public class AnalysisProvenanceResource extends BasicResource {
             JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
             AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
             list.setAnalysisProvenanceDtos(service.list());
-            return XmlTools.marshalToDocument(jaxbTool, list);
+            return XmlTools.marshalToDocument(jaxbTool, list, AnalysisProvenanceDtoList.class);
         }
 
     };
@@ -93,7 +93,7 @@ public class AnalysisProvenanceResource extends BasicResource {
             JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
             AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
             list.setAnalysisProvenanceDtos(service.list(filters));
-            Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jaxbTool, list));
+            Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jaxbTool, list, AnalysisProvenanceDtoList.class));
             getResponse().setEntity(rep);
         }
     }

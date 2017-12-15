@@ -68,7 +68,7 @@ public class WorkflowParamValueResource extends DatabaseResource {
             String text = entity.getText();
             WorkflowParamValue p;
             try {
-                p = (WorkflowParamValue) XmlTools.unMarshal(jo, new WorkflowParamValue(), text);
+                p = (WorkflowParamValue) XmlTools.unMarshal(jo, WorkflowParamValue.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -80,7 +80,7 @@ public class WorkflowParamValueResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             WorkflowParamValue detachWPV = copier.hibernate2dto(WorkflowParamValue.class, wpv);
 
-            Document line = XmlTools.marshalToDocument(jo, detachWPV);
+            Document line = XmlTools.marshalToDocument(jo, detachWPV, WorkflowParamValue.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/workflowparamvalues?id=" + detachWPV.getWorkflowParamValueId());
             getResponse().setStatus(Status.SUCCESS_CREATED);
@@ -112,7 +112,7 @@ public class WorkflowParamValueResource extends DatabaseResource {
 
             WorkflowParamValue dto = copier.hibernate2dto(WorkflowParamValue.class, wp);
 
-            line = XmlTools.marshalToDocument(jaxbTool, dto);
+            line = XmlTools.marshalToDocument(jaxbTool, dto, WorkflowParamValue.class);
 
         } else {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
@@ -125,7 +125,7 @@ public class WorkflowParamValueResource extends DatabaseResource {
                 list.add(copier.hibernate2dto(WorkflowParamValue.class, wpv));
             }
 
-            line = XmlTools.marshalToDocument(jaxbTool, list);
+            line = XmlTools.marshalToDocument(jaxbTool, list, WorkflowParamValueList.class);
         }
         getResponse().setEntity(XmlTools.getRepresentation(line));
 

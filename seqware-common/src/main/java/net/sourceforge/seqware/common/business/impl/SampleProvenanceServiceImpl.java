@@ -73,7 +73,9 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
             sp.setParentSamples(parentSamples);
 
             SampleProvenanceDto dto = new SampleProvenanceDto();
-            BeanUtils.copyProperties(sp, dto);
+            BeanUtils.copyProperties(sp, dto, "createdDate", "lastModified");
+            dto.setCreatedDate(sp.getCreatedDate());
+            dto.setLastModified(sp.getLastModified());
 
             dtos.add(dto);
         }

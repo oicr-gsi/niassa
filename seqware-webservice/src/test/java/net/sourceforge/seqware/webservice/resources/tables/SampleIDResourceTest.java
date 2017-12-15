@@ -18,38 +18,28 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class SampleIDResourceTest extends DatabaseResourceIDTest {
+public class SampleIDResourceTest extends DatabaseResourceIDTest<Sample> {
 
-    public SampleIDResourceTest() {
-        super("/samples/6207");
-        jo = new JaxbObject<>();
-        o = new Sample();
-    }
+	public SampleIDResourceTest() {
+		super("/samples/6207", Sample.class);
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof Sample) {
-            Sample e = (Sample) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
+	@Override
+	protected int testObject(Sample e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 
-        } else {
-            System.err.println("Object is not an instance of Sample");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	public void testPut() {
 
-    @Override
-    public void testPut() {
-
-    }
+	}
 }

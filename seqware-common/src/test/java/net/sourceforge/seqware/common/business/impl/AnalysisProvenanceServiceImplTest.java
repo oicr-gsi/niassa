@@ -16,22 +16,33 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import net.sourceforge.seqware.common.AbstractTestCase;
+
+import javax.persistence.PersistenceException;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
@@ -40,6 +51,8 @@ import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
@@ -49,9 +62,6 @@ import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import org.hibernate.SessionFactory;
-import org.joda.time.DateTime;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -110,7 +120,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
-        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        ZonedDateTime expectedLastModified = ZonedDateTime.parse("2016-01-01T00:00:00Z");
 
         LimsKey limsKey = new LimsKey();
         limsKey.setProvider(expectedProvider);
@@ -158,12 +168,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedFilePath, ap.getFilePath());
 
         assertEquals(1, ap.getIusLimsKeys().size());
-        IusLimsKey ilk = Iterables.getOnlyElement(ap.getIusLimsKeys());
+        IusLimsKeyDto ilk = Iterables.getOnlyElement(ap.getIusLimsKeys());
         assertEquals(ius.getSwAccession(), ilk.getIusSWID());
 
-        ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+        LimsKeyDto lk = ilk.getLimsKey();
         assertEquals(expectedId, lk.getId());
-        assertEquals(expectedLastModified, lk.getLastModified());
+        assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
         assertEquals(expectedProvider, lk.getProvider());
         assertEquals(expectedVersion, lk.getVersion());
 
@@ -228,7 +238,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
-        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        ZonedDateTime expectedLastModified = ZonedDateTime.parse("2016-01-01T00:00:00Z");
 
         //first IusLimsKey
         LimsKey limsKey1 = new LimsKey();
@@ -284,10 +294,10 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedFilePath, ap.getFilePath());
 
         assertEquals(2, ap.getIusLimsKeys().size());
-        for (IusLimsKey ilk : ap.getIusLimsKeys()) {
-            ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+        for (IusLimsKeyDto ilk : ap.getIusLimsKeys()) {
+            LimsKeyDto lk = ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
-            assertEquals(expectedLastModified, lk.getLastModified());
+            assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
             assertEquals(expectedVersion, lk.getVersion());
         }
@@ -307,7 +317,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
-        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        ZonedDateTime expectedLastModified = ZonedDateTime.parse("2016-01-01T00:00:00Z");
 
         //first IusLimsKey
         LimsKey limsKey1 = new LimsKey();
@@ -380,12 +390,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedFilePath, ap1.getFilePath());
 
         assertEquals(1, ap1.getIusLimsKeys().size());
-        IusLimsKey ilk1 = Iterables.getOnlyElement(ap1.getIusLimsKeys());
+        IusLimsKeyDto ilk1 = Iterables.getOnlyElement(ap1.getIusLimsKeys());
         assertEquals(ius1.getSwAccession(), ilk1.getIusSWID());
 
-        ca.on.oicr.gsi.provenance.model.LimsKey lk1 = ilk1.getLimsKey();
+        LimsKeyDto lk1 = ilk1.getLimsKey();
         assertEquals(expectedId, lk1.getId());
-        assertEquals(expectedLastModified, lk1.getLastModified());
+        assertEquals(expectedLastModified.toInstant(), lk1.getLastModified().toInstant());
         assertEquals(expectedProvider, lk1.getProvider());
         assertEquals(expectedVersion, lk1.getVersion());
 
@@ -396,12 +406,12 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedFilePath, ap2.getFilePath());
 
         assertEquals(1, ap2.getIusLimsKeys().size());
-        IusLimsKey ilk2 = Iterables.getOnlyElement(ap2.getIusLimsKeys());
+        IusLimsKeyDto ilk2 = Iterables.getOnlyElement(ap2.getIusLimsKeys());
         assertEquals(ius2.getSwAccession(), ilk2.getIusSWID());
 
-        ca.on.oicr.gsi.provenance.model.LimsKey lk2 = ilk2.getLimsKey();
+        LimsKeyDto lk2 = ilk2.getLimsKey();
         assertEquals(expectedId, lk2.getId());
-        assertEquals(expectedLastModified, lk2.getLastModified());
+        assertEquals(expectedLastModified.toInstant(), lk2.getLastModified().toInstant());
         assertEquals(expectedProvider, lk2.getProvider());
         assertEquals(expectedVersion, lk2.getVersion());
 
@@ -420,7 +430,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
-        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        ZonedDateTime expectedLastModified = ZonedDateTime.parse("2016-01-01T00:00:00Z");
 
         //first IusLimsKey
         LimsKey limsKey1 = new LimsKey();
@@ -487,10 +497,10 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertNull(apBeforeAddingFile.getFilePath());
 
         assertEquals(2, apBeforeAddingFile.getIusLimsKeys().size());
-        for (IusLimsKey ilk : apBeforeAddingFile.getIusLimsKeys()) {
-            ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+        for (IusLimsKeyDto ilk : apBeforeAddingFile.getIusLimsKeys()) {
+            LimsKeyDto lk = ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
-            assertEquals(expectedLastModified, lk.getLastModified());
+            assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
             assertEquals(expectedVersion, lk.getVersion());
         }
@@ -512,10 +522,10 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(expectedFilePath, apAfterAddingFile.getFilePath());
 
         assertEquals(2, apAfterAddingFile.getIusLimsKeys().size());
-        for (IusLimsKey ilk : apAfterAddingFile.getIusLimsKeys()) {
-            ca.on.oicr.gsi.provenance.model.LimsKey lk = ilk.getLimsKey();
+        for (IusLimsKeyDto ilk : apAfterAddingFile.getIusLimsKeys()) {
+            LimsKeyDto lk = ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
-            assertEquals(expectedLastModified, lk.getLastModified());
+            assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
             assertEquals(expectedVersion, lk.getVersion());
         }
@@ -529,7 +539,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         String expectedProvider = "seqware";
         String expectedId = "1_1_1";
         String expectedVersion = "2dc238bf1d7e1f6b6a110bb9592be4e7b83ee8a144c20fb0632144b66b3735cf";
-        DateTime expectedLastModified = DateTime.parse("2016-01-01T00:00:00Z");
+        ZonedDateTime expectedLastModified = ZonedDateTime.parse("2016-01-01T00:00:00Z");
         String expectedTag1 = "testTag1";
         String expectedValue1 = "testValue1";
         String expectedTag2 = "testTag2";
@@ -615,7 +625,7 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         LimsKey limsKeyToDelete = limsKeyService.findBySWAccession(limsKeySwid);
         try {
             limsKeyService.delete(limsKeyToDelete);
-        } catch (DataIntegrityException ex) {
+        } catch (PersistenceException ex) {
             throw new RuntimeException(ex);
         }
 

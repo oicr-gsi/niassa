@@ -75,14 +75,14 @@ public class LibrarySelectionResource extends DatabaseResource {
         JaxbObject<LibrarySelectionList> jaxbTool = new JaxbObject<>();
 
         LibrarySelectionList list = new LibrarySelectionList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (LibrarySelection obj : objects) {
             LibrarySelection dto = copier.hibernate2dto(LibrarySelection.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, LibrarySelectionList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

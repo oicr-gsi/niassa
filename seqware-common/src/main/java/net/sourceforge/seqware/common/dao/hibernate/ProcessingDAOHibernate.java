@@ -14,13 +14,13 @@ import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
  * ProcessingDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -44,25 +44,25 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
             processing.setCreateTimestamp(new Timestamp(System.currentTimeMillis()));
         }
         this.getHibernateTemplate().save(processing);
-        this.getSession().flush();
+        this.currentSession().flush();
         return processing.getSwAccession();
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of Processing in the database.
      */
     @Override
     public void update(Processing processing) {
 
         this.getHibernateTemplate().update(processing);
-        getSession().flush();
+        currentSession().flush();
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Updates an instance of Processing in the database. This is likely to not work given the complex tree structures created with
      * processing entries.
      */
@@ -74,7 +74,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * WITH RECURSIVE "processing_root_to_leaf" ("child_id", "parent_id") AS ( SELECT p."child_id" as "child_id", p."parent_id" FROM
      * "processing_relationship" p where p."parent_id" = 53851 UNION ALL SELECT p."child_id", rl."parent_id" FROM "processing_root_to_leaf"
      * rl, "processing_relationship" p WHERE p."parent_id" = rl."child_id" ) --select * from "processing_root_to_leaf" p; select distinct
@@ -101,7 +101,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
                 + "where p.child_id = processing_id " + "UNION ALL "
                 + "select distinct file_id from processing_files pf where pf.processing_id = ?)";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
                                                                                                              * 53851
                                                                                                              */)
                 .setInteger(1, processingId).list();
@@ -142,7 +142,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
                 + "where p.child_id = processing_id " + "UNION ALL "
                 + "select distinct file_id from processing_files pf where pf.processing_id = ?) LIMIT 1";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
                                                                                                              * 53851
                                                                                                              */)
                 .setInteger(1, processingId).list();
@@ -165,7 +165,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
                 + "where p.child_id = processing_id " + "UNION ALL "
                 + "select distinct file_id from processing_files pf where pf.processing_id = ?)";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
                                                                                                              * 53851
                                                                                                              */).setString(1, metaType)
                 .setInteger(2, processingId).list();
@@ -196,7 +196,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
                 + "where p.child_id = processing_id " + "UNION ALL "
                 + "select distinct file_id from processing_files pf where pf.processing_id = ?) LIMIT 1";
 
-        List list = this.getSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
+        List list = this.currentSession().createSQLQuery(query).addEntity(File.class).setInteger(0, processingId/*
                                                                                                              * 53851
                                                                                                              */).setString(1, metaType)
                 .setInteger(2, processingId).list();
@@ -208,7 +208,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of Processing in the database by the Processing emailAddress.
      */
     @Override
@@ -225,9 +225,9 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of SequencerRun in the database by the SequencerRun ID.
-     * 
+     *
      * @param id
      */
     @Override
@@ -249,9 +249,9 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
         String query = "from Processing as processing where processing.swAccession = ?";
         Processing processing = null;
         Object[] parameters = { swAccession };
-        List<Processing> list = this.getHibernateTemplate().find(query, parameters);
+        List<Processing> list = (List<Processing>) this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            processing = (Processing) list.get(0);
+            processing = list.get(0);
         }
         return processing;
     }
@@ -262,7 +262,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
     public List<Processing> findByOwnerID(Integer registrationId) {
         String query = "from Processing as processing where processing.owner.registrationId = ?";
         Object[] parameters = { registrationId };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<Processing>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */
@@ -273,7 +273,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
                 + " or cast(p.swAccession as string) like :sw or p.algorithm like :alg order by p.algorithm, p.description";
         String queryStringICase = "from Processing as p where lower(p.description) like :description "
                 + " or cast(p.swAccession as string) like :sw or lower(p.algorithm) like :alg order by p.algorithm, p.description";
-        Query query = isCaseSens ? this.getSession().createQuery(queryStringCase) : this.getSession().createQuery(queryStringICase);
+        Query query = isCaseSens ? this.currentSession().createQuery(queryStringCase) : this.currentSession().createQuery(queryStringICase);
         if (!isCaseSens) {
             criteria = criteria.toLowerCase();
         }
@@ -292,7 +292,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, processing);
-            return (Processing) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             localLogger.error("Error updating detached processing", e);
         }
@@ -360,7 +360,7 @@ public class ProcessingDAOHibernate extends HibernateDaoSupport implements Proce
 
     private Processing reattachProcessing(Processing processing) throws IllegalStateException, DataAccessResourceFailureException {
         Processing dbObject = processing;
-        if (!getSession().contains(processing)) {
+        if (!currentSession().contains(processing)) {
             dbObject = findByID(processing.getProcessingId());
         }
         return dbObject;

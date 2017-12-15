@@ -3,6 +3,11 @@ package net.sourceforge.seqware.common.model;
 import java.io.Serializable;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -22,6 +27,8 @@ public class ExperimentSpotDesign implements Serializable, Comparable<Experiment
      * 
      */
     private static final long serialVersionUID = 173283927487293893L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer experimentSpotDesignId;
     private Integer decodeMethod;
     private Integer readsPerSpot;

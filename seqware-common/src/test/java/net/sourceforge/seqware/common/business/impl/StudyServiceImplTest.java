@@ -1,19 +1,21 @@
 package net.sourceforge.seqware.common.business.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 import java.util.Set;
+
+import org.hibernate.SessionFactory;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.StudyService;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.util.Log;
-import org.hibernate.SessionFactory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * <p>
@@ -87,7 +89,7 @@ public class StudyServiceImplTest extends AbstractTestCase {
     @Test
     public void testUpdateDetached() {
         Study study = studyService.findByID(12);
-        SessionFactoryUtils.getSession(sessionFactory, true).evict(study); //detach object
+        sessionFactory.getCurrentSession().evict(study); //detach object
 
         Study newStudy = studyService.findByID(12);
         assertFalse(study == newStudy);

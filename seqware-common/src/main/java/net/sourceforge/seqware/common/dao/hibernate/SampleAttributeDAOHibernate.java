@@ -4,13 +4,13 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.SampleAttributeDAO;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
  * SampleAttributeDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
@@ -41,7 +41,7 @@ public class SampleAttributeDAOHibernate extends HibernateDaoSupport implements 
     public List<SampleAttribute> findAll(Sample sample) {
         String query = "from SampleAttribute as ia where ia.sample.sampleId = ?";
         Object[] parameters = { sample.getSampleId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<SampleAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */

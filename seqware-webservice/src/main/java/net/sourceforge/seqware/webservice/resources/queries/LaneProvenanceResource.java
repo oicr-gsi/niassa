@@ -43,7 +43,7 @@ public class LaneProvenanceResource extends BasicResource {
             JaxbObject<LaneProvenanceDtoList> jaxbTool = new JaxbObject<>();
             LaneProvenanceDtoList list = new LaneProvenanceDtoList();
             list.setLaneProvenanceDtos(service.list());
-            return XmlTools.marshalToDocument(jaxbTool, list);
+            return XmlTools.marshalToDocument(jaxbTool, list, LaneProvenanceDtoList.class);
         }
     };
 

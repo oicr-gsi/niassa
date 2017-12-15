@@ -16,41 +16,33 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import org.junit.Ignore;
+
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import org.junit.Ignore;
 
 /**
  * 
  * @author mtaschuk
  */
-public class FileIDResourceTest extends DatabaseResourceIDTest {
-    public FileIDResourceTest() {
-        super("/files/1963");
-        jo = new JaxbObject<>();
-        o = new File();
-    }
+public class FileIDResourceTest extends DatabaseResourceIDTest<File> {
+	public FileIDResourceTest() {
+		super("/files/1963", File.class);
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof File) {
-            File e = (File) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
-        } else {
-            System.err.println("Object is not an instance of File");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	protected int testObject(File e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 
-    @Ignore("Temporarily ignored. TODO: Implement test.")
-    @Override
-    public void testPut() {
+	@Ignore("Temporarily ignored. TODO: Implement test.")
+	@Override
+	public void testPut() {
 
-    }
+	}
 
 }

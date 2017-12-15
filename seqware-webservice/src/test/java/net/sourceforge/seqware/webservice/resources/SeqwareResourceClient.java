@@ -47,7 +47,7 @@ public class SeqwareResourceClient<T extends FirstTierModel> {
         try {
             cr = ClientResourceInstance.getChild(resourcePath + "/" + swid);
             rep = cr.get();
-            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), getExpectedType(), rep.getText());
+            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), type, rep.getText());
         } finally {
             if (rep != null) {
                 rep.exhaust();
@@ -67,7 +67,7 @@ public class SeqwareResourceClient<T extends FirstTierModel> {
         try {
             cr = ClientResourceInstance.getChild(resourcePath + "?id=" + id);
             rep = cr.get();
-            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), getExpectedType(), rep.getText());
+            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), type, rep.getText());
         } finally {
             if (rep != null) {
                 rep.exhaust();
@@ -85,10 +85,10 @@ public class SeqwareResourceClient<T extends FirstTierModel> {
         ClientResource cr = null;
         Representation rep = null;
         try {
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<T>(), obj);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<T>(), obj, type);
             cr = ClientResourceInstance.getChild(resourcePath);
             rep = cr.post(XmlTools.getRepresentation(doc));
-            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), getExpectedType(), rep.getText());
+            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), type, rep.getText());
         } finally {
             if (rep != null) {
                 rep.exhaust();
@@ -107,10 +107,10 @@ public class SeqwareResourceClient<T extends FirstTierModel> {
         Representation rep = null;
         try {
             Integer swid = obj.getSwAccession();
-            Document doc = XmlTools.marshalToDocument(new JaxbObject<T>(), obj);
+            Document doc = XmlTools.marshalToDocument(new JaxbObject<T>(), obj, type);
             cr = ClientResourceInstance.getChild(resourcePath + "/" + swid);
             rep = cr.put(XmlTools.getRepresentation(doc));
-            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), getExpectedType(), rep.getText());
+            returnedObj = (T) XmlTools.unMarshal(new JaxbObject<T>(), type, rep.getText());
         } finally {
             if (rep != null) {
                 rep.exhaust();
@@ -138,14 +138,6 @@ public class SeqwareResourceClient<T extends FirstTierModel> {
             if (cr != null) {
                 cr.release();
             }
-        }
-    }
-
-    private T getExpectedType() {
-        try {
-            return (T) Class.forName(type.getCanonicalName()).newInstance();
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
-            throw new RuntimeException(ex);
         }
     }
 

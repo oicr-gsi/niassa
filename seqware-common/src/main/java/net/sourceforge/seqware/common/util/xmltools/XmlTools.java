@@ -2,9 +2,11 @@ package net.sourceforge.seqware.common.util.xmltools;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
@@ -63,10 +65,10 @@ public class XmlTools {
      *            a {@link java.lang.Object} object.
      * @return a {@link org.w3c.dom.Document} object.
      */
-    public static Document marshalToDocument(JaxbObject jaxbTool, Object o) {
+    public static <T>Document marshalToDocument(JaxbObject<T> jaxbTool, T o, Class<T> type) {
         Document doc = null;
         try {
-            doc = jaxbTool.marshalToDocument(o);
+            doc = jaxbTool.marshalToDocument(o, type);
         } catch (JAXBException e) {
             Logger logger = LoggerFactory.getLogger(XmlTools.class);
             logger.error("Error mashalling XML document", e);
@@ -104,8 +106,8 @@ public class XmlTools {
      * @throws org.xml.sax.SAXException
      *             if any.
      */
-    public static Object unMarshal(JaxbObject jaxbTool, Object expectedType, String string) throws SAXException {
-        Object o = null;
+    public static <T> T unMarshal(JaxbObject<T> jaxbTool, Class<T> expectedType, String string) throws SAXException {
+        T o = null;
         try {
             // SEQWARE-1549
             if (string == null) {

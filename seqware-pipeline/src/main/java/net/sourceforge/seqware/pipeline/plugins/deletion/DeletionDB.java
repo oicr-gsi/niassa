@@ -1,5 +1,8 @@
 package net.sourceforge.seqware.pipeline.plugins.deletion;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -7,9 +10,18 @@ import io.seqware.pipeline.SqwKeys;
 import io.seqware.webservice.client.SeqWareWebServiceClient;
 import io.seqware.webservice.controller.ModelAccessionIDTuple;
 import io.seqware.webservice.generated.model.WorkflowRun;
+import joptsimple.OptionSpec;
+import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import net.sourceforge.seqware.pipeline.plugin.Plugin;
+import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.apache.commons.io.FileUtils;
+import org.openide.util.lookup.ServiceProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,16 +32,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import joptsimple.OptionSpec;
-import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import net.sourceforge.seqware.pipeline.plugin.Plugin;
-import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-import org.codehaus.jackson.type.TypeReference;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * A workflow run deletion tool for your SeqWare metadb
@@ -203,7 +205,7 @@ public final class DeletionDB extends Plugin {
                 // output files as candidates for deletion
                 File fileListing = File.createTempFile("file", ".listing");
                 for (String path : filesToBeDeleted) {
-                    FileUtils.write(fileListing, path + '\n', true);
+                    FileUtils.write(fileListing, path + '\n',StandardCharsets.UTF_8, true);
                 }
                 System.out.println("File records deleted for files listed in " + fileListing.getAbsolutePath());
             }

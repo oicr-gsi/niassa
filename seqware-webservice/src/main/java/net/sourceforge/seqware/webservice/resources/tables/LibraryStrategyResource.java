@@ -75,14 +75,14 @@ public class LibraryStrategyResource extends DatabaseResource {
         JaxbObject<LibraryStrategyList> jaxbTool = new JaxbObject<>();
 
         LibraryStrategyList list = new LibraryStrategyList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (LibraryStrategy obj : objects) {
             LibraryStrategy dto = copier.hibernate2dto(LibraryStrategy.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, LibraryStrategyList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

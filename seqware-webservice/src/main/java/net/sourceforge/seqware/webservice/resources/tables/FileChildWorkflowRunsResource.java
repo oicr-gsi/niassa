@@ -22,6 +22,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.lang3.ArrayUtils;
+import org.restlet.data.Status;
+import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
+
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.FileService;
@@ -38,14 +47,6 @@ import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.lang3.ArrayUtils;
-import org.restlet.data.Status;
-import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
 
 /**
  * This resource will pull back the workflow runs that are generated from a particular file.
@@ -83,7 +84,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
     public void getXml() throws SQLException {
         authenticate();
         final Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
-        JaxbObject jaxbTool;
+        JaxbObject<WorkflowRunList2> jaxbTool;
         Log.debug("Dealing with FileChildWorkflowRunsResource");
 
         if (queryValues.keySet().contains(DIRECT_SEARCH) && queryValues.get(DIRECT_SEARCH).equalsIgnoreCase("true")) {
@@ -101,6 +102,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
                 String value = queryValues.get(key);
                 String[] filesSWIDs = value.split(",");
                 for (String swid : filesSWIDs) {
+                	if (swid.length() == 0)continue;
                     File findByID = (File) testIfNull(fs.findBySWAccession(Integer.valueOf(swid)));
                     files.add(findByID);
                 }
@@ -119,7 +121,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
         // these variables will be used to return information
         jaxbTool = new JaxbObject<>();
         WorkflowRunList2 eList = new WorkflowRunList2();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
         Log.debug("JaxbObjects started");
 
         assert eList.getList().isEmpty();
@@ -133,7 +135,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
         } else if (searchType == SEARCH_TYPE.CHILDREN_VIA_LANE_WORKFLOW_RUN) {
             eList = handleWorkflowRunsViaLane(files, copier);
         }
-        final Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        final Document line = XmlTools.marshalToDocument(jaxbTool, eList, WorkflowRunList2.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
         getResponse().setStatus(Status.SUCCESS_CREATED);
     }
@@ -259,7 +261,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
             throws SQLException {
         final Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         final WorkflowRunList2 runs = new WorkflowRunList2();
-        runs.setList(new ArrayList());
+        runs.setList(new ArrayList<>());
         if (files.size() > 0) {
 
             ResultSet rs = null;
@@ -323,7 +325,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
     }
 
     private void handleDirectGetXML() throws SQLException, NumberFormatException {
-        JaxbObject jaxbTool;
+        JaxbObject<WorkflowRunList2> jaxbTool;
         Log.info("Using direct search");
         List<Integer> files = new ArrayList<>();
         for (String key : queryValues.keySet()) {
@@ -342,7 +344,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
         jaxbTool = new JaxbObject<>();
         Log.debug("JaxbObjects started");
         assert runs.getList().isEmpty();
-        final Document line = XmlTools.marshalToDocument(jaxbTool, runs);
+        final Document line = XmlTools.marshalToDocument(jaxbTool, runs, WorkflowRunList2.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
         getResponse().setStatus(Status.SUCCESS_CREATED);
     }

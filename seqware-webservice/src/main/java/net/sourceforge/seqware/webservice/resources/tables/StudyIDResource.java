@@ -66,7 +66,7 @@ public class StudyIDResource extends DatabaseIDResource {
                 new String[] { "studyAttributes" });
         Study dto = copier.hibernate2dto(Study.class, study, new Class<?>[] {}, createCollectionPropertyNames);
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Study.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 
@@ -84,7 +84,7 @@ public class StudyIDResource extends DatabaseIDResource {
             String text = entity.getText();
             Study p = null;
             try {
-                p = (Study) XmlTools.unMarshal(jo, new Study(), text);
+                p = (Study) XmlTools.unMarshal(jo, Study.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -164,7 +164,7 @@ public class StudyIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Study detachedStudy = copier.hibernate2dto(Study.class, study);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedStudy);
+            Document line = XmlTools.marshalToDocument(jo, detachedStudy, Study.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/studies/" + detachedStudy.getSwAccession());

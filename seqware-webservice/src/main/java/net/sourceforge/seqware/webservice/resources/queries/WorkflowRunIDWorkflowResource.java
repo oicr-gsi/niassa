@@ -65,7 +65,7 @@ public class WorkflowRunIDWorkflowResource extends BasicRestlet {
         JaxbObject<Workflow> jaxbTool = new JaxbObject<>();
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         Workflow wdto = copier.hibernate2dto(Workflow.class, w);
-        Document doc = XmlTools.marshalToDocument(jaxbTool, wdto);
+        Document doc = XmlTools.marshalToDocument(jaxbTool, wdto, Workflow.class);
         response.setEntity(XmlTools.getRepresentation(doc));
 
     }
