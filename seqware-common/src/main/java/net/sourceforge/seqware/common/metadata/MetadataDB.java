@@ -28,10 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.factory.DBAccess;
@@ -1388,12 +1388,12 @@ public class MetadataDB implements Metadata {
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+    public List<AnalysisProvenance> getAnalysisProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

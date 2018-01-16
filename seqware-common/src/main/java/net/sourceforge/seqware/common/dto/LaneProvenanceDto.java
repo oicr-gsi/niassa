@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
 
@@ -37,7 +38,7 @@ import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter
  * @author mlaszloffy
  */
 @XmlRootElement
-public class LaneProvenanceDto {
+public class LaneProvenanceDto implements LaneProvenance {
 
 	private String sequencerRunName;
 	private SortedMap<String, SortedSet<String>> sequencerRunAttributes;

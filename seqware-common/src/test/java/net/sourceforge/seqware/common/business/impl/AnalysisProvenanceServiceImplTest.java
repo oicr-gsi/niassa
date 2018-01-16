@@ -31,7 +31,6 @@ import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +41,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.FileService;
@@ -50,7 +51,6 @@ import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.err.DataIntegrityException;
@@ -162,24 +162,24 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius).size());
-        AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius));
+        AnalysisProvenance ap = Iterables.getOnlyElement(aprs.findForIus(ius));
         assertEquals(expectedWorkflowName, ap.getWorkflowName());
         assertEquals(expectedProcessingAlgorithm, ap.getProcessingAlgorithm());
         assertEquals(expectedFilePath, ap.getFilePath());
 
         assertEquals(1, ap.getIusLimsKeys().size());
-        IusLimsKeyDto ilk = Iterables.getOnlyElement(ap.getIusLimsKeys());
+        IusLimsKeyDto ilk = (IusLimsKeyDto) Iterables.getOnlyElement(ap.getIusLimsKeys());
         assertEquals(ius.getSwAccession(), ilk.getIusSWID());
 
-        LimsKeyDto lk = ilk.getLimsKey();
+        LimsKeyDto lk = (LimsKeyDto) ilk.getLimsKey();
         assertEquals(expectedId, lk.getId());
         assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
         assertEquals(expectedProvider, lk.getProvider());
         assertEquals(expectedVersion, lk.getVersion());
 
         Map<FileProvenanceFilter, Set<String>> filters = new HashMap<>();
-        List<AnalysisProvenanceDto> aps;
-        AnalysisProvenanceDto dto;
+        List<AnalysisProvenance> aps;
+        AnalysisProvenance dto;
 
         filters.clear();
         filters.put(FileProvenanceFilter.workflow, ImmutableSet.of(expectedWorkflowSwid.toString()));
@@ -288,14 +288,14 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(baseExpectedCount + 1, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
-        AnalysisProvenanceDto ap = Iterables.getOnlyElement(aprs.findForIus(ius2));
+        AnalysisProvenance ap = Iterables.getOnlyElement(aprs.findForIus(ius2));
         assertEquals(expectedWorkflowName, ap.getWorkflowName());
         assertEquals(expectedProcessingAlgorithm, ap.getProcessingAlgorithm());
         assertEquals(expectedFilePath, ap.getFilePath());
 
         assertEquals(2, ap.getIusLimsKeys().size());
-        for (IusLimsKeyDto ilk : ap.getIusLimsKeys()) {
-            LimsKeyDto lk = ilk.getLimsKey();
+        for (IusLimsKey ilk : ap.getIusLimsKeys()) {
+            LimsKeyDto lk = (LimsKeyDto) ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
             assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
@@ -384,32 +384,32 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         assertEquals(baseExpectedCount + 2, aprs.list().size());
 
         assertEquals(1, aprs.findForIus(ius1).size());
-        AnalysisProvenanceDto ap1 = Iterables.getOnlyElement(aprs.findForIus(ius1));
+        AnalysisProvenance ap1 = Iterables.getOnlyElement(aprs.findForIus(ius1));
         assertEquals(expectedWorkflowName, ap1.getWorkflowName());
         assertEquals(expectedProcessingAlgorithm, ap1.getProcessingAlgorithm());
         assertEquals(expectedFilePath, ap1.getFilePath());
 
         assertEquals(1, ap1.getIusLimsKeys().size());
-        IusLimsKeyDto ilk1 = Iterables.getOnlyElement(ap1.getIusLimsKeys());
+        IusLimsKeyDto ilk1 = (IusLimsKeyDto) Iterables.getOnlyElement(ap1.getIusLimsKeys());
         assertEquals(ius1.getSwAccession(), ilk1.getIusSWID());
 
-        LimsKeyDto lk1 = ilk1.getLimsKey();
+        LimsKeyDto lk1 = (LimsKeyDto) ilk1.getLimsKey();
         assertEquals(expectedId, lk1.getId());
         assertEquals(expectedLastModified.toInstant(), lk1.getLastModified().toInstant());
         assertEquals(expectedProvider, lk1.getProvider());
         assertEquals(expectedVersion, lk1.getVersion());
 
         assertEquals(1, aprs.findForIus(ius2).size());
-        AnalysisProvenanceDto ap2 = Iterables.getOnlyElement(aprs.findForIus(ius2));
+        AnalysisProvenance ap2 = Iterables.getOnlyElement(aprs.findForIus(ius2));
         assertEquals(expectedWorkflowName, ap2.getWorkflowName());
         assertEquals(expectedProcessingAlgorithm, ap2.getProcessingAlgorithm());
         assertEquals(expectedFilePath, ap2.getFilePath());
 
         assertEquals(1, ap2.getIusLimsKeys().size());
-        IusLimsKeyDto ilk2 = Iterables.getOnlyElement(ap2.getIusLimsKeys());
+        IusLimsKeyDto ilk2 = (IusLimsKeyDto) Iterables.getOnlyElement(ap2.getIusLimsKeys());
         assertEquals(ius2.getSwAccession(), ilk2.getIusSWID());
 
-        LimsKeyDto lk2 = ilk2.getLimsKey();
+        LimsKeyDto lk2 = (LimsKeyDto) ilk2.getLimsKey();
         assertEquals(expectedId, lk2.getId());
         assertEquals(expectedLastModified.toInstant(), lk2.getLastModified().toInstant());
         assertEquals(expectedProvider, lk2.getProvider());
@@ -491,14 +491,14 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
 
         assertEquals(1, aprs.findForIus(ius1).size());
         assertEquals(1, aprs.findForIus(ius2).size());
-        AnalysisProvenanceDto apBeforeAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
+        AnalysisProvenance apBeforeAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
         assertEquals(expectedWorkflowName, apBeforeAddingFile.getWorkflowName());
         assertNull(apBeforeAddingFile.getProcessingAlgorithm());
         assertNull(apBeforeAddingFile.getFilePath());
 
         assertEquals(2, apBeforeAddingFile.getIusLimsKeys().size());
-        for (IusLimsKeyDto ilk : apBeforeAddingFile.getIusLimsKeys()) {
-            LimsKeyDto lk = ilk.getLimsKey();
+        for (IusLimsKey ilk : apBeforeAddingFile.getIusLimsKeys()) {
+            LimsKeyDto lk = (LimsKeyDto) ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
             assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
@@ -516,14 +516,14 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
 
         assertEquals(1, aprs.findForIus(ius1).size());
         assertEquals(1, aprs.findForIus(ius2).size());
-        AnalysisProvenanceDto apAfterAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
+        AnalysisProvenance apAfterAddingFile = Iterables.getOnlyElement(aprs.findForIus(ius1));
         assertEquals(expectedWorkflowName, apAfterAddingFile.getWorkflowName());
         assertEquals(expectedProcessingAlgorithm, apAfterAddingFile.getProcessingAlgorithm());
         assertEquals(expectedFilePath, apAfterAddingFile.getFilePath());
 
         assertEquals(2, apAfterAddingFile.getIusLimsKeys().size());
-        for (IusLimsKeyDto ilk : apAfterAddingFile.getIusLimsKeys()) {
-            LimsKeyDto lk = ilk.getLimsKey();
+        for (IusLimsKey ilk : apAfterAddingFile.getIusLimsKeys()) {
+            LimsKeyDto lk = (LimsKeyDto) ilk.getLimsKey();
             assertEquals(expectedId, lk.getId());
             assertEquals(expectedLastModified.toInstant(), lk.getLastModified().toInstant());
             assertEquals(expectedProvider, lk.getProvider());
@@ -602,9 +602,9 @@ public class AnalysisProvenanceServiceImplTest extends AbstractTestCase {
         //original 25 + 1 new file
         assertEquals(baseExpectedCount + 1, aprs.list().size());
 
-        List<AnalysisProvenanceDto> aps = aprs.findForIus(ius);
+        List<AnalysisProvenance> aps = aprs.findForIus(ius);
         assertEquals(1, aps.size());
-        AnalysisProvenanceDto ap = Iterables.getOnlyElement(aps);
+        AnalysisProvenance ap = Iterables.getOnlyElement(aps);
         assertEquals(Sets.newHashSet(expectedValue1), ap.getFileAttributes().get(expectedTag1));
         assertEquals(Sets.newHashSet(expectedValue2), ap.getFileAttributes().get(expectedTag2));
         assertEquals(Sets.newHashSet(expectedIusValue), ap.getIusAttributes().get(expectedIusTag));

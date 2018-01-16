@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
@@ -686,7 +687,7 @@ public class JaxbObjectTest {
 		AnalysisProvenanceDtoList actualAnalysisProvenanceList = (AnalysisProvenanceDtoList) XmlTools
 				.unMarshal(new JaxbObject<>(), AnalysisProvenanceDtoList.class, text);
 		for (AnalysisProvenanceDto dto : actualAnalysisProvenanceList.getAnalysisProvenanceDtos()) {
-			for (IusLimsKeyDto ik : dto.getIusLimsKeys()) {
+			for (IusLimsKey ik : dto.getIusLimsKeys()) {
 				assertEquals("seqware", ik.getLimsKey().getProvider());
 			}
 			assertEquals("test_workflow", dto.getWorkflowName());

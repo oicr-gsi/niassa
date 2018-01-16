@@ -10,10 +10,10 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -1346,7 +1346,7 @@ public interface Metadata {
      * 
      * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
      */
-    public List<AnalysisProvenanceDto> getAnalysisProvenance();
+    public List<AnalysisProvenance> getAnalysisProvenance();
     
     /**
      * Get AnalysisProvenance objects from the SeqWare MetaDB that pass the user provided filters.
@@ -1355,7 +1355,7 @@ public interface Metadata {
      *
      * @return List of {@link net.sourceforge.seqware.common.dto.AnalysisProvenanceDto} objects
      */
-    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters);
+    public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
     /**
      * Get all SampleProvenance objects from the SeqWare MetaDB.

@@ -65,10 +65,10 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.err.NotFoundException;
@@ -2840,7 +2840,7 @@ public class MetadataWS implements Metadata {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+	public List<AnalysisProvenance> getAnalysisProvenance() {
 		return getAnalysisProvenance(Collections.emptyMap());
 	}
 
@@ -2848,7 +2848,7 @@ public class MetadataWS implements Metadata {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+	public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
 		ClientResource clientResource = null;
 		Representation representation = null;
 		try {
@@ -2862,7 +2862,7 @@ public class MetadataWS implements Metadata {
 			JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
 			AnalysisProvenanceDtoList dtoList = jaxb.unMarshal(AnalysisProvenanceDtoList.class,
 					representation.getReader());
-			return dtoList.getAnalysisProvenanceDtos();
+			return new ArrayList<>(dtoList.getAnalysisProvenanceDtos());
 		} catch (JAXBException | IOException ex) {
 			Log.error(ex);
 			throw Rethrow.rethrow(ex);

@@ -41,6 +41,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import io.seqware.common.model.ProcessingStatus;
 import io.seqware.common.model.SequencerRunStatus;
 import io.seqware.common.model.WorkflowRunStatus;
@@ -48,7 +49,6 @@ import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl;
 import net.sourceforge.seqware.common.business.impl.LaneProvenanceServiceImpl;
 import net.sourceforge.seqware.common.business.impl.SampleProvenanceServiceImpl;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -598,7 +598,7 @@ public class MetadataInMemory implements Metadata {
     @Override
     public List<WorkflowRun> getWorkflowRunsAssociatedWithInputFiles(List<Integer> fileAccessions, List<Integer> workflowAccessions) {
         List<WorkflowRun> wrs = new ArrayList<>();
-        for (Entry e : MetadataInMemory.getStore().column(WorkflowRun.class).entrySet()) {
+        for (Entry<Integer, Object> e : MetadataInMemory.getStore().column(WorkflowRun.class).entrySet()) {
             WorkflowRun wr = (WorkflowRun) e.getValue();
             if (!workflowAccessions.contains(wr.getWorkflowAccession())) {
                 continue;
@@ -1177,12 +1177,12 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
-        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), Collections.EMPTY_MAP);
+    public List<AnalysisProvenance> getAnalysisProvenance() {
+        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), Collections.emptyMap());
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), filters);
     }
 

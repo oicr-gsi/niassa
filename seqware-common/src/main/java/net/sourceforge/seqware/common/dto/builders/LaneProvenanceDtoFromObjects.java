@@ -26,12 +26,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
 import com.google.common.collect.ImmutableSortedSet;
 
-import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.model.Lane;
@@ -44,14 +40,6 @@ import net.sourceforge.seqware.common.model.SequencerRunAttribute;
  * @author mlaszloffy
  */
 public class LaneProvenanceDtoFromObjects extends LaneProvenanceDto {
-
-	public static DateTime convert(ZonedDateTime original) {
-		return original == null ? null
-				: new DateTime(original.getYear(), original.getMonthValue(), original.getDayOfMonth(),
-						original.getHour(), original.getMinute(), original.getSecond(), original.getNano() / 1_000_000,
-						original.getZone().getId().equals("Z") ? DateTimeZone.UTC
-								: DateTimeZone.forID(original.getZone().getId()));
-	}
 
 	private Lane lane;
 	private SequencerRun sequencerRun;
@@ -152,63 +140,7 @@ public class LaneProvenanceDtoFromObjects extends LaneProvenanceDto {
 
 	@Override
 	public String getVersion() {
-		return Versioning.getSha256(new LaneProvenance() {
-
-			@Override
-			public String getVersion() {
-				return LaneProvenanceDtoFromObjects.this.getVersion();
-			}
-
-			@Override
-			public String getProvenanceId() {
-				return LaneProvenanceDtoFromObjects.this.getProvenanceId();
-			}
-
-			@Override
-			public DateTime getLastModified() {
-				return convert(LaneProvenanceDtoFromObjects.this.getLastModified());
-			}
-
-			@Override
-			public Boolean getSkip() {
-				return LaneProvenanceDtoFromObjects.this.getSkip();
-			}
-
-			@Override
-			public String getSequencerRunPlatformModel() {
-				return LaneProvenanceDtoFromObjects.this.getSequencerRunPlatformModel();
-			}
-
-			@Override
-			public String getSequencerRunName() {
-				return LaneProvenanceDtoFromObjects.this.getSequencerRunName();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
-				return LaneProvenanceDtoFromObjects.this.getSequencerRunAttributes();
-			}
-
-			@Override
-			public String getLaneProvenanceId() {
-				return LaneProvenanceDtoFromObjects.this.getLaneProvenanceId();
-			}
-
-			@Override
-			public String getLaneNumber() {
-				return LaneProvenanceDtoFromObjects.this.getLaneNumber();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getLaneAttributes() {
-				return LaneProvenanceDtoFromObjects.this.getLaneAttributes();
-			}
-
-			@Override
-			public DateTime getCreatedDate() {
-				return convert(LaneProvenanceDtoFromObjects.this.getCreatedDate());
-			}
-		});
+		return Versioning.getSha256(this);
 	}
 
 	@Override
