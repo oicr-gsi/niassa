@@ -33,6 +33,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+
 /**
  *
  * @author mlaszloffy
@@ -114,12 +116,12 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
 			.appendPattern("yyyy-MM-dd[ HH:mm:ss.SSSX]")//
 			.toFormatter();
 
-	private static Set<IusLimsKeyDto> convertIusLimsKeyString(String iusLimsKeyString) {
+	private static Set<IusLimsKey> convertIusLimsKeyString(String iusLimsKeyString) {
 		if (iusLimsKeyString == null || iusLimsKeyString.isEmpty()) {
 			return Collections.emptySet();
 		} else {
 
-			Set<IusLimsKeyDto> iusLimsKeys = new HashSet<>();
+			Set<IusLimsKey> iusLimsKeys = new HashSet<>();
 			for (String record : iusLimsKeyString.split(";")) {
 				String[] vals = record.split(",");
 

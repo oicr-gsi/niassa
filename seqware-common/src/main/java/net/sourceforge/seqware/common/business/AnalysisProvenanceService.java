@@ -16,13 +16,14 @@
  */
 package net.sourceforge.seqware.common.business;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
 import net.sourceforge.seqware.common.dao.IUSDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.model.IUS;
 
 /**
@@ -35,11 +36,11 @@ public interface AnalysisProvenanceService {
 
     public void setIUSDAO(IUSDAO iusDAO);
 
-    public List<AnalysisProvenanceDto> list();
+    public List<AnalysisProvenance> list();
 
-    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters);
+    public List<AnalysisProvenance> list(Map<FileProvenanceFilter, Set<String>> filters);
 
-    public List<AnalysisProvenanceDto> findForIus(IUS ius);
+    public List<AnalysisProvenance> findForIus(IUS ius);
 
     public Set<FileProvenanceFilter> getSupportedFilters();
 

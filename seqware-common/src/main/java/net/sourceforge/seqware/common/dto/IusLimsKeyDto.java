@@ -19,11 +19,14 @@ package net.sourceforge.seqware.common.dto;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.LimsKey;
+
 /**
  *
  * @author mlaszloffy
  */
-public class IusLimsKeyDto  {
+public class IusLimsKeyDto implements IusLimsKey {
 
     private Integer iusSWID;
     private LimsKeyDto limsKey;
@@ -36,7 +39,7 @@ public class IusLimsKeyDto  {
         this.iusSWID = iusSWID;
     }
 
-    public LimsKeyDto getLimsKey() {
+    public LimsKey getLimsKey() {
         return limsKey;
     }
 

@@ -23,13 +23,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import ca.on.oicr.gsi.provenance.model.LimsKey;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 
 /**
  *
  * @author mlaszloffy
  */
-public class LimsKeyDto {
+public class LimsKeyDto implements LimsKey {
 
 	private String provider;
 	private String id;

@@ -16,11 +16,12 @@
  */
 package net.sourceforge.seqware.common.dao;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 
 /**
  *
@@ -28,9 +29,9 @@ import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
  */
 public interface AnalysisProvenanceDAO {
 
-    public List<AnalysisProvenanceDto> list();
+    public List<AnalysisProvenance> list();
 
-    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters);
+    public List<AnalysisProvenance> list(Map<FileProvenanceFilter, Set<String>> filters);
 
     public Set<FileProvenanceFilter> getSupportedFilters();
 

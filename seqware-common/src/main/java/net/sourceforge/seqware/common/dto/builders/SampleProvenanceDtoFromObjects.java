@@ -29,13 +29,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import org.joda.time.DateTime;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 
-import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.util.Versioning;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -309,98 +306,7 @@ public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
 
 	@Override
 	public String getVersion() {
-		return Versioning.getSha256(new SampleProvenance() {
-
-			@Override
-			public String getVersion() {
-				return SampleProvenanceDtoFromObjects.this.getVersion();
-			}
-
-			@Override
-			public String getProvenanceId() {
-				return SampleProvenanceDtoFromObjects.this.getProvenanceId();
-			}
-
-			@Override
-			public DateTime getLastModified() {
-				return LaneProvenanceDtoFromObjects.convert(SampleProvenanceDtoFromObjects.this.getLastModified());
-			}
-
-			@Override
-			public String getStudyTitle() {
-				return SampleProvenanceDtoFromObjects.this.getStudyTitle();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getStudyAttributes() {
-				return SampleProvenanceDtoFromObjects.this.getStudyAttributes();
-			}
-
-			@Override
-			public Boolean getSkip() {
-				return SampleProvenanceDtoFromObjects.this.getSkip();
-			}
-
-			@Override
-			public String getSequencerRunPlatformModel() {
-				return SampleProvenanceDtoFromObjects.this.getSequencerRunPlatformModel();
-			}
-
-			@Override
-			public String getSequencerRunName() {
-				return SampleProvenanceDtoFromObjects.this.getSequencerRunName();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
-				return SampleProvenanceDtoFromObjects.this.getSequencerRunAttributes();
-			}
-
-			@Override
-			public String getSampleProvenanceId() {
-				return SampleProvenanceDtoFromObjects.this.getSampleProvenanceId();
-			}
-
-			@Override
-			public String getSampleName() {
-				return SampleProvenanceDtoFromObjects.this.getSampleName();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getSampleAttributes() {
-				return SampleProvenanceDtoFromObjects.this.getSampleAttributes();
-			}
-
-			@Override
-			public String getRootSampleName() {
-				return SampleProvenanceDtoFromObjects.this.getRootSampleName();
-			}
-
-			@Override
-			public String getParentSampleName() {
-				return SampleProvenanceDtoFromObjects.this.getParentSampleName();
-			}
-
-			@Override
-			public String getLaneNumber() {
-				return SampleProvenanceDtoFromObjects.this.getLaneNumber();
-			}
-
-			@Override
-			public SortedMap<String, SortedSet<String>> getLaneAttributes() {
-				return SampleProvenanceDtoFromObjects.this.getLaneAttributes();
-			}
-
-			@Override
-			public String getIusTag() {
-				return SampleProvenanceDtoFromObjects.this.getIusTag();
-			}
-
-			@Override
-			public DateTime getCreatedDate() {
-				return LaneProvenanceDtoFromObjects.convert(SampleProvenanceDtoFromObjects.this.getCreatedDate());
-			}
-		});
+		return Versioning.getSha256(this);
 	}
 
 	@Override

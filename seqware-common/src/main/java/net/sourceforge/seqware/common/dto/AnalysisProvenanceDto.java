@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 import net.sourceforge.seqware.common.model.adapters.IntegerSortedSet;
 import net.sourceforge.seqware.common.model.adapters.IusLimsKeyAdapter;
@@ -39,7 +41,7 @@ import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter
  * @author mlaszloffy
  */
 @XmlRootElement
-public class AnalysisProvenanceDto {
+public class AnalysisProvenanceDto implements AnalysisProvenance {
 
     protected String workflowName;
     protected String workflowVersion;
@@ -63,7 +65,7 @@ public class AnalysisProvenanceDto {
     protected SortedMap<String, SortedSet<String>> fileAttributes;
     protected Boolean skip;
     protected ZonedDateTime lastModified;
-    protected Set<IusLimsKeyDto> iusLimsKeys;
+    protected Set<IusLimsKey> iusLimsKeys;
     protected SortedMap<String, SortedSet<String>> iusAttributes;
 
     
@@ -273,11 +275,11 @@ public class AnalysisProvenanceDto {
     @XmlElement(name = "iusLimsKey")
     @XmlJavaTypeAdapter(IusLimsKeyAdapter.class)
     
-    public Set<IusLimsKeyDto> getIusLimsKeys() {
+    public Set<IusLimsKey> getIusLimsKeys() {
         return iusLimsKeys;
     }
 
-    public void setIusLimsKeys(Set<IusLimsKeyDto> keys) {
+    public void setIusLimsKeys(Set<IusLimsKey> keys) {
         this.iusLimsKeys = keys;
     }
 
