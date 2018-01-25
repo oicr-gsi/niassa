@@ -306,10 +306,6 @@
 		    <groupId>tomcat</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>rendersnake</artifactId>
-                    <groupId>org.rendersnake</groupId>
-                </exclusion>
-                <exclusion>
                     <groupId>javax.validation</groupId>
                     <artifactId>validation-api</artifactId>
                 </exclusion>
