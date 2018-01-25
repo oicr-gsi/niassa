@@ -6,6 +6,7 @@ import net.sourceforge.seqware.common.dao.ExperimentAttributeDAO;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -15,6 +16,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ExperimentAttributeDAOHibernate extends HibernateDaoSupport implements ExperimentAttributeDAO {
 
     /** {@inheritDoc} */

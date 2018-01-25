@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class FileDAOHibernate extends HibernateDaoSupport implements FileDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(FileDAOHibernate.class);

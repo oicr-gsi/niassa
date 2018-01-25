@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowParamDAOHibernate extends HibernateDaoSupport implements WorkflowParamDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(InvoiceDAOHibernate.class);

@@ -11,6 +11,7 @@ import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -20,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowServiceImpl implements WorkflowService {
 
     private WorkflowDAO workflowDAO = null;

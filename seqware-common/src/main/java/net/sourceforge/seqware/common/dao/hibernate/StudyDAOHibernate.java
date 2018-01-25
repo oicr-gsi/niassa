@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -29,6 +30,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class StudyDAOHibernate extends HibernateDaoSupport implements StudyDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(StudyDAOHibernate.class);

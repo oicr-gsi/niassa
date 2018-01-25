@@ -7,6 +7,7 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.RegistrationDTO;
 import net.sourceforge.seqware.common.util.Log;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -16,6 +17,7 @@ import org.springframework.beans.BeanUtils;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class RegistrationServiceImpl implements RegistrationService {
     private RegistrationDAO registrationDAO = null;
 

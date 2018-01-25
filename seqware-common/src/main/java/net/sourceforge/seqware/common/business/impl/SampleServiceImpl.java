@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.dao.FileDAO;
 import net.sourceforge.seqware.common.dao.SampleDAO;
@@ -22,6 +25,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleServiceImpl implements SampleService {
 
     private SampleDAO sampleDAO = null;

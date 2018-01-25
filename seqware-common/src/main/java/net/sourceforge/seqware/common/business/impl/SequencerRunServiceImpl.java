@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import io.seqware.common.model.SequencerRunStatus;
 import net.sourceforge.seqware.common.business.SequencerRunService;
 import net.sourceforge.seqware.common.dao.FileDAO;
@@ -22,6 +24,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SequencerRunServiceImpl implements SequencerRunService {
     private SequencerRunDAO sequencerRunDAO = null;
     private LaneDAO laneDAO = null;

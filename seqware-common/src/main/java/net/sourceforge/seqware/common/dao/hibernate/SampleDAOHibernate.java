@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.dao.SampleDAO;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
@@ -15,12 +24,6 @@ import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.hibernate.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * <p>
@@ -30,6 +33,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(SampleDAOHibernate.class);

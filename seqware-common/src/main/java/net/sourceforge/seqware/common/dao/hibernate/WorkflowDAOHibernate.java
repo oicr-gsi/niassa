@@ -12,6 +12,7 @@ import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowDAOHibernate extends HibernateDaoSupport implements WorkflowDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(WorkflowDAOHibernate.class);

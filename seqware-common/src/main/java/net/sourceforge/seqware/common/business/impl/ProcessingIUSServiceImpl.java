@@ -1,6 +1,9 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.ProcessingIUSService;
 import net.sourceforge.seqware.common.dao.ProcessingIUSDAO;
 import net.sourceforge.seqware.common.model.IUS;
@@ -15,6 +18,7 @@ import net.sourceforge.seqware.common.model.ProcessingIus;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ProcessingIUSServiceImpl implements ProcessingIUSService {
 
     private ProcessingIUSDAO dao;

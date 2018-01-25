@@ -8,6 +8,7 @@ import net.sourceforge.seqware.common.model.FileReportRow;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Study;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -17,6 +18,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class FileReportDAOHibernate extends HibernateDaoSupport implements FileReportDAO {
 
     /** {@inheritDoc} */

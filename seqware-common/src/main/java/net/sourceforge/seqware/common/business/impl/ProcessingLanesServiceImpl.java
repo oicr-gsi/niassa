@@ -1,6 +1,9 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.ProcessingLanesService;
 import net.sourceforge.seqware.common.dao.ProcessingLanesDAO;
 import net.sourceforge.seqware.common.model.Lane;
@@ -15,6 +18,7 @@ import net.sourceforge.seqware.common.model.ProcessingLanes;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ProcessingLanesServiceImpl implements ProcessingLanesService {
 
     private ProcessingLanesDAO dao;

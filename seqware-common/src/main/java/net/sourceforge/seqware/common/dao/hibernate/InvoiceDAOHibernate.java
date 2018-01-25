@@ -13,6 +13,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -22,6 +23,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class InvoiceDAOHibernate extends HibernateDaoSupport implements InvoiceDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(InvoiceDAOHibernate.class);
