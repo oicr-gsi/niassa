@@ -1,5 +1,25 @@
 package net.sourceforge.seqware.pipeline.plugins.checkdb;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
+
 import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.Metadata;
@@ -19,30 +39,6 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.plugins.checkdb.CheckDBPluginInterface.Level;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.ServiceProvider;
-import org.rendersnake.HtmlCanvas;
-
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * A database validation tool for your SeqWare metadb
@@ -143,31 +139,6 @@ public final class CheckDB extends Plugin {
                 resultMap.get(plugin).get(Level.SEVERE).add("Plugin threw an exception and died");
                 resultMap.put(plugin, result);
             }
-        }
-        // presumably, we would reformat resultMap and create a nice HTML report here
-        HtmlCanvas html = new HtmlCanvas();
-        try {
-            html.html().body().h1().content(this.getClass().getSimpleName() + " Report");
-            for (Entry<CheckDBPluginInterface, SortedMap<CheckDBPluginInterface.Level, Set<String>>> pluginEntry : resultMap.entrySet()) {
-                html.h2().content(pluginEntry.getKey().getClass().getSimpleName());
-                for (Entry<CheckDBPluginInterface.Level, Set<String>> warning : pluginEntry.getValue().entrySet()) {
-                    html.h3().content(warning.getKey().name());
-                    html.ol();
-                    for (String entry : warning.getValue()) {
-                        html.li().content(entry, false);
-                        // html.li().content(entry);
-                    }
-                    html._ol();
-                }
-            }
-            html._body()._html();
-            File createTempFile = File.createTempFile("report", ".html");
-            FileUtils.write(createTempFile, html.toHtml(), StandardCharsets.UTF_8);
-            Log.stdout("Printed report to " + createTempFile.getAbsolutePath());
-            ret.setUrl(createTempFile.toURI().toURL().toString());
-        } catch (IOException ex) {
-            Log.fatal("Could not render HTML report", ex);
-            ret.setExitStatus(ReturnValue.FAILURE);
         }
 
         return ret;
