@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.sourceforge.seqware.common.dao.SequencerRunDAO;
 import net.sourceforge.seqware.common.model.Registration;
@@ -25,6 +26,7 @@ import net.sourceforge.seqware.common.util.NullBeanUtils;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SequencerRunDAOHibernate extends HibernateDaoSupport implements SequencerRunDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(SequencerRunDAOHibernate.class);

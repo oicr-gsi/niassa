@@ -30,11 +30,13 @@ import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoFromObject
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Sample;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleProvenanceServiceImpl implements SampleProvenanceService {
 
     private IUSDAO iusDAO;

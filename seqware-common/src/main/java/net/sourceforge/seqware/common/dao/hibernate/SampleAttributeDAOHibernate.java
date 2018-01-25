@@ -5,6 +5,7 @@ import net.sourceforge.seqware.common.dao.SampleAttributeDAO;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -14,6 +15,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleAttributeDAOHibernate extends HibernateDaoSupport implements SampleAttributeDAO {
 
     /** {@inheritDoc} */

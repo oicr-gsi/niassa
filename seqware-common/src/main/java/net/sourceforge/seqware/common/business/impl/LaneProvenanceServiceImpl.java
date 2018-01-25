@@ -25,11 +25,13 @@ import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.LaneProvenanceDtoFromObjects;
 import net.sourceforge.seqware.common.model.Lane;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class LaneProvenanceServiceImpl implements LaneProvenanceService {
 
     private LaneDAO laneDAO;

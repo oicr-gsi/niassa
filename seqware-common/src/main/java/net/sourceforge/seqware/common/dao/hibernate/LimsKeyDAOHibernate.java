@@ -24,12 +24,15 @@ import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class LimsKeyDAOHibernate extends HibernateDaoSupport implements LimsKeyDAO {
 
     public LimsKeyDAOHibernate() {

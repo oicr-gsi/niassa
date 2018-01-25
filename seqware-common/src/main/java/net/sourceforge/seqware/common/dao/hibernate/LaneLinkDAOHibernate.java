@@ -3,6 +3,7 @@ package net.sourceforge.seqware.common.dao.hibernate;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.LaneAttribute;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class LaneLinkDAOHibernate extends HibernateDaoSupport implements LaneLinkDAO {
 
     /** {@inheritDoc} */

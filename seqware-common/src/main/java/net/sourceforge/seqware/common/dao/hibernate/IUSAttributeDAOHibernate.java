@@ -5,6 +5,7 @@ import net.sourceforge.seqware.common.dao.IUSAttributeDAO;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -14,6 +15,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class IUSAttributeDAOHibernate extends HibernateDaoSupport implements IUSAttributeDAO {
 
     /** {@inheritDoc} */

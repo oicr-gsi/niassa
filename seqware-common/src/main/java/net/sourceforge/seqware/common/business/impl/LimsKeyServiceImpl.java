@@ -25,6 +25,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
@@ -34,6 +35,7 @@ import net.sourceforge.seqware.common.model.LimsKey;
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class LimsKeyServiceImpl implements LimsKeyService {
 
     private LimsKeyDAO dao = null;

@@ -9,6 +9,7 @@ import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements WorkflowRunParamDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(WorkflowRunParamDAOHibernate.class);

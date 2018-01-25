@@ -6,6 +6,7 @@ import net.sourceforge.seqware.common.dao.ExperimentSpotDesignDAO;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -15,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ExperimentSpotDesignServiceImpl implements ExperimentSpotDesignService {
     private ExperimentSpotDesignDAO dao = null;
     private static final Log LOG = LogFactory.getLog(ExperimentSpotDesignServiceImpl.class);

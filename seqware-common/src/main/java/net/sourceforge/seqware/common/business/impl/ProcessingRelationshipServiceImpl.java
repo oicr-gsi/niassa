@@ -1,6 +1,9 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.ProcessingRelationshipService;
 import net.sourceforge.seqware.common.dao.ProcessingRelationshipDAO;
 import net.sourceforge.seqware.common.model.Processing;
@@ -14,6 +17,7 @@ import net.sourceforge.seqware.common.model.ProcessingRelationship;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ProcessingRelationshipServiceImpl implements ProcessingRelationshipService {
 
     private ProcessingRelationshipDAO dao;

@@ -14,6 +14,7 @@ import net.sourceforge.seqware.common.model.SequencerRunReportId;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.Workflow;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -23,6 +24,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleReportDAOHibernate extends HibernateDaoSupport implements SampleReportDAO {
 
     private static List<Status> statuses(List result) {

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
@@ -43,6 +44,7 @@ import net.sourceforge.seqware.common.model.WorkflowRun;
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService {
 
     @Autowired

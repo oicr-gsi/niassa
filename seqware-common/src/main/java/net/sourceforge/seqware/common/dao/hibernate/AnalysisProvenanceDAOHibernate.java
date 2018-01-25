@@ -38,11 +38,13 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implements AnalysisProvenanceDAO {
 
     private final String analysisProvenanceAllSql;
