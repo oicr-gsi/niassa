@@ -25,7 +25,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.lists.WorkflowList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -142,7 +142,7 @@ public class WorkflowResource extends DatabaseResource {
                 if (r != null) {
                     p.setOwner(r);
                 } else {
-                    Log.info("Could not be found: owner" + p.getOwner());
+                    logger.info("Could not be found: owner" + p.getOwner());
                 }
             } else {
                 p.setOwner(registration);

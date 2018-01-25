@@ -26,7 +26,7 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.lists.LaneList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
@@ -100,7 +100,7 @@ public class LaneIDFilterTest extends AbstractResourceTest {
 
     private List<Lane> getLanes(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         LaneList parent = new LaneList();
         JaxbObject<LaneList> jaxb = new JaxbObject<>();
         try {

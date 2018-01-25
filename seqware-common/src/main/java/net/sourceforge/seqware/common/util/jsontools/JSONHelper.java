@@ -9,9 +9,8 @@ import com.sdicons.json.validator.JSONValidator;
 import com.sdicons.json.validator.ValidationException;
 import com.sdicons.json.validator.Validator;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JSON Helper Class Contains methods related to parsing/validating of JSON which one may find useful
@@ -20,6 +19,7 @@ import net.sourceforge.seqware.common.util.Log;
  * 
  */
 public class JSONHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSONHelper.class);
 
     /**
      * Validates a json file against a schema to see if the file is valid
@@ -48,17 +48,14 @@ public class JSONHelper {
             validator.validate(data);
 
         } catch (TokenStreamException ex) {
-            Logger.getLogger(JSONHelper.class.getName()).log(Level.SEVERE, null, ex);
-            Log.fatal("Token stream exception");
+            LOGGER.error("JSONHelper.isJSONValid Token stream exception");
             return false;
 
         } catch (RecognitionException ex) {
-            Logger.getLogger(JSONHelper.class.getName()).log(Level.SEVERE, null, ex);
-            Log.fatal("Not recognized");
+            LOGGER.error("JSONHelper.isJSONValid Not recognized");
             return false;
         } catch (ValidationException ex) {
-            Logger.getLogger(JSONHelper.class.getName()).log(Level.SEVERE, null, ex);
-            Log.fatal("Not properly validated");
+            LOGGER.error("JSONHelper.isJSONValid Not properly validated");
             return false;
         }
 

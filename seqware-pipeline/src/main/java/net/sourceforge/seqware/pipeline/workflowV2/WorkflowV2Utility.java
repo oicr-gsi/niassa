@@ -23,12 +23,14 @@ import java.util.Iterator;
 import java.util.Map;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.apache.commons.io.FileUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods that have been refactored out. These can hopefully be placed eventually in something like Workflow so that they can be
@@ -37,6 +39,8 @@ import org.jdom.input.SAXBuilder;
  * @author dyuen
  */
 public class WorkflowV2Utility {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowV2Utility.class);
+
     public static final String WORKFLOW_CLASS = "workflow_class";
     public static final String WORKFLOW_ENGINE = "workflow_engine";
     public static final String WORKFLOW_TYPE = "workflow_type";
@@ -139,9 +143,9 @@ public class WorkflowV2Utility {
                 ret.put(WORKFLOW_TYPE, requirements.getAttributeValue(WORKFLOW_TYPE));
             }
         } catch (JDOMException e) {
-            Log.error("Error parsing metadata.xml", e);
+            LOGGER.error("Error parsing metadata.xml", e);
         } catch (IOException e) {
-            Log.error("IO Error parsing metadata.xml", e);
+            LOGGER.error("IO Error parsing metadata.xml", e);
         }
         return ret;
     }
@@ -175,15 +179,15 @@ public class WorkflowV2Utility {
         // able to determine which actual launcher to delegate to
         // if we need a workflow_class, then we always use the new launcher
         if (workflowClass != null) {
-            Log.debug("requiresNewLauncher - byClass " + workflowClass);
+            LOGGER.debug("requiresNewLauncher - byClass " + workflowClass);
             return true;
         } // if Oozie is required or a if ftl2 is a requirement, we use the new launcher
         else if ((workflowEngine != null && workflowEngine.contains("Oozie") && !workflowEngine.contains("Pegasus"))
                 || (workflowType != null && workflowType.contains("ftl2"))) {
-            Log.debug("requiresNewLauncher - byEngine or Type " + workflowEngine + " " + workflowType);
+            LOGGER.debug("requiresNewLauncher - byEngine or Type " + workflowEngine + " " + workflowType);
             return true;
         }
-        Log.debug("requiresNewLauncher - fall-through");
+        LOGGER.debug("requiresNewLauncher - fall-through");
         // otherwise, we fall through to the old launcher
         return false;
     }

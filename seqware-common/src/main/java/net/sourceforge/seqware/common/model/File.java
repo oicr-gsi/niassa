@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -433,15 +432,15 @@ public class File extends PermissionsAware implements Serializable, Comparable<F
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on File object " + swAccession);
+            LOGGER.debug("File.givesPermissionInternal Skipping permissions admin on File object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for File object " + swAccession);
+            LOGGER.debug("File.givesPermissionInternal Checking permissions for File object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for File object " + swAccession + " , checked before");
+            LOGGER.debug("File.givesPermissionInternal Skipping permissions for File object " + swAccession + " , checked before");
             return true;
         }
 

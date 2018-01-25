@@ -28,7 +28,7 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.lists.FileList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -133,7 +133,7 @@ public class FileResource extends DatabaseResource {
                 if (reg != null) {
                     p.setOwner(reg);
                 } else {
-                    Log.info("Could not be found: " + p.getOwner());
+                    logger.info("Could not be found: " + p.getOwner());
                 }
             }
             // persist p

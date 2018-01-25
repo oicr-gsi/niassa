@@ -26,7 +26,7 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
@@ -84,7 +84,7 @@ public class ExperimentIDFilterTest extends AbstractResourceTest {
 
     private List<Experiment> getExperiments(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         ExperimentList parent = new ExperimentList();
         JaxbObject<ExperimentList> jaxb = new JaxbObject<>();
         try {

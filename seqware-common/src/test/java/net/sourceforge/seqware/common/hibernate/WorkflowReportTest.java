@@ -16,13 +16,14 @@
  */
 package net.sourceforge.seqware.common.hibernate;
 
-import net.sourceforge.seqware.common.util.Log;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -34,6 +35,7 @@ import org.junit.Test;
  * @since 0.13.3
  */
 public class WorkflowReportTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowReportTest.class);
 
     /**
      * <p>
@@ -90,7 +92,7 @@ public class WorkflowReportTest {
      */
     @Test
     public void testFromWorkflow() {
-        Log.info("fromWorkflow");
+        LOGGER.info("WorkflowReportTest:fromWorkflow");
         Integer workflowSWA = null;
         WorkflowReport instance = new WorkflowReport();
         instance.fromWorkflow(workflowSWA);

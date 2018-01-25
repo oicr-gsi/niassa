@@ -19,7 +19,8 @@ package net.sourceforge.seqware.pipeline.workflowV2;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -33,6 +34,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
  * @version $Id: $Id
  */
 public class WorkflowClassFinder {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowClassFinder.class);
 
     private static final String FOLDERS_SEPARATOR_AS_STRING = System.getProperty("file.separator");
 
@@ -89,11 +91,11 @@ public class WorkflowClassFinder {
                 URL[] urls = new URL[] { url };
                 ClassLoader cl = new URLClassLoader(urls);
                 Class<?> cls = cl.loadClass(qPath);
-                Log.info("CLASS LOADED " + qPath);
+                logger.info("CLASS LOADED " + qPath);
                 return cls;
 
             } catch (IOException | ClassNotFoundException ex) {
-                Log.error(ex, ex);
+                logger.error("WorkflowClassFinder.findFirstWorkflowClass", ex);
             }
         }
         return null;

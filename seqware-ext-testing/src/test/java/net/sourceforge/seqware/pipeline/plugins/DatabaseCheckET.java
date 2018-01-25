@@ -21,10 +21,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import org.junit.Assert;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support the database check utility.
@@ -32,6 +33,7 @@ import org.junit.Test;
  * @author dyuen
  */
 public class DatabaseCheckET {
+    private final Logger logger = LoggerFactory.getLogger(DatabaseCheckET.class);
 
     @BeforeClass
     public static void resetDatabase() {
@@ -42,7 +44,7 @@ public class DatabaseCheckET {
     public void runDatabaseCheck() throws IOException {
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.checkdb.CheckDB";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
-        Log.info(listOutput);
+        logger.info(listOutput);
         String[] split = listOutput.split("Printed report to ");
         File report = new File(split[split.length - 1].trim());
         String readFileToString = FileUtils.readFileToString(report, (Charset) null);

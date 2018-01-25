@@ -24,7 +24,6 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
@@ -78,7 +77,7 @@ public class RunWorkflowResource extends BasicRestlet {
                         list.add((WorkflowRun) copier.hibernate2dto(run));
                     }
                 } else {
-                    Log.info("Could not find workflow runs");
+                    logger.warn("Could not find workflow runs");
                 }
                 JaxbObject<WorkflowRunList2> jaxbTool = new JaxbObject<>();
                 line = jaxbTool.marshal(list, WorkflowRunList2.class);

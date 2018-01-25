@@ -31,7 +31,6 @@ import net.sourceforge.seqware.common.hibernate.WorkflowRunReport;
 import net.sourceforge.seqware.common.hibernate.reports.WorkflowRunReportRow;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Sample;
-import net.sourceforge.seqware.common.util.Log;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
 import net.sourceforge.seqware.webservice.resources.BasicRestlet;
 import org.apache.log4j.Logger;
@@ -154,7 +153,7 @@ public class WorkflowRunReportResource extends BasicRestlet {
                     toString(results, builder);
                 }
             } else if (status != null) {
-                Log.debug("getRunsByStatus " + status.toString());
+                logger.debug("getRunsByStatus " + status.toString());
                 Collection<WorkflowRunReportRow> runsByStatus = cfc.getRunsByStatus(status);
                 for (WorkflowRunReportRow results : runsByStatus) {
                     toString(results, builder);

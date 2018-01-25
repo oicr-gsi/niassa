@@ -28,7 +28,7 @@ import net.sourceforge.seqware.common.model.RegistrationDTO;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -99,7 +99,7 @@ public class WorkflowRunResource extends DatabaseResource {
             }
 
             if (constraintBuilder.length() != 0) {
-                Log.debug("WorkflowRunResource constraint: " + constraintBuilder.toString());
+                logger.debug("WorkflowRunResource constraint: " + constraintBuilder.toString());
                 runs = ss.findByCriteria(constraintBuilder.toString());
             } else {
                 runs = (List<WorkflowRun>) testIfNull(ss.list());
@@ -137,7 +137,7 @@ public class WorkflowRunResource extends DatabaseResource {
                 if (reg != null) {
                     p.setOwner(reg);
                 } else {
-                    Log.info("Could not be found: owner " + p.getOwner());
+                    logger.info("Could not be found: owner " + p.getOwner());
                 }
             } else {
                 p.setOwner(registration);

@@ -40,7 +40,7 @@ import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.slf4j.Logger;
@@ -92,7 +92,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 }
                 dto.setLanes(laneList);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
 
@@ -148,7 +148,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     sequencerRun.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found " + owner);
+                    logger.info("Could not be found " + owner);
                 }
             } else {
                 sequencerRun.setOwner(registration);
@@ -159,7 +159,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 if (p != null) {
                     sequencerRun.setPlatform(p);
                 } else {
-                    Log.info("Could not be found " + platform);
+                    logger.info("Could not be found " + platform);
                 }
             }
 
@@ -169,7 +169,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
             }
             srs.update(registration, sequencerRun);
 
-            Log.debug("Skip is " + sequencerRun.getSkip());
+            logger.debug("Skip is " + sequencerRun.getSkip());
 
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             SequencerRun detachedSequencerRun = copier.hibernate2dto(SequencerRun.class, sequencerRun);

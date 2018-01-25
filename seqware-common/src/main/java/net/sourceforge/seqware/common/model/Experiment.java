@@ -16,7 +16,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import net.sourceforge.seqware.common.business.StudyService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -1237,15 +1236,15 @@ public class Experiment extends PermissionsAware implements Serializable, Compar
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on Experiment object " + swAccession);
+            LOGGER.debug("Experiment.givesPermissionInternal Skipping permissions admin on Experiment object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for experiment object " + swAccession);
+            LOGGER.debug("Experiment.givesPermissionInternal Checking permissions for experiment object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for experiment object " + swAccession + " , checked before");
+            LOGGER.debug("Experiment.givesPermissionInternal Skipping permissions for experiment object " + swAccession + " , checked before");
             return true;
         }
 
@@ -1256,18 +1255,18 @@ public class Experiment extends PermissionsAware implements Serializable, Compar
             hasPermission = newStudy.givesPermission(registration, considered);
         } else {// orphaned Experiment
             if (registration.equals(this.owner) || registration.isLIMSAdmin()) {
-                LOGGER.warn("Modifying Orphan Experiment: " + this.getName());
+                LOGGER.warn("Experiment.givesPermissionInternal Modifying Orphan Experiment: " + this.getName());
                 hasPermission = true;
             } else if (owner == null) {
-                LOGGER.warn("Experiment has no owner! Modifying Orphan Experiment: " + this.getName());
+                LOGGER.warn("Experiment.givesPermissionInternal Experiment has no owner! Modifying Orphan Experiment: " + this.getName());
                 hasPermission = true;
             } else {
-                LOGGER.warn("Not modifying Orphan Experiment: " + this.getName());
+                LOGGER.warn("Experiment.givesPermissionInternal Not modifying Orphan Experiment: " + this.getName());
                 hasPermission = false;
             }
         }
         if (!hasPermission) {
-            LOGGER.info("Experiment does not give permission");
+            LOGGER.info("Experiment.givesPermissionInternal Experiment does not give permission");
             throw new SecurityException("User " + registration.getEmailAddress() + " does not have permission to modify " + this.getName());
         }
         return hasPermission;

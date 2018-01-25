@@ -28,14 +28,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.sourceforge.seqware.common.metadata.Metadata;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class ParseMiseqFile extends BatchMetadataParser {
+    private final Logger logger = LoggerFactory.getLogger(ParseMiseqFile.class);
 
     public ParseMiseqFile(Metadata metadata, Map<String, String> fields, boolean interactive) {
         super(metadata, fields, interactive);
@@ -60,10 +63,10 @@ public class ParseMiseqFile extends BatchMetadataParser {
             run.setLanes(lanes);
 
         } catch (FileNotFoundException e) {
-            Log.error(filepath, e);
+            logger.error(filepath, e);
             throw new RuntimeException(e);
         } catch (IOException ex) {
-            Log.error(filepath, ex);
+            logger.error(filepath, ex);
             throw new RuntimeException(ex);
         }
         return run;
@@ -105,7 +108,7 @@ public class ParseMiseqFile extends BatchMetadataParser {
             } else if (sampleInfo[2].contains("ARC")) {
                 tissueType = "P";
             } else {
-                Log.stdout("Cannot parse tissue type from " + prettyName);
+                logger.info("Cannot parse tissue type from " + prettyName);
             }
 
             SampleInfo sample = generateSampleInfo(prettyName, projectName, individualNumber, librarySourceTemplateType, tissueOrigin,

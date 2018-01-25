@@ -19,7 +19,6 @@ package net.sourceforge.seqware.common.util.filetools;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import net.sourceforge.seqware.common.util.Log;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -29,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -40,6 +41,7 @@ import org.junit.Test;
  * @since 0.13.3
  */
 public class FileToolsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileToolsTest.class);
 
     /**
      * <p>
@@ -101,7 +103,7 @@ public class FileToolsTest {
         try {
             File sudoersFile = new File("/etc/sudoers");
             if (!sudoersFile.exists()) {
-                Log.fatal("Could not test FileTools on file where we have no read rights");
+                LOGGER.error("FileToolsTest.testSEQWARE1410: Could not test FileTools on file where we have no read rights");
             }
             ArrayList<File> files = new ArrayList<>();
             FileTools.listFilesRecursive(sudoersFile, files);

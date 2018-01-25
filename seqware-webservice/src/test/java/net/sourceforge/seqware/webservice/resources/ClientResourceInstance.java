@@ -21,19 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Protocol;
 import org.restlet.resource.ClientResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class ClientResourceInstance {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientResourceInstance.class);
 
     private static String webservicePrefix = "/seqware-webservice";
 
@@ -46,7 +49,7 @@ public class ClientResourceInstance {
         try {
             settings = ConfigTools.getSettings();
         } catch (Exception e) {
-            Log.stderr("Error reading settings file: " + e.getMessage());
+            LOGGER.error("ClientResourceInstance Error reading settings file: " + e.getMessage());
         }
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey())) {
             String restURL = settings.get(SqwKeys.SW_REST_URL.getSettingKey());
@@ -55,10 +58,12 @@ public class ClientResourceInstance {
             matcher.find();
             hostURL = matcher.group(1);
             webservicePrefix = matcher.group(2);
-            Log.debug("Detected overriden hostURL as: " + hostURL);
-            Log.debug("Detected overriden webservicePrefix as: " + webservicePrefix);
+            LOGGER.info("Detected overriden hostURL as: " + hostURL);
+            LOGGER.info("Detected overriden webservicePrefix as: " + webservicePrefix);
         }
         ClientResource clientResource = new ClientResource(hostURL);
+        //turns down the verbosity of logging during testing
+        clientResource.getLogger().setLevel(java.util.logging.Level.OFF);
         Client client = new Client(new Context(), Protocol.HTTP);
         client.getContext().getParameters().add("useForwardedForHeader", "false");
         clientResource.setNext(client);

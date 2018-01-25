@@ -30,9 +30,11 @@ import org.xml.sax.SAXException;
 
 import net.sourceforge.seqware.common.model.lists.IntegerList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This resource will pull back the workflow runs that are generated from a particular file.
@@ -43,6 +45,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(FileChildLimitedWorkflowRunsResource.class);
 
     /**
      * <p>
@@ -57,12 +60,12 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
     public void getJson(Representation entity) {
         authenticate();
         try {
-            Log.debug("Dealing with FileChildWorkflowRunsResource with Json input");
+            logger.debug("Dealing with FileChildWorkflowRunsResource with Json input");
             JaxbObject<WorkflowRunList2> jaxbTool;
-            Log.info("Using direct json search");
+            logger.info("Using direct json search");
             List<Integer> workflows = new ArrayList<>();
             for (String key : queryValues.keySet()) {
-                Log.debug("key: " + key + " -> " + queryValues.get(key));
+                logger.debug("key: " + key + " -> " + queryValues.get(key));
                 if (key.equals("workflows")) {
                     String value = queryValues.get(key);
                     String[] workflowSWIDs = value.split(",");
@@ -74,7 +77,7 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
             // try to deserialize json file list
             JaxbObject<IntegerList> jo = new JaxbObject<>();
             String text = entity.getText();
-            Log.debug(text);
+            logger.debug(text);
             List<Integer> o = null;
             try {
                 o = ((IntegerList) XmlTools.unMarshal(jo, IntegerList.class, text)).getList();
@@ -83,13 +86,13 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
             }
             o = testIfNull(o);
 
-            Log.debug("Working with " + o.size() + " files");
-            Log.debug("Working with " + workflows.size() + " workflows");
+            logger.debug("Working with " + o.size() + " files");
+            logger.debug("Working with " + workflows.size() + " workflows");
             WorkflowRunList2 runs = FileChildWorkflowRunsResource.directRetrieveWorkflowRuns(o, workflows);
             // these variables will be used to return information
-            Log.debug("Returning " + runs.getList().size() + " workflow runs");
+            logger.debug("Returning " + runs.getList().size() + " workflow runs");
             jaxbTool = new JaxbObject<>();
-            Log.debug("JaxbObjects started");
+            logger.debug("JaxbObjects started");
             assert runs.getList().isEmpty();
             final Document line = XmlTools.marshalToDocument(jaxbTool, runs, WorkflowRunList2.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));

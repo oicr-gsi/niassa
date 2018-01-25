@@ -7,7 +7,6 @@ import net.sourceforge.seqware.common.dao.InvoiceDAO;
 import net.sourceforge.seqware.common.model.Invoice;
 import net.sourceforge.seqware.common.model.InvoiceState;
 import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
@@ -154,7 +153,7 @@ public class InvoiceDAOHibernate extends HibernateDaoSupport implements InvoiceD
         if (list.size() > 0) {
             invoice = list.get(0);
         } else {
-            Log.error("Could not find invoice of swaccession = " + swAccession);
+            localLogger.error("Could not find invoice of swaccession = " + swAccession);
         }
         return invoice;
     }

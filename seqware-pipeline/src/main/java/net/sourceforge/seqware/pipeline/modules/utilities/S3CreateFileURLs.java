@@ -14,19 +14,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -48,7 +46,7 @@ public class S3CreateFileURLs extends Module {
     protected String accessKey = null;
     protected String secretKey = null;
     private static final String[] Q = new String[] { "", "K", "M", "G", "T", "P", "E" };
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(S3CreateFileURLs.class);
+    private final Logger logger = LoggerFactory.getLogger(S3CreateFileURLs.class);
 
     /**
      * <p>
@@ -235,13 +233,13 @@ public class S3CreateFileURLs extends Module {
                         for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
                             if (first) {
                                 first = false;
-                                Log.info("\nBucket\tKey\tSize\tLifetimeMinutes\tURL");
+                                logger.info("\nBucket\tKey\tSize\tLifetimeMinutes\tURL");
                             }
                             if (!objectSummary.getKey().endsWith("/")) {
                                 URL presignedUrl = s3.generatePresignedUrl(new GeneratePresignedUrlRequest(objectSummary.getBucketName(),
                                         objectSummary.getKey(), HttpMethod.GET).withExpiration(new Date(new Date().getTime()
                                         + (60000 * Long.parseLong((String) options.valueOf("lifetime"))))));
-                                Log.info(objectSummary.getBucketName() + "\t" + objectSummary.getKey() + "\t"
+                                logger.info(objectSummary.getBucketName() + "\t" + objectSummary.getKey() + "\t"
                                         + getAsString(objectSummary.getSize()) + "\t" + options.valueOf("lifetime") + "\t"
                                         + presignedUrl.toString().replace("https", "http"));
                             }
@@ -297,8 +295,6 @@ public class S3CreateFileURLs extends Module {
     public ReturnValue init() {
         ReturnValue ret = new ReturnValue();
         ret.setReturnValue(ReturnValue.SUCCESS);
-        Logger logger = Logger.getLogger("com.amazonaws");
-        logger.setLevel(Level.SEVERE);
         return ret;
     }
 

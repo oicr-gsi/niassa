@@ -25,7 +25,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -118,7 +118,7 @@ public class FileIDResource extends DatabaseIDResource {
                 if (reg != null) {
                     file.setOwner(reg);
                 } else {
-                    Log.info("Could not be found: " + newFile.getOwner());
+                    logger.info("Could not be found: " + newFile.getOwner());
                 }
             } else if (file.getOwner() == null) {
                 file.setOwner(registration);

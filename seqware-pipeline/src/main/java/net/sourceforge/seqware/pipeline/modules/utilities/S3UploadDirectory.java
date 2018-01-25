@@ -9,7 +9,6 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
@@ -20,8 +19,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -37,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class S3UploadDirectory extends Module {
 
     protected OptionSet options = null;
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(S3UploadDirectory.class);
+    private final Logger logger = LoggerFactory.getLogger(S3UploadDirectory.class);
 
     @Override
 	public OptionParser getOptionParser() {
@@ -124,13 +122,13 @@ public class S3UploadDirectory extends Module {
             accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
             secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            logger.error(e.getMessage());
             ret.setExitStatus(ReturnValue.FAILURE);
             return ret;
         }
 
         if (accessKey == null || secretKey == null) {
-            Log.error("Couldn't find access or secret key for S3 output so will exit!");
+            logger.error("Couldn't find access or secret key for S3 output so will exit!");
             ret.setExitStatus(ReturnValue.FAILURE);
             return ret;
         }
@@ -150,7 +148,7 @@ public class S3UploadDirectory extends Module {
         ReturnValue ret = new ReturnValue();
         ret.setExitStatus(ReturnValue.SUCCESS);
 
-        Log.stdout("DIR: " + inputDir + " BUCKET: " + outputBucket + " PREFIX: " + outputPrefix);
+        logger.info("DIR: " + inputDir + " BUCKET: " + outputBucket + " PREFIX: " + outputPrefix);
 
         File inputDirFile = new File(inputDir);
         for (File subDir : inputDirFile.listFiles()) {
@@ -173,7 +171,7 @@ public class S3UploadDirectory extends Module {
                 // Do work while we wait for our upload to complete...
                 Thread.sleep(5000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(S3UploadDirectory.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("S3UploadDirectory.recursivelyUploadDir",ex);
             }
         }
 

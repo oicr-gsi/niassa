@@ -31,9 +31,11 @@ import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates a shell script to re-run an existing workflow run
@@ -43,6 +45,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowRunReRunner extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunReRunner.class);
 
 	private ReturnValue ret = new ReturnValue();
 
@@ -123,7 +126,7 @@ public class WorkflowRunReRunner extends Plugin {
 			shFile.println("echo Workflow run SWID: $WRA");
 			Files.setPosixFilePermissions(Paths.get(shFileName), PosixFilePermissions.fromString("rwxr-xr-x"));
 		} catch (IOException e) {
-			Log.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			ret.setExitStatus(ReturnValue.FILENOTREADABLE);
 			ret.setDescription(e.getMessage());
 		}

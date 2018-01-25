@@ -14,12 +14,13 @@ import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A database validation tool for your SeqWare metadb
@@ -30,6 +31,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public final class SanityCheck extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(SanityCheck.class);
 
     public static final int NUMBER_TO_OUTPUT = 100;
     private boolean masterMode = false;
@@ -176,7 +178,7 @@ public final class SanityCheck extends Plugin {
                         System.err.println("Passed check: " + plugin.getClass().getSimpleName());
                     }
                 } catch (Exception e) {
-                    Log.fatal("Plugin " + plugin.getClass().getSimpleName() + " died", e);
+                    logger.error("Plugin " + plugin.getClass().getSimpleName() + " died", e);
                     System.err.println("Crashed and failed check: " + plugin.getClass().getSimpleName());
                     System.err.println(plugin.getDescription());
                     ret.setExitStatus(ReturnValue.FAILURE);

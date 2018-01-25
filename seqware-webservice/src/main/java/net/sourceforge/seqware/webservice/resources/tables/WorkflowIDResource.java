@@ -24,7 +24,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowParam;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
@@ -96,7 +96,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
                 }
                 dto.setWorkflowParams(copiedParams);
             } else {
-                Log.info("Could not be found: workflow params");
+                logger.info("Could not be found: workflow params");
             }
         }
 
@@ -164,7 +164,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     workflow.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found: " + owner);
+                    logger.info("Could not be found: " + owner);
                 }
             } else if (workflow.getOwner() == null) {
                 workflow.setOwner(registration);

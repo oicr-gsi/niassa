@@ -44,9 +44,11 @@ import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This resource will pull back the workflow runs that are generated from a particular file.
@@ -58,6 +60,8 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class FileChildWorkflowRunsResource extends DatabaseResource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileChildWorkflowRunsResource.class);
+
     /**
      * A direct search uses the workflow_run_input_files table rather than attempting a search via the ius_workflow_run and
      * lane_workflow_run and processing hierarchy
@@ -85,7 +89,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
         authenticate();
         final Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         JaxbObject<WorkflowRunList2> jaxbTool;
-        Log.debug("Dealing with FileChildWorkflowRunsResource");
+        LOGGER.debug("Dealing with FileChildWorkflowRunsResource");
 
         if (queryValues.keySet().contains(DIRECT_SEARCH) && queryValues.get(DIRECT_SEARCH).equalsIgnoreCase("true")) {
             handleDirectGetXML();
@@ -95,9 +99,9 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
         FileService fs = BeanFactory.getFileServiceBean();
         Set<File> files = new HashSet<>();
         SEARCH_TYPE searchType = SEARCH_TYPE.CHILDREN_VIA_PROCESSING_RELATIONSHIP;
-        Log.debug("File service started");
+        LOGGER.debug("File service started");
         for (String key : queryValues.keySet()) {
-            Log.debug("key: " + key + " -> " + queryValues.get(key));
+            LOGGER.debug("key: " + key + " -> " + queryValues.get(key));
             if (key.equals("files")) {
                 String value = queryValues.get(key);
                 String[] filesSWIDs = value.split(",");
@@ -116,13 +120,13 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
                 }
             }
         }
-        Log.debug("Working with " + files.size() + " files and doing a search of type: " + searchType.toString());
+        LOGGER.debug("Working with " + files.size() + " files and doing a search of type: " + searchType.toString());
 
         // these variables will be used to return information
         jaxbTool = new JaxbObject<>();
         WorkflowRunList2 eList = new WorkflowRunList2();
         eList.setList(new ArrayList<>());
-        Log.debug("JaxbObjects started");
+        LOGGER.debug("JaxbObjects started");
 
         assert eList.getList().isEmpty();
         // the logic here is, we consider first workflow_run children found via the children of the processing
@@ -155,9 +159,9 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
             }
         }
         if (results.getList().size() > 0) {
-            Log.debug("Found " + results.getList().size() + " workflow runs via Processing children");
+            LOGGER.debug("Found " + results.getList().size() + " workflow runs via Processing children");
         } else {
-            Log.debug("Did not find any workflow runs via Processing children");
+            LOGGER.debug("Did not find any workflow runs via Processing children");
         }
         return results;
     }
@@ -186,9 +190,9 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
             }
         }
         if (result.getList().size() > 0) {
-            Log.debug("Found " + result.getList().size() + " workflow runs via ius");
+            LOGGER.debug("Found " + result.getList().size() + " workflow runs via ius");
         } else {
-            Log.debug("Did not find any workflow runs via ius");
+            LOGGER.debug("Did not find any workflow runs via ius");
         }
         return result;
     }
@@ -217,9 +221,9 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
             }
         }
         if (result.getList().size() > 0) {
-            Log.debug("Found " + result.getList().size() + " workflow runs via lane");
+            LOGGER.debug("Found " + result.getList().size() + " workflow runs via lane");
         } else {
-            Log.debug("Did not find any workflow runs via lane");
+            LOGGER.debug("Did not find any workflow runs via lane");
         }
         return result;
     }
@@ -233,16 +237,16 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
      */
     private boolean isWorkflowRunAttached(Set<WorkflowRun> parentWorkflowRuns, WorkflowRun anyRun) {
         if (parentWorkflowRuns.contains(anyRun)) {
-            Log.debug("Disallowed " + anyRun.getSwAccession() + " because we have seen it on the same level as a file");
+            LOGGER.debug("Disallowed " + anyRun.getSwAccession() + " because we have seen it on the same level as a file");
             return true;
         }
         // check that this workflow run has not actually been linked up into the Processing hierarchy
         if (anyRun.getProcessings() != null && anyRun.getProcessings().size() > 0) {
-            Log.debug("Disallowed " + anyRun.getSwAccession() + " because it is already attached via Processing.workflow_run_id");
+            LOGGER.debug("Disallowed " + anyRun.getSwAccession() + " because it is already attached via Processing.workflow_run_id");
             return true;
         }
         if (anyRun.getOffspringProcessings() != null && anyRun.getOffspringProcessings().size() > 0) {
-            Log.debug("Disallowed " + anyRun.getSwAccession() + " because it is already attached via Processing.ancestor_workflow_run_id");
+            LOGGER.debug("Disallowed " + anyRun.getSwAccession() + " because it is already attached via Processing.ancestor_workflow_run_id");
             return true;
         }
         return false;
@@ -292,7 +296,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
 
                 query.append(" ORDER BY sw_accession");
 
-                Log.info("Executing query: " + query);
+                LOGGER.info("Executing query: " + query);
                 mdb = DBAccess.get();
 
                 List<Integer> workflowSWIDs = mdb.executeQuery(query.toString(), new ResultSetHandler<List<Integer>>() {
@@ -326,10 +330,10 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
 
     private void handleDirectGetXML() throws SQLException, NumberFormatException {
         JaxbObject<WorkflowRunList2> jaxbTool;
-        Log.info("Using direct search");
+        LOGGER.info("Using direct search");
         List<Integer> files = new ArrayList<>();
         for (String key : queryValues.keySet()) {
-            Log.debug("key: " + key + " -> " + queryValues.get(key));
+            LOGGER.debug("key: " + key + " -> " + queryValues.get(key));
             if (key.equals("files")) {
                 String value = queryValues.get(key);
                 String[] filesSWIDs = value.split(",");
@@ -338,11 +342,11 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
                 }
             }
         }
-        Log.debug("Working with " + files.size() + " files");
+        LOGGER.debug("Working with " + files.size() + " files");
         WorkflowRunList2 runs = directRetrieveWorkflowRuns(files, new ArrayList<Integer>());
         // these variables will be used to return information
         jaxbTool = new JaxbObject<>();
-        Log.debug("JaxbObjects started");
+        LOGGER.debug("JaxbObjects started");
         assert runs.getList().isEmpty();
         final Document line = XmlTools.marshalToDocument(jaxbTool, runs, WorkflowRunList2.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));

@@ -1,9 +1,11 @@
 package net.sourceforge.seqware.pipeline;
 
 import java.io.File;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.filetools.lock.LockingFileTools;
 import net.sourceforge.seqware.common.util.processtools.ProcessTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -15,6 +17,7 @@ import net.sourceforge.seqware.common.util.processtools.ProcessTools;
  * @since 0.13.3
  */
 public class LockfileTests {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockfileTests.class);
 
     /**
      * <p>
@@ -37,17 +40,17 @@ public class LockfileTests {
             for (int j = 0; j < maxTries; j++) {
                 // Break on success
                 if (LockingFileTools.lockAndAppend(new File(outdir + "/tmp_" + i + ".txt"), i + System.getProperty("line.separator"))) {
-                    Log.info("Wrote lock file: " + outdir + "/tmp_" + i + ".txt");
+                    LOGGER.info("Wrote lock file: " + outdir + "/tmp_" + i + ".txt");
                     break;
                 }
                 // Sleep if going to try again
                 else if (j < maxTries) {
-                    Log.info("Sleeping for lock file: " + outdir + "/tmp_" + i + ".txt");
+                    LOGGER.info("Sleeping for lock file: " + outdir + "/tmp_" + i + ".txt");
                     ProcessTools.sleep(2);
                 }
                 // Return error if failed on last try
                 else {
-                    Log.info("Failed to open lock file for: " + outdir + "/tmp_" + i + ".txt");
+                    LOGGER.info("Failed to open lock file for: " + outdir + "/tmp_" + i + ".txt");
                     System.exit(1);
                 }
             }

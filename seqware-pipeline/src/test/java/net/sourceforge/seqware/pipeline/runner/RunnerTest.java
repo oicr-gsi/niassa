@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import net.sourceforge.seqware.common.util.ExitException;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Testing the runner class.
@@ -28,6 +30,7 @@ import org.junit.runners.Parameterized.Parameters;
  */
 @RunWith(Parameterized.class)
 public class RunnerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunnerTest.class);
 
     private String testArgs;
     private int expected;
@@ -91,12 +94,12 @@ public class RunnerTest {
      */
     @Parameters
     public static Collection<Object[]> arguments() {
-        Log.info("rscDir = " + rscDir);
+        LOGGER.info("rscDir = " + rscDir);
         String stdoutFile = new File(rscDir, "runnertest.out").getAbsolutePath();
         String stderrFile = new File(rscDir, "runnertest.err").getAbsolutePath();
         String basic = "--no-metadata --module net.sourceforge.seqware.pipeline.module.TestModule";
-        Log.info("stdoutFile = " + stdoutFile);
-        Log.info("stderrFile = " + stderrFile);
+        LOGGER.info("stdoutFile = " + stdoutFile);
+        LOGGER.info("stderrFile = " + stderrFile);
         Object[][] data = new Object[][] { { basic, 0 }, { basic + " --output " + stdoutFile, 0 },
                 { basic + " --output " + stdoutFile + " --stderr " + stderrFile, 0 } };
         return Arrays.asList(data);

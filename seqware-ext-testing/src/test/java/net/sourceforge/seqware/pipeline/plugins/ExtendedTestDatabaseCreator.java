@@ -17,10 +17,12 @@
 package net.sourceforge.seqware.pipeline.plugins;
 
 import java.util.Map;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import io.seqware.metadb.util.TestDatabaseCreator;
 import io.seqware.pipeline.SqwKeys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class controls configuration of the database used for extended integration tests.
@@ -31,6 +33,7 @@ import io.seqware.pipeline.SqwKeys;
  * @author dyuen
  */
 public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
+    private final Logger logger = LoggerFactory.getLogger(ExtendedTestDatabaseCreator.class);
 
     private static Map<String, String> settings = null;
 
@@ -38,7 +41,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         try {
             settings = ConfigTools.getSettings();
         } catch (Exception e) {
-            Log.fatal("Could not read .seqware/settings, this will likely crash extended integration tests", e);
+            logger.error("Could not read .seqware/settings, this will likely crash extended integration tests", e);
         }
     }
 
@@ -50,7 +53,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_NAME.getSettingKey())) {
             return settings.get(SqwKeys.EXTENDED_TEST_DB_NAME.getSettingKey());
         }
-        Log.debug("Could not retrieve extended test db, using default from unit tests");
+        logger.debug("Could not retrieve extended test db, using default from unit tests");
         return super.getSEQWARE_DB();
     }
 
@@ -62,7 +65,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_USER.getSettingKey())) {
             return settings.get(SqwKeys.EXTENDED_TEST_DB_USER.getSettingKey());
         }
-        Log.debug("Could not retrieve extended test db username, using default from unit tests");
+        logger.debug("Could not retrieve extended test db username, using default from unit tests");
         return super.getSEQWARE_USER();
     }
 
@@ -74,7 +77,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_PASSWORD.getSettingKey())) {
             return settings.get(SqwKeys.EXTENDED_TEST_DB_PASSWORD.getSettingKey());
         }
-        Log.debug("Could not retrieve extended test db password, using default from unit tests");
+        logger.debug("Could not retrieve extended test db password, using default from unit tests");
         return super.getSEQWARE_PASSWORD();
     }
 
@@ -86,7 +89,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_HOST.getSettingKey())) {
             return settings.get(SqwKeys.EXTENDED_TEST_DB_HOST.getSettingKey());
         }
-        Log.debug("Could not retrieve extended test db host, using default from unit tests");
+        logger.debug("Could not retrieve extended test db host, using default from unit tests");
         return super.getDEFAULT_DB_HOST();
     }
 
@@ -98,7 +101,7 @@ public class ExtendedTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.EXTENDED_TEST_DB_PORT.getSettingKey())) {
             return settings.get(SqwKeys.EXTENDED_TEST_DB_PORT.getSettingKey());
         }
-        Log.debug("Could not retrieve extended test db port, using default from unit tests");
+        logger.debug("Could not retrieve extended test db port, using default from unit tests");
         return super.getDEFAULT_DB_PORT();
     }
 

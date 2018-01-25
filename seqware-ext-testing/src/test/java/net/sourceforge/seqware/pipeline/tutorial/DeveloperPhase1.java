@@ -16,7 +16,7 @@
  */
 package net.sourceforge.seqware.pipeline.tutorial;
 
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import net.sourceforge.seqware.pipeline.plugins.PluginRunnerET;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Build and install a bundle, used by both the User tutorial and the Developer tutorial
@@ -37,6 +39,7 @@ import java.util.List;
  * @author dyuen
  */
 public class DeveloperPhase1 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeveloperPhase1.class);
 
     public static final String WORKFLOW = "Workflow";
     public static File BundleDir = null;
@@ -50,7 +53,7 @@ public class DeveloperPhase1 {
         PluginRunner it = new PluginRunner();
         String SEQWARE_VERSION = it.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        LOGGER.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         // for all tests, we're going to need to create and install our basic archetypes
         String[] archetypes = { "java-workflow" };
@@ -64,7 +67,7 @@ public class DeveloperPhase1 {
 
         // ensure that a couple of the files we talk about in the tutorial exist
         File bundleDir = PluginRunnerET.getBundleLocations().get("seqware-archetype-java-workflow").getParentFile().getParentFile();
-        Log.info("Looking for files in the bundle dir at " + bundleDir.getAbsolutePath());
+        LOGGER.info("Looking for files in the bundle dir at " + bundleDir.getAbsolutePath());
         File pomXML = new File(bundleDir, "pom.xml");
         Assert.assertTrue("pom.xml does not exist", pomXML.exists());
         File properties = new File(bundleDir, "workflow.properties");
@@ -95,7 +98,7 @@ public class DeveloperPhase1 {
 
     @Test
     public void testModifyingTheWorkflow() throws IOException {
-        Log.info("Editing java client at " + JavaClient.getAbsolutePath());
+        LOGGER.info("Editing java client at " + JavaClient.getAbsolutePath());
         List<String> readLines = FileUtils.readLines(JavaClient, StandardCharsets.UTF_8);
         // edit lines to match tutorial changes
         boolean linesAdded = false;
@@ -113,7 +116,7 @@ public class DeveloperPhase1 {
         FileUtils.writeLines(JavaClient, readLines, false);
         // build and install modified bundle
         File buildDir = BundleDir;
-        Log.info("build dir detected as " + buildDir.getAbsolutePath());
+        LOGGER.info("build dir detected as " + buildDir.getAbsolutePath());
         String command = "mvn install";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, buildDir);
     }

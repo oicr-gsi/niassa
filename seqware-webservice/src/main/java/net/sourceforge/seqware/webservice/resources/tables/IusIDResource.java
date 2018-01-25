@@ -43,7 +43,6 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.slf4j.Logger;
@@ -154,7 +153,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newSample != null && newSample.givesPermission(registration)) {
                     ius.setSample(newSample);
                 } else if (newSample == null) {
-                    Log.info("Could not be found " + sample);
+                    logger.info("Could not be found " + sample);
                 }
             }
 
@@ -168,7 +167,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newLane != null) {
                     ius.setLane(newLane);
                 } else if (newLane == null) {
-                    Log.info("Could not be found " + lane);
+                    logger.info("Could not be found " + lane);
                 }
             }
 
@@ -182,7 +181,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newLimsKey != null) {
                     ius.setLimsKey(newLimsKey);
                 } else if (newLimsKey == null) {
-                    Log.info("Could not be found " + limsKey);
+                    logger.info("Could not be found " + limsKey);
                 }
             }
 
@@ -192,7 +191,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     ius.setOwner(newReg);
                 } else {
-                    Log.info("newReg cannot be found: " + owner.getEmailAddress());
+                    logger.info("newReg cannot be found: " + owner.getEmailAddress());
                 }
             } else if (ius.getOwner() == null) {
                 ius.setOwner(registration);
@@ -233,6 +232,7 @@ public class IusIDResource extends DatabaseIDResource {
             service.delete(ius);
             getResponse().setStatus(Status.SUCCESS_OK);
         } catch (DataIntegrityException ex) {
+            logger.error("IusIDResource.delete",ex);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
         }
         return rep;

@@ -29,7 +29,8 @@ import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Should only be used for one query and then discarded and re-instantiated. The Session needs to be open for it to work
@@ -39,6 +40,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public class PropagateOwnership {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropagateOwnership.class);
 
     private final StringBuilder out = new StringBuilder();
 
@@ -133,18 +135,18 @@ public class PropagateOwnership {
 
         // check processing owner and set if necessary
         if (processingOwner != null && (processingOwner.equals(studyOwner))) {
-            Log.stderr("Owner already set for processing SWID " + processing.getSwAccession());
-            Log.stderr("\tPreviously set: " + processingOwner.getRegistrationId());
-            Log.stderr("\tUnable to set: " + studyOwner.getRegistrationId());
+            LOGGER.error("PropagateOwnership.setOwner Owner already set for processing SWID " + processing.getSwAccession());
+            LOGGER.error("\tPropagateOwnership.setOwner Previously set: " + processingOwner.getRegistrationId());
+            LOGGER.error("\tPropagateOwnership.setOwner Unable to set: " + studyOwner.getRegistrationId());
         } else {
             processing.setOwner(study.getOwner());
         }
 
         // check workflow run owner and set if necessary
         if (workflowRunOwner != null && (workflowRunOwner.equals(studyOwner))) {
-            Log.stderr("Owner already set for workflowRun SWID " + workflowRun.getSwAccession());
-            Log.stderr("\tPreviously set: " + workflowRunOwner.getRegistrationId());
-            Log.stderr("\tUnable to set: " + studyOwner.getRegistrationId());
+            LOGGER.error("PropagateOwnership.setOwner Owner already set for workflowRun SWID " + workflowRun.getSwAccession());
+            LOGGER.error("\tPropagateOwnership.setOwner Previously set: " + workflowRunOwner.getRegistrationId());
+            LOGGER.error("\tPropagateOwnership.setOwner Unable to set: " + studyOwner.getRegistrationId());
         } else {
             workflowRun.setOwner(study.getOwner());
         }
@@ -154,9 +156,9 @@ public class PropagateOwnership {
             for (File file : processing.getFiles()) {
                 Registration fileOwner = file.getOwner();
                 if (fileOwner != null && (fileOwner.equals(studyOwner))) {
-                    Log.stderr("Owner already set for file SWID " + file.getSwAccession());
-                    Log.stderr("\tPreviously set: " + fileOwner.getRegistrationId());
-                    Log.stderr("\tUnable to set: " + studyOwner.getRegistrationId());
+                    LOGGER.error("PropagateOwnership.setOwner Owner already set for file SWID " + file.getSwAccession());
+                    LOGGER.error("\tPropagateOwnership.setOwner Previously set: " + fileOwner.getRegistrationId());
+                    LOGGER.error("\tPropagateOwnership.setOwner Unable to set: " + studyOwner.getRegistrationId());
                 } else {
 
                     file.setOwner(study.getOwner());

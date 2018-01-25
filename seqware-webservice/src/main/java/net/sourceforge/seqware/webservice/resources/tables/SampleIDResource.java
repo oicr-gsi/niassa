@@ -27,7 +27,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.Sample;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -87,7 +87,7 @@ public class SampleIDResource extends DatabaseIDResource {
                 }
                 dto.setLanes(copiedLanes);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
         if (fields.contains("ius")) {
@@ -100,7 +100,7 @@ public class SampleIDResource extends DatabaseIDResource {
                 dto.setIUS(copiedIUS);
             }
             {
-                Log.info("Could not be found : ius");
+                logger.info("Could not be found : ius");
             }
         }
 

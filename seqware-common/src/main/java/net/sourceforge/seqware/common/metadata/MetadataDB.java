@@ -68,7 +68,6 @@ import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Bool;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 
 // FIXME: Have to record processing event (event), what the workflow it was, etc.
@@ -89,7 +88,7 @@ public class MetadataDB implements Metadata {
     // it to get the DB version to confirm the
     // connection in this example.
     private final Statement instance_sql;
-    private final Logger logger = LoggerFactory.getLogger(MetadataDB.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataDB.class);
 
     public MetadataDB(Connection conn) throws SQLException {
         this.db = conn;
@@ -122,7 +121,7 @@ public class MetadataDB implements Metadata {
         }
         if (ds instanceof BasicDataSource) {
             BasicDataSource bds = (BasicDataSource) ds;
-            Log.info("Tomcat Basic data source init with: Log-abandoned =" + bds.getLogAbandoned() + " Max-active: " + bds.getMaxActive()
+            LOGGER.info("MetadataDB.getConnection: Tomcat Basic data source init with: Log-abandoned =" + bds.getLogAbandoned() + " Max-active: " + bds.getMaxActive()
                     + " Max-wait: " + bds.getMaxWait() + " Remove-abandoned: " + bds.getRemoveAbandoned() + " Remove-abandoned-timeout: "
                     + bds.getRemoveAbandonedTimeout() + " Num-active: " + bds.getNumActive() + " Num-idle: " + bds.getNumIdle());
         }
@@ -202,14 +201,14 @@ public class MetadataDB implements Metadata {
             // Execute above
             PreparedStatement ps = null;
             try {
-                Log.info(sql);
+                LOGGER.info("MetadataDB.set_processing_update_tstmp_if_null: sql="+sql);
                 ps = this.getDb().prepareStatement(sql.toString());
                 ps.executeUpdate();
             } finally {
                 DbUtils.closeQuietly(ps);
             }
         } catch (SQLException e) {
-            logger.error("MetadataDB.set_processing_update_tstmp_if_null SQL exception:",e);
+            LOGGER.error("MetadataDB.set_processing_update_tstmp_if_null SQL exception:",e);
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -258,7 +257,7 @@ public class MetadataDB implements Metadata {
                 }
             }
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString());
+            LOGGER.error("SQL Command failed: " + sql.toString());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -303,7 +302,7 @@ public class MetadataDB implements Metadata {
                 }
             }
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString());
+            LOGGER.error("SQL Command failed: " + sql.toString());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         } finally {
@@ -328,7 +327,7 @@ public class MetadataDB implements Metadata {
         try {
             return executeQuery(sql, new IntByName("sw_accession", 0));
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql);
+            LOGGER.error("SQL Command failed: " + sql);
             return (-1);
         }
     }
@@ -391,10 +390,10 @@ public class MetadataDB implements Metadata {
      */
     public boolean linkAccessionAndParent(int accession, int processingID) throws SQLException {
         StringBuilder sql = new StringBuilder();
-        Log.debug("Link Accession and Parent accession:" + accession + " processingId:" + processingID);
+        LOGGER.debug("MetadataDB.linkAccessionAndParent: Link Accession and Parent accession:" + accession + " processingId:" + processingID);
 
         if (accession == 0) {
-            Log.warn("This processing event has no parents! " + processingID);
+            LOGGER.warn("MetadataDB.linkAccessionAndParent: This processing event has no parents! " + processingID);
             return true;
         }
 
@@ -530,7 +529,7 @@ public class MetadataDB implements Metadata {
             // Associate the processing entry with the zero or more parents
             this.associate_processing_event_with_parents_and_child(processingID, parentIDs, childIDs);
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString());
+            LOGGER.error("SQL Command failed: " + sql.toString());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -566,7 +565,7 @@ public class MetadataDB implements Metadata {
             // Associate the processing entry with the zero or more parents
             this.associate_processing_event_with_parents_and_child(processingID, parentIDs, childIDs);
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString());
+            LOGGER.error("SQL Command failed: " + sql.toString());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -628,7 +627,7 @@ public class MetadataDB implements Metadata {
                 }
             }
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -661,7 +660,7 @@ public class MetadataDB implements Metadata {
 
             executeUpdate(sql.toString());
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -686,7 +685,7 @@ public class MetadataDB implements Metadata {
             id = InsertAndReturnNewPrimaryKey(sql.toString(), "workflow_run_workflow_run_id_seq");
 
         } catch (Exception e) {
-            logger.error("MetadataDB.add_workflow_run exception:",e);
+            LOGGER.error("MetadataDB.add_workflow_run exception:",e);
             return (0);
         }
         return (id);
@@ -701,7 +700,7 @@ public class MetadataDB implements Metadata {
         try {
             return executeQuery(sql, new IntByName("sw_accession", 0));
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             return (-1);
         }
     }
@@ -715,7 +714,7 @@ public class MetadataDB implements Metadata {
         try {
             return executeQuery(sql, new IntByName("workflow_run_id", 0));
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             return (-1);
         }
     }
@@ -753,7 +752,7 @@ public class MetadataDB implements Metadata {
                 }
             });
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             return null;
         }
     }
@@ -773,7 +772,7 @@ public class MetadataDB implements Metadata {
             executeUpdate(sql.toString());
 
         } catch (Exception e) {
-            logger.error("SQL Command failed: " + e.getMessage() + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + e.getMessage() + ":" + e.getMessage());
         }
     }
 
@@ -798,7 +797,7 @@ public class MetadataDB implements Metadata {
 
             executeUpdate(sql.toString());
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql.toString() + ":" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -837,7 +836,7 @@ public class MetadataDB implements Metadata {
         try {
             executeUpdate(sql);
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + "\n" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + "\n" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -899,7 +898,7 @@ public class MetadataDB implements Metadata {
              */
             return InsertAndReturnNewPrimaryKey(sql, "file_file_id_seq");
         } catch (SQLException e) {
-            logger.error("Error executing sql: " + sql + ":" + e.getMessage());
+            LOGGER.error("Error executing sql: " + sql + ":" + e.getMessage());
             throw e;
         }
     }
@@ -1011,13 +1010,13 @@ public class MetadataDB implements Metadata {
                 for (FileMetadata file : retval.getFiles()) {
                     // If the file path is empty, warn and skip
                     if (file.getFilePath().compareTo("") == 0) {
-                        logger.warn("WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
+                        LOGGER.warn("WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
                         continue;
                     }
 
                     // If the meta type is empty, warn and skip
                     if (file.getMetaType().compareTo("") == 0) {
-                        logger.warn("WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
+                        LOGGER.warn("WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
                         continue;
                     }
 
@@ -1028,7 +1027,7 @@ public class MetadataDB implements Metadata {
                 }
             }
         } catch (SQLException e) {
-            logger.error("MetadataDB.update_processing_event SQL exception:",e);
+            LOGGER.error("MetadataDB.update_processing_event SQL exception:",e);
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -1044,10 +1043,10 @@ public class MetadataDB implements Metadata {
      */
     @Override
     public ReturnValue clean_up() {
-        Log.debug("clean_up() of MetadataDB occured " + Integer.toHexString(this.hashCode()));
-        Log.debug("clean_up() of statement " + Integer.toHexString(this.getSql().hashCode()));
+        LOGGER.debug("MetadataDB.clean_up(): of MetadataDB occured " + Integer.toHexString(this.hashCode()));
+        LOGGER.debug("MetadataDB.clean_up() of statement " + Integer.toHexString(this.getSql().hashCode()));
         DbUtils.closeQuietly(this.instance_sql);
-        Log.debug("clean_up() of connection " + Integer.toHexString(this.getDb().hashCode()));
+        LOGGER.debug("MetadataDB.clean_up() of connection " + Integer.toHexString(this.getDb().hashCode()));
         DbUtils.closeQuietly(this.db);
         return new ReturnValue();
     }
@@ -1158,7 +1157,7 @@ public class MetadataDB implements Metadata {
             // TODO: need to add support for pulldowns!
 
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + e.getMessage() + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + e.getMessage() + ":" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
                     ReturnValue.SQLQUERYFAILED);
         }
@@ -1213,7 +1212,7 @@ public class MetadataDB implements Metadata {
                 }
             });
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             return null;
         }
     }
@@ -1232,7 +1231,7 @@ public class MetadataDB implements Metadata {
                 }
             });
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -1249,8 +1248,8 @@ public class MetadataDB implements Metadata {
         try {
             executeUpdate(sql);
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
-            logger.error("MetadataDB.updateWorkflow SQL exception:",e);
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("MetadataDB.updateWorkflow SQL exception:",e);
             ret.setExitStatus(ReturnValue.SQLQUERYFAILED);
         }
         return ret;
@@ -1282,7 +1281,7 @@ public class MetadataDB implements Metadata {
                 }
             });
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -1305,7 +1304,7 @@ public class MetadataDB implements Metadata {
         try {
             return executeQuery(sql, new IntByName("sw_accession", 0));
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             return (-1);
         }
     }
@@ -1493,12 +1492,12 @@ public class MetadataDB implements Metadata {
      */
     public <T> T executeQuery(String s, ResultSetHandler<T> h) throws SQLException {
         Statement sql1 = getSql();
-        Log.debug("MetadataDB executeQuery: \"" + s + "\" on connection + " + Integer.toHexString(this.getDb().hashCode()));
-        Log.debug("MetadataDB executeQuery: query is " + (s == null ? "null" : "not null"));
+        LOGGER.debug("MetadataDB executeQuery: \"" + s + "\" on connection + " + Integer.toHexString(this.getDb().hashCode()));
+        LOGGER.debug("MetadataDB executeQuery: query is " + (s == null ? "null" : "not null"));
         if (sql1 == null) {
-            Log.debug("MetadataDB executeQuery: statement is null");
+            LOGGER.debug("MetadataDB executeQuery: statement is null");
         } else {
-            Log.debug("MetadataDB executeQuery: statement " + Integer.toHexString(sql1.hashCode()) + " is not null");
+            LOGGER.debug("MetadataDB executeQuery: statement " + Integer.toHexString(sql1.hashCode()) + " is not null");
             ResultSet rs = sql1.executeQuery(s);
 
             try {
@@ -1522,7 +1521,7 @@ public class MetadataDB implements Metadata {
      *             if any.
      */
     public int executeUpdate(String s) throws SQLException {
-        logger.debug("MetadataDB executeUpdate:" + s);
+        LOGGER.debug("MetadataDB executeUpdate:" + s);
         return getSql().executeUpdate(s);
     }
 
@@ -1558,7 +1557,7 @@ public class MetadataDB implements Metadata {
                 }
             });
         } catch (SQLException e) {
-            logger.error("SQL Command failed: " + sql + ":" + e.getMessage());
+            LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             throw new RuntimeException(e);
         }
     }

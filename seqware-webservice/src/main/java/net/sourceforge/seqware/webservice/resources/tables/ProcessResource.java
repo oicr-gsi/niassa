@@ -26,7 +26,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -94,7 +94,7 @@ public class ProcessResource extends DatabaseResource {
                     }
                     dto.setFiles(copiedFiles);
                 } else {
-                    Log.info("Could not be found :files");
+                    logger.info("Could not be found :files");
                 }
             }
             line = XmlTools.marshalToDocument(jaxbTool, dto, Processing.class);

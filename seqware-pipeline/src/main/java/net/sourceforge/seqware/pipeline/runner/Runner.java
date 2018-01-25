@@ -36,7 +36,6 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
 import net.sourceforge.seqware.common.util.filetools.lock.LockingFileTools;
@@ -85,7 +84,7 @@ public class Runner {
 	// Runner twice, the value of the previous stdout/stderr will be kept.
 	private final StringBuffer stdout = new StringBuffer();
 	private final StringBuffer stderr = new StringBuffer();
-        private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(Runner.class);
         
 	public Runner() {
 		PARSER.acceptsAll(Arrays.asList("help", "h", "?"), "Provides this help message.");
@@ -181,7 +180,7 @@ public class Runner {
 				.ofType(Integer.class).defaultsTo(0).describedAs("Time in Seconds (Default: 0)");
 		PARSER.accepts("suppress-unimplemented-warnings",
 				"Optional: For debugging, hide warnings about unimplemented methods");
-		PARSER.accepts("verbose", "Show debug information");
+		PARSER.accepts("verbose", "Deprecated option");
 		this.nonOptionSpec = PARSER.nonOptions(
 				"Specify arguments for the module by providding an additional -- and then --<key> <value> pairs");
 	}
@@ -198,22 +197,22 @@ public class Runner {
 	 */
 	public static void getSyntax(OptionParser parser, String errorMessage) {
 		if (errorMessage != null && errorMessage.length() > 0) {
-			Log.stderr("ERROR: " + errorMessage);
-			Log.stderr("");
+			LOGGER.error("ERROR: " + errorMessage);
+			LOGGER.error("");
 		}
-		Log.stdout(
-				"Syntax: java net.sourceforge.seqware.pipeline.runner.Runner [--help] [--verbose] [--output std_out_file] [other_runner_params] --module Module -- [ModuleParameters]");
-		Log.stdout("");
-		Log.stdout("--> ModuleParameters are passed directly to the Module and ignored by the Runner. ");
-		Log.stdout(
+		System.out.println(
+				"Syntax: java net.sourceforge.seqware.pipeline.runner.Runner [--help] [--output std_out_file] [other_runner_params] --module Module -- [ModuleParameters]");
+		System.out.println("");
+		System.out.println("--> ModuleParameters are passed directly to the Module and ignored by the Runner. ");
+		System.out.println(
 				"--> You must pass '--' right after the Module in order to prevent the ModuleParameters being parsed by the runner!");
-		Log.stdout("");
-		Log.stdout("Runner parameters are limited to the following:");
-		Log.stdout("-help, --help, -h      display this help message");
+		System.out.println("");
+		System.out.println("Runner parameters are limited to the following:");
+		System.out.println("-help, --help, -h      display this help message");
 		try {
 			parser.printHelpOn(System.err);
 		} catch (IOException e) {
-                    logger.error("Runner.getSyntax I/O exception:",e);
+                    LOGGER.error("Runner.getSyntax I/O exception:",e);
                 }
 		throw new ExitException(-1);
 	}
@@ -221,7 +220,7 @@ public class Runner {
 	private void writeStringToFile(File file, boolean append, String output) {
 		int maxTries = (Integer) options.valueOf("metadata-tries-number");
 		for (int i = 0; i <= maxTries; i++) {
-			Log.fatal("On try " + i + " of " + maxTries);
+			LOGGER.debug("On try " + i + " of " + maxTries);
 			// Break on success
 			if (LockingFileTools.lockAndWrite(file, output, append)) {
 				break;
@@ -282,7 +281,7 @@ public class Runner {
 	 */
 	public void evaluateReturn(Module app, ModuleMethod methodName) {
 
-		Log.debug("EvaluateReturn for " + methodName);
+		LOGGER.debug("EvaluateReturn for " + methodName);
 		// If metaDB is defined, let's update status to methodName so we know what
 		// we are running
 		if (meta != null && processingID != 0) {
@@ -323,7 +322,7 @@ public class Runner {
 			throw new ExitException(ReturnValue.RUNNERERR);
 		}
 
-		Log.debug("Past section1 of EvaluateReturn " + methodName);
+		LOGGER.debug("Past section1 of EvaluateReturn " + methodName);
 
 		// Print STDERR/STDOUT and then set the full stderr/stdout in the
 		// returnvalue
@@ -336,11 +335,11 @@ public class Runner {
 			newReturn.setStderr(stderr.toString());
 		}
 
-		Log.debug("Past section2 of EvaluateReturn " + methodName);
+		LOGGER.debug("Past section2 of EvaluateReturn " + methodName);
 
 		// On failure, update metadb and exit
 		if (newReturn.getExitStatus() > ReturnValue.SUCCESS) {
-			Log.debug("Section3 of EvaluateReturn, failure");
+			LOGGER.debug("Section3 of EvaluateReturn, failure");
 			printAndAppendtoStderr(
 					"The method '" + methodName + "' exited abnormally so the Runner will terminate here!");
 			printAndAppendtoStderr("Return value was: " + newReturn.getExitStatus());
@@ -352,16 +351,16 @@ public class Runner {
 				meta.update_processing_event(processingID, newReturn);
 				meta.update_processing_status(processingID, ProcessingStatus.failed);
 			}
-			Log.debug("Attempting exit");
+			LOGGER.debug("Attempting exit");
 			throw new ExitException(newReturn.getExitStatus());
 		} // Otherwise we will continue, after updating metadata
 		else {
-			Log.debug("Section3 of EvaluateReturn, success");
+			LOGGER.debug("Section3 of EvaluateReturn, success");
 			// If it returned unimplemented, let's warn
 			if (newReturn.getExitStatus() < ReturnValue.SUCCESS) {
 				newReturn.setExitStatus(ReturnValue.NULL);
 			}
-			Log.debug("Section3 of EvaluateReturn, update metadata");
+			LOGGER.debug("Section3 of EvaluateReturn, update metadata");
 			// Update metadata if we can
 			if (meta != null && processingID != 0) {
 				newReturn.setStdout(stdout.toString());
@@ -369,7 +368,7 @@ public class Runner {
 				meta.update_processing_event(processingID, newReturn);
 			}
 		}
-		Log.debug("Past section3 of EvaluateReturn " + methodName);
+		LOGGER.debug("Past section3 of EvaluateReturn " + methodName);
 
 		// If were are supposed to sleep after steps, do so
 		ProcessTools.sleep((Integer) options.valueOf("sleep-between-steps"));
@@ -388,7 +387,7 @@ public class Runner {
 	 */
 	public static void unzipPkg(String zipFile) throws ZipException, IOException {
 
-		Log.info(zipFile);
+		LOGGER.debug(zipFile);
 		int buffer = 2048;
 		File file = new File(zipFile);
 
@@ -396,10 +395,10 @@ public class Runner {
 
 			String[] pkgNames = zipFile.substring(0, zipFile.length() - 4).split(File.separator);
 			String pkgName = pkgNames[pkgNames.length - 1];
-			// Log.info(pkgName);
+			// logger.info(pkgName);
 			String newPath = System.getProperty("user.dir").concat(File.separator).concat(pkgName);
 
-			Log.info(newPath);
+			LOGGER.debug(newPath);
 
 			new File(newPath).mkdir();
 			Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
@@ -470,7 +469,7 @@ public class Runner {
 
 		// check if verbose was requested, then override the log4j.properties
 		if (options.has("verbose")) {
-			Log.setVerbose(true);
+                    LOGGER.error("You really want it more verbose than this? Verbosity level not changing.");
 		}
 
 		/**
@@ -480,7 +479,7 @@ public class Runner {
 		 */
 		if (options.nonOptionArguments().contains("--help") || options.nonOptionArguments().contains("-help")
 				|| options.nonOptionArguments().contains("-h") || options.nonOptionArguments().contains("-?")) {
-			Log.error(app.get_syntax());
+			LOGGER.error(app.get_syntax());
 			throw new ExitException(-1);
 		}
 
@@ -493,7 +492,7 @@ public class Runner {
 		// block to specify either --no-metadb or all the metadb params
 		// --BOC 20110810
 		if (bothInOptions(new String[] { "no-metadata", "no-meta-db" }, new String[] { "metadata", "meta-db" })) {
-			Log.error("The module argument is inconsistent: both \'no-metadata\' and \'metadata-xxx\' are specified");
+			LOGGER.error("The module argument is inconsistent: both \'no-metadata\' and \'metadata-xxx\' are specified");
 			throw new ExitException(-1);
 		}
 
@@ -511,18 +510,18 @@ public class Runner {
 		if (bothInOptions(new String[] { "metadata-parentID", "metadata-parentID-file", "metadata-processingID-file" },
 				new String[] { "metadata-parent-accession", "metadata-parent-accession-file",
 						"metadata-processing-accession-file" })) {
-			Log.error(
+			LOGGER.error(
 					"You cannot specify both parent processing IDs and parent processing Accessions. You should use one or the other (use Accessions since IDs are deprecated).");
 			throw new ExitException(-1);
 		}
 
 		if (options.valuesOf("metadata-workflow-accession").size() > 1) {
-			Log.error("You can't have more than one metadata-workflow-accession");
+			LOGGER.error("You can't have more than one metadata-workflow-accession");
 			throw new ExitException(ReturnValue.INVALIDARGUMENT);
 		}
 
 		if (options.valuesOf("metadata-workflow-run-accession").size() > 1) {
-			Log.error("You can't have more than one metadata-workflow-run-accession values");
+			LOGGER.error("You can't have more than one metadata-workflow-run-accession values");
 			throw new ExitException(ReturnValue.INVALIDARGUMENT);
 		}
 	}
@@ -531,9 +530,9 @@ public class Runner {
 		String moduleName = null;
 		if (options.has("module")) {
 			moduleName = options.valueOf("module").toString();
-			Log.info(moduleName);
+			LOGGER.debug(moduleName);
 		} else if (options.has("module-pkg")) {
-			// Log.error("Failure in module-pkg detection");
+			// logger.error("Failure in module-pkg detection");
 			String modName = options.valueOf("module-pkg").toString();
 			String[] modNames = modName.substring(0, modName.length() - 4).split(File.separator);
 			// temp we will look in examples, but really we just want all these in
@@ -543,7 +542,7 @@ public class Runner {
 			// ModuleName = modNames[modNames.length
 			// -1].concat(".net.sourceforge.seqware.pipeline.modules.").concat(modNames[modNames.length
 			// -1]);
-			Log.info(moduleName);
+			LOGGER.debug(moduleName);
 		} else {
 			getSyntax(PARSER, "You must specifiy a --module or a --module-pkg parameter");
 		}
@@ -560,11 +559,10 @@ public class Runner {
 				app.setStderrFile(new File(options.valueOf("stderr").toString()));
 			}
 		} catch (ClassNotFoundException e) {
-			Log.error("Could not find the Module class for '" + moduleName + "'");
+			LOGGER.error("Could not find the Module class for '" + moduleName + "'");
 			throw new ExitException(-1);
 		} catch (Throwable e) {
-                        logger.error("Runner.setupModuleApp Throwable exception:",e);
-                        Log.error(e);
+                        LOGGER.error("Runner.setupModuleApp Throwable exception:",e);
                         throw new ExitException(-1);
 		}
 		app.setParameters(options.valuesOf(nonOptionSpec));
@@ -572,7 +570,7 @@ public class Runner {
 
 	private void preProcessMetadata() {
 		if (optionHasOneOf(new String[] { "no-metadata", "no-meta-db" })) {
-			Log.debug(
+			LOGGER.debug(
 					"Metadata writeback disabled. To enable metadata writeback make sure you setup your .seqware/settings file properly (recommened) or provide --metadata-config-database, --metadata-config-username and --metadata-config-password as arguments to this program");
 			return;
 		}
@@ -625,25 +623,25 @@ public class Runner {
 						if (proc != null) {
 							if (proc.getStatus().equals(ProcessingStatus.success)) {
 								// if a previous run was successful, simply abort
-								Log.error("Lock file exists with a previous success, skipping");
+								LOGGER.error("Lock file exists with a previous success, skipping");
 								throw new ExitException(ReturnValue.SUCCESS);
 							}
 						}
 					} catch (NumberFormatException | NotFoundException ne) {
 						// means that the file doesn't contain a valid processing sw_accession, proceed
-						Log.error("Lock file exists with an invalid processing accession, continuing");
+						LOGGER.error("Lock file exists with an invalid processing accession, continuing");
 					}
-					Log.error("Lock file exists with a non-success, continuing");
+					LOGGER.error("Lock file exists with a non-success, continuing");
 				}
 
 				if ((file.exists() || file.createNewFile()) && file.canWrite()) {
 					processingAccessionFileCheck = file;
 				} else {
-					Log.error("Could not create processingAccession check File for metadata");
+					LOGGER.error("Could not create processingAccession check File for metadata");
 					throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 				}
 			} catch (IOException e) {
-				Log.error("Could not create processingAccession check File for metadata: " + e.getMessage());
+				LOGGER.error("Could not create processingAccession check File for metadata: " + e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 			}
 		}
@@ -665,11 +663,11 @@ public class Runner {
 					if ((file.exists() || file.createNewFile()) && file.canWrite()) {
 						this.writeStringToFile(file, true, workflowRunAccession + System.getProperty("line.separator"));
 					} else {
-						Log.error("Could not create processingAccession File for metadata");
+						LOGGER.error("Could not create processingAccession File for metadata");
 						throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 					}
 				} catch (IOException e) {
-					Log.error("Could not create processingAccession File for metadata: " + e.getMessage());
+					LOGGER.error("Could not create processingAccession File for metadata: " + e.getMessage());
 					throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 				}
 
@@ -700,13 +698,13 @@ public class Runner {
 					try {
 						parentIDs.add(Integer.parseInt(line));
 					} catch (NumberFormatException ex) {
-						Log.error("Non number found when parsing parentID file '" + line + "'");
+						LOGGER.error("Non number found when parsing parentID file '" + line + "'");
 						throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 					}
 				}
 				r.close();
 			} catch (Exception e) {
-				Log.error("Could not open parentID file for metadata: " + e.getMessage());
+				LOGGER.error("Could not open parentID file for metadata: " + e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 			}
 		}
@@ -732,22 +730,22 @@ public class Runner {
 						int[] accessions = new int[] { parseInt };
 						List<ParentAccessionModel> viaParentAccessions = meta.getViaParentAccessions(accessions);
 						if (viaParentAccessions == null) {
-							Log.error("Invalid accession found when parsing parent accession file '" + line + "'");
+							LOGGER.error("Invalid accession found when parsing parent accession file '" + line + "'");
 							throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 						}
 						accessionFound = true;
 					} catch (NumberFormatException ex) {
-						Log.error("Non number found when parsing parent accession file '" + line + "'");
+						LOGGER.error("Non number found when parsing parent accession file '" + line + "'");
 						throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 					}
 				}
 				r.close();
 				if (!accessionFound) {
-					Log.error("No number found when parsing parent accession file '" + file + "'");
+					LOGGER.error("No number found when parsing parent accession file '" + file + "'");
 					throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 				}
 			} catch (Exception e) {
-				Log.error("Could not open parent accession file for metadata-parent-accession-file: " + e.getMessage());
+				LOGGER.error("Could not open parent accession file for metadata-parent-accession-file: " + e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 			}
 		}
@@ -769,13 +767,13 @@ public class Runner {
 					try {
 						ancestorWorkflowRunAccession = Integer.parseInt(line);
 					} catch (NumberFormatException ex) {
-						Log.error("Non number found when parsing parent accession file '" + line + "'");
+						LOGGER.error("Non number found when parsing parent accession file '" + line + "'");
 						throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 					}
 				}
 				r.close();
 			} catch (Exception e) {
-				Log.error(
+				LOGGER.error(
 						"Could not open parent accession file for metadata-workflow-run-ancestor-accession-input-file: "
 								+ e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
@@ -791,11 +789,11 @@ public class Runner {
 				if ((file.exists() || file.createNewFile()) && file.canWrite()) {
 					processingIDFiles.add(file);
 				} else {
-					Log.error("Could not create processingID File for metadata");
+					LOGGER.error("Could not create processingID File for metadata");
 					throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 				}
 			} catch (IOException e) {
-				Log.error("Could not create processingID File for metadata: " + e.getMessage());
+				LOGGER.error("Could not create processingID File for metadata: " + e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 			}
 		}
@@ -808,11 +806,11 @@ public class Runner {
 				if ((file.exists() || file.createNewFile()) && file.canWrite()) {
 					processingAccessionFiles.add(file);
 				} else {
-					Log.error("Could not create processingAccession File for metadata");
+					LOGGER.error("Could not create processingAccession File for metadata");
 					throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 				}
 			} catch (IOException e) {
-				Log.error("Could not create processingAccession File for metadata: " + e.getMessage());
+				LOGGER.error("Could not create processingAccession File for metadata: " + e.getMessage());
 				throw new ExitException(ReturnValue.METADATAINVALIDIDCHAIN);
 			}
 		}
@@ -892,28 +890,28 @@ public class Runner {
 	}
 
 	private void postProcessMetadata() {
-		Log.debug("Running postProcessMetadata");
+		LOGGER.debug("Running postProcessMetadata");
 		if (meta != null && processingID != 0) {
 
 			// write out the accessions to file iff success
 			// Try to write to each processingIDFile until success or timeout
 			for (File file : processingIDFiles) {
-				Log.debug("Writing out accession to " + file.toString());
+				LOGGER.debug("Writing out accession to " + file.toString());
 				this.writeStringToFile(file, true, processingID + System.getProperty("line.separator"));
 			}
-			Log.debug("Completed processingIDFiles");
+			LOGGER.debug("Completed processingIDFiles");
 
 			// Try to write to each processingAccessionFile until success or timeout
 			for (File file : processingAccessionFiles) {
-				Log.debug("Writing out to " + file.toString());
+				LOGGER.debug("Writing out to " + file.toString());
 				writeStringToFile(file, true, processingAccession + System.getProperty("line.separator"));
 			}
-			Log.debug("Completed processingAccessionFiles");
+			LOGGER.debug("Completed processingAccessionFiles");
 			if (processingAccessionFileCheck != null) {
 				writeStringToFile(processingAccessionFileCheck, true,
 						processingAccession + System.getProperty("line.separator"));
 			}
-			Log.debug("Completed processingAccessionFileCheck");
+			LOGGER.debug("Completed processingAccessionFileCheck");
 			meta.update_processing_status(processingID, ProcessingStatus.success);
 		}
 	}
@@ -936,7 +934,7 @@ public class Runner {
 		PrintStream oldErr = null;
 
 		for (ModuleMethod m : ModuleMethod.values()) {
-			Log.debug("Running method " + m.toString());
+			LOGGER.debug("Running method " + m.toString());
 			// check stdout redirect
 			if ((m == outStart) && (app.getStdoutFile() != null)) {
 				try {
@@ -970,7 +968,7 @@ public class Runner {
 				System.setErr(oldErr);
 			}
 		}
-		Log.debug("Finishing invokeModuleMethods");
+		LOGGER.debug("Finishing invokeModuleMethods");
 	}
 
 	/**

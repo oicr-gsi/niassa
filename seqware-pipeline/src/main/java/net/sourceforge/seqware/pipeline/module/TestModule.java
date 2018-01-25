@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @version $Id: $Id
  */
 public class TestModule extends Module {
-    private static final Logger logger = LoggerFactory.getLogger(TestModule.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestModule.class);
     
     /**
      * {@inheritDoc}
@@ -36,8 +35,8 @@ public class TestModule extends Module {
      */
     @Override
     public ReturnValue do_run() {
-        Log.info("stdout: TestModule.do_run");
-        Log.error("stderr: TestModule.do_run");
+        LOGGER.info("stdout: TestModule.do_run");
+        LOGGER.error("stderr: TestModule.do_run");
         return new ReturnValue(ReturnValue.SUCCESS);
     }
 
@@ -48,8 +47,8 @@ public class TestModule extends Module {
      */
     @Override
     public ReturnValue do_test() {
-        Log.info("stdout: TestModule.do_test");
-        Log.error("stderr: TestModule.do_test");
+        LOGGER.info("stdout: TestModule.do_test");
+        LOGGER.error("stderr: TestModule.do_test");
         return new ReturnValue(ReturnValue.SUCCESS);
     }
 
@@ -60,8 +59,8 @@ public class TestModule extends Module {
      */
     @Override
     public ReturnValue do_verify_input() {
-        Log.info("stdout: TestModule.do_verify_input");
-        Log.error("stderr: TestModule.do_verify_input");
+        LOGGER.info("stdout: TestModule.do_verify_input");
+        LOGGER.error("stderr: TestModule.do_verify_input");
         return new ReturnValue(ReturnValue.SUCCESS);
     }
 
@@ -72,8 +71,8 @@ public class TestModule extends Module {
      */
     @Override
     public ReturnValue do_verify_parameters() {
-        Log.info("stdout: TestModule.do_verify_parameters");
-        Log.error("stderr: TestModule.do_verify_parameters");
+        LOGGER.info("stdout: TestModule.do_verify_parameters");
+        LOGGER.error("stderr: TestModule.do_verify_parameters");
         return new ReturnValue(ReturnValue.SUCCESS);
     }
 
@@ -84,8 +83,8 @@ public class TestModule extends Module {
      */
     @Override
     public ReturnValue do_verify_output() {
-        Log.info("stdout: TestModule.do_verify_output");
-        Log.error("stderr: TestModule.do_verify_output");
+        LOGGER.info("stdout: TestModule.do_verify_output");
+        LOGGER.error("stderr: TestModule.do_verify_output");
         return new ReturnValue(ReturnValue.SUCCESS);
     }
 
@@ -104,17 +103,17 @@ public class TestModule extends Module {
         try {
             printStream = new PrintStream(new FileOutputStream(file));
         } catch (FileNotFoundException e) {
-            logger.error("TestModule.main File not found exception:",e);
+            LOGGER.error("TestModule.main File not found exception:",e);
         }
 
-        Log.info("1");
+        LOGGER.info("1");
 
         System.setOut(printStream);
 
-        Log.info("2");
+        LOGGER.info("2");
 
         System.setOut(curOut);
 
-        Log.info("3");
+        LOGGER.info("3");
     }
 }

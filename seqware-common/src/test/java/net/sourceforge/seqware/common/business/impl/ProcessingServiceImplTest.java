@@ -10,9 +10,10 @@ import net.sourceforge.seqware.common.business.RegistrationService;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.RegistrationDTO;
-import net.sourceforge.seqware.common.util.Log;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 0.13.3
  */
 public class ProcessingServiceImplTest extends AbstractTestCase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingServiceImplTest.class);
 
     @Autowired
     ProcessingService processingService;
@@ -39,7 +41,7 @@ public class ProcessingServiceImplTest extends AbstractTestCase {
      */
     @Test
     public void testProcessingWithFiles() {
-        Log.info("Processing without files");
+        LOGGER.info("ProcessingServiceImplTest.testProcessingWithFiles: Processing without files");
         Processing processing = processingService.findByID(775);
         assertEquals(2, processing.getFiles().size());
     }
@@ -51,7 +53,7 @@ public class ProcessingServiceImplTest extends AbstractTestCase {
      */
     @Test
     public void testProcessingWithoutFiles() {
-        Log.info("Processing without files");
+        LOGGER.info("ProcessingServiceImplTest.testProcessingWithFiles: Processing without files");
         Processing processing = processingService.findByID(3);
         assertEquals(0, processing.getFiles().size());
     }

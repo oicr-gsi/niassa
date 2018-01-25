@@ -37,7 +37,6 @@ import net.sourceforge.seqware.common.model.adapters.XmlizeFileSet;
 import net.sourceforge.seqware.common.model.adapters.XmlizeXML;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -1298,20 +1297,20 @@ public class Processing extends PermissionsAware implements Serializable, Compar
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on Processing object " + swAccession);
+            LOGGER.debug("Processing.givesPermissionInternal Skipping permissions admin on Processing object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for Processing object " + swAccession);
+            LOGGER.debug("Processing.givesPermissionInternal Checking permissions for Processing object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for Processing object " + swAccession + " , checked before");
+            LOGGER.debug("Processing.givesPermissionInternal Skipping permissions for Processing object " + swAccession + " , checked before");
             return true;
         }
 
         boolean hasPermission = true;
-        Log.debug("Checking permissions for processing object " + swAccession + " with user " + registration);
+        LOGGER.debug("Processing.givesPermissionInternal Checking permissions for processing object " + swAccession + " with user " + registration);
         Set<PermissionsAware> list = null;
         if (ius != null && !ius.isEmpty()) {
             for (IUS i : ius) {

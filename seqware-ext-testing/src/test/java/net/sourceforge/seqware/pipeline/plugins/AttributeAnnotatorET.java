@@ -19,12 +19,14 @@ package net.sourceforge.seqware.pipeline.plugins;
 import java.io.IOException;
 import java.util.List;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.apache.commons.dbutils.handlers.ArrayHandler;
 import org.apache.commons.dbutils.handlers.ArrayListHandler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, AttributeAnnotator
@@ -32,6 +34,8 @@ import org.junit.Test;
  * @author dyuen
  */
 public class AttributeAnnotatorET {
+    private final Logger logger = LoggerFactory.getLogger(AttributeAnnotatorET.class);
+
     public static final String COUNT_DB_SIZE = "SELECT (SELECT COUNT(*) FROM workflow), (SELECT COUNT(*) FROM workflow_run), (SELECT COUNT(*) FROM sequencer_run), (SELECT COUNT(*) FROM experiment), (SELECT COUNT(*) FROM ius), (SELECT COUNT(*) FROM lane), (SELECT COUNT(*) FROM processing), (SELECT COUNT(*) FROM sample), (SELECT COUNT(*) FROM sample_hierarchy), (SELECT COUNT(*) FROM processing_ius), (SELECT COUNT(*) FROM processing_files), (SELECT COUNT(*) FROM processing_relationship), (SELECT COUNT(*) FROM file), (SELECT COUNT(*) FROM study)";
     private final ExtendedTestDatabaseCreator dbCreator = new ExtendedTestDatabaseCreator();
 
@@ -257,7 +261,7 @@ public class AttributeAnnotatorET {
         String query = "SELECT t2." + type.table_name + "_attribute_id, t2.tag, t2.value FROM " + type.table_name + "_attribute t2, "
                 + type.table_name + " t1 WHERE " + "t1." + type.table_name + "_id=t2." + type.attribute_id_prefix
                 + "_id AND t1.sw_accession=? ORDER BY " + type.table_name + "_attribute_id";
-        Log.info(query);
+        logger.info(query);
         String value = "\"Improperly entered into the LIMS\"";
 
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.AttributeAnnotator " + "-- --" + type.parameter_prefix
@@ -295,7 +299,7 @@ public class AttributeAnnotatorET {
         String query = "SELECT t2." + type.table_name + "_attribute_id, t2.tag, t2.value FROM " + type.table_name + "_attribute t2, "
                 + type.table_name + " t1 WHERE " + "t1." + type.table_name + "_id=t2." + type.attribute_id_prefix
                 + "_id AND t1.sw_accession=? ORDER BY " + type.table_name + "_attribute_id";
-        Log.info(query);
+        logger.info(query);
         List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(), query, accession);
         Assert.assertTrue("first annotation incorrect", runQuery.size() == 1);
         Assert.assertTrue("first tag incorrect", runQuery.get(0)[1].equals(funky_key));

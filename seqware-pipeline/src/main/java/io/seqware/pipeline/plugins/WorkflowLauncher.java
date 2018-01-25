@@ -16,7 +16,6 @@ import joptsimple.OptionSpecBuilder;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
@@ -25,6 +24,8 @@ import net.sourceforge.seqware.pipeline.workflowV2.AbstractWorkflowDataModel;
 import net.sourceforge.seqware.pipeline.workflowV2.WorkflowDataModelFactory;
 import net.sourceforge.seqware.pipeline.workflowV2.WorkflowV2Utility;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -38,6 +39,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowLauncher extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowLauncher.class);
 
     public static final String LAUNCH_SCHEDULED = "launch-scheduled";
 
@@ -142,18 +144,18 @@ public class WorkflowLauncher extends Plugin {
         // launch all if accession not specified
         List<WorkflowRun> scheduledWorkflows = this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.submitted);
 
-        Log.stdoutWithTime("Number of submitted workflows: " + scheduledWorkflows.size());
+        logger.info("Number of submitted workflows: " + scheduledWorkflows.size());
 
         for (WorkflowRun wr : scheduledWorkflows) {
-            Log.stdout("Working Run: " + wr.getSwAccession());
+            logger.info("Working Run: " + wr.getSwAccession());
 
             if (scheduledAccessions.isEmpty() && !isWorkflowRunValidByLocalhost(wr)) {
-                Log.stdout("Skipping run due to host check: " + wr.getSwAccession());
+                logger.info("Skipping run due to host check: " + wr.getSwAccession());
                 continue;
             }
 
             if (!scheduledAccessions.isEmpty() && !scheduledAccessions.contains(wr.getSwAccession().toString())) {
-                Log.stdout("Skipping run due to accession check: " + wr.getSwAccession());
+                logger.info("Skipping run due to accession check: " + wr.getSwAccession());
                 continue;
             }
 
@@ -162,20 +164,20 @@ public class WorkflowLauncher extends Plugin {
             // let's just wrap and report these errors and fail onto the next one
             try {
 
-                Log.stdout("Valid run by host check: " + wr.getSwAccession());
+                logger.info("Valid run by host check: " + wr.getSwAccession());
                 WorkflowRun wrWithWorkflow = this.metadata.getWorkflowRunWithWorkflow(wr.getSwAccession().toString());
                 boolean requiresNewLauncher = WorkflowV2Utility.requiresNewLauncher(wrWithWorkflow.getWorkflow());
                 if (!requiresNewLauncher) {
-                    Log.stdout("Launching via old launcher: " + wr.getSwAccession());
+                    logger.info("Launching via old launcher: " + wr.getSwAccession());
                     WorkflowRuns.failWorkflowRuns(wr.getSwAccession());
                     throw new RuntimeException("SeqWare no longer supports running Pegasus bundles");
                 } else {
-                    Log.stdout("Launching via new launcher: " + wr.getSwAccession());
+                    logger.info("Launching via new launcher: " + wr.getSwAccession());
                     launchNewWorkflow(options, config, metadata, wr.getWorkflowAccession(), wr.getSwAccession(), wr.getWorkflowEngine());
                 }
 
             } catch (Exception e) {
-                Log.fatal("Workflowrun launch with accession: " + wr.getSwAccession() + " failed", e);
+                logger.error("Workflowrun launch with accession: " + wr.getSwAccession() + " failed", e);
                 WorkflowRuns.failWorkflowRuns(wr.getSwAccession());
             }
         }
@@ -183,9 +185,7 @@ public class WorkflowLauncher extends Plugin {
 
     private static String determineBundlePath(OptionSet options, Integer workflowAccession, Metadata metadata) {
         Map<String, String> metaInfo;
-        Log.info("factory attempting to find bundle");
         if (workflowAccession != null) {
-            Log.info("factory attempting to find bundle from DB");
             // this execution path is hacked in for running from the database and can be refactored into BasicWorkflow
             metaInfo = metadata.get_workflow_info(workflowAccession);
             // we've found out the bundle location as of this point
@@ -195,7 +195,6 @@ public class WorkflowLauncher extends Plugin {
             // Yong's code
             return metaInfo.get("current_working_dir");
         } else {
-            Log.info("factory attempting to find bundle from options");
             return WorkflowV2Utility.determineRelativeBundlePath(options);
         }
     }
@@ -213,7 +212,7 @@ public class WorkflowLauncher extends Plugin {
      */
     private ReturnValue launchNewWorkflow(OptionSet options, Map<String, String> config, Metadata metadata, int workflowAccession,
             int workflowRunAccession, String workflowEngineString) {
-        Log.info("launching new workflow");
+        logger.info("launching new workflow");
         ReturnValue localRet = new ReturnValue();
         AbstractWorkflowDataModel dataModel;
         try {
@@ -228,13 +227,13 @@ public class WorkflowLauncher extends Plugin {
                 workflowEngineString = dataModel.getWorkflow_engine();
             }
         } catch (Exception e) {
-            Log.fatal("Exception constructing data model, failing workflow " + workflowRunAccession, e);
+            logger.error("Exception constructing data model, failing workflow " + workflowRunAccession, e);
             WorkflowRuns.failWorkflowRuns(workflowRunAccession);
             localRet.setExitStatus(ReturnValue.FAILURE);
             return localRet;
         }
 
-        Log.info("constructed dataModel");
+        logger.info("constructed dataModel");
 
         // set up workflow engine
         WorkflowEngine engine = WorkflowTools.getWorkflowEngine(dataModel, config, true);
@@ -244,10 +243,10 @@ public class WorkflowLauncher extends Plugin {
             return new ReturnValue(ReturnValue.SUCCESS);
         }
 
-        Log.info("Running the workflow");
+        logger.info("Running the workflow");
         ReturnValue localReturn = engine.runWorkflow();
 
-        Log.info("Completing metadata tracking of workflow run");
+        logger.info("Completing metadata tracking of workflow run");
 
         // metadataWriteback
         String wra = dataModel.getWorkflow_run_accession();

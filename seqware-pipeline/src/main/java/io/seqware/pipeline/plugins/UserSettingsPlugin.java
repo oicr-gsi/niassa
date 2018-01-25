@@ -14,9 +14,10 @@ import org.openide.util.lookup.ServiceProvider;
 import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -28,6 +29,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class UserSettingsPlugin extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(UserSettingsPlugin.class);
 
     public UserSettingsPlugin() {
         super();
@@ -77,7 +79,7 @@ public class UserSettingsPlugin extends Plugin {
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            Log.fatal(e);
+            logger.error("UserSettingsPlugin.get_syntax ",e);
         }
         return ("");
     }

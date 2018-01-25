@@ -18,7 +18,7 @@ package net.sourceforge.seqware.pipeline.plugins;
 
 import com.google.common.io.Files;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, GenericMetadataSaver
@@ -34,6 +36,7 @@ import java.util.Random;
  * @author dyuen
  */
 public class GenericMetadataSaverET {
+    private final Logger logger = LoggerFactory.getLogger(GenericMetadataSaverET.class);
 
     @BeforeClass
     public static void resetDatabase() {
@@ -60,7 +63,7 @@ public class GenericMetadataSaverET {
         Random generator = new Random();
         String random = String.valueOf(generator.nextInt());
         String listOutput = runOldCommand(sampleAccession, inputFile, createTempDir);
-        Log.info(listOutput);
+        logger.info(listOutput);
         return listOutput;
     }
 

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import net.sourceforge.seqware.common.util.Log;
 
 /**
  * 
@@ -578,7 +577,7 @@ public class ReturnValue implements Serializable {
             this.setStderr(this.getStderr() + errorMessage);
         }
 
-        Log.stderr(errorMessage);
+        System.err.println(errorMessage);
     }
 
     // This message will print a string for debugging, and then add it to stdout
@@ -601,7 +600,7 @@ public class ReturnValue implements Serializable {
             this.setStdout(this.getStdout() + outMessage);
         }
 
-        Log.info(outMessage);
+        System.out.println(outMessage);
     }
 
     /**

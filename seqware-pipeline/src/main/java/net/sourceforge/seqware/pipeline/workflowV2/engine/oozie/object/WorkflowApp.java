@@ -1,7 +1,7 @@
 package net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object;
 
 import io.seqware.pipeline.SqwKeys;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.maptools.ReservedIniKeys;
 import net.sourceforge.seqware.pipeline.workflowV2.AbstractWorkflowDataModel;
@@ -22,11 +22,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for the conversion of our AbstractWorkflowDataModel to an oozie xml workflow
  */
 public class WorkflowApp {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowApp.class);
+
     static final String URIOOZIEWORKFLOW = "uri:oozie:workflow:0.4";
     static final org.jdom.Namespace NAMESPACE = org.jdom.Namespace.getNamespace(URIOOZIEWORKFLOW);
     private static final int BUCKET_SIZE = Integer
@@ -242,7 +246,7 @@ public class WorkflowApp {
         // provisionout's children
         for (AbstractJob job : wfdm.getWorkflow().getJobs()) {
             OozieJob oozieActualJob = this.getOozieJobObject(job);
-            Log.debug(String.format("Manipulating parents for %s", oozieActualJob.getLongName()));
+            logger.debug(String.format("Manipulating parents for %s", oozieActualJob.getLongName()));
             for (Job parent : job.getParents()) {
                 oozieActualJob.addParent(this.getOozieJobObject((AbstractJob) parent));
             }
@@ -409,11 +413,11 @@ public class WorkflowApp {
      * @param level
      */
     private void setAccessionFileRelations(OozieJob parent, int level) {
-        Log.debug(level + ": SETTING ACCESSIONS FOR CHILDREN FOR PARENT JOB " + parent.getLongName());
+        logger.debug(level + ": SETTING ACCESSIONS FOR CHILDREN FOR PARENT JOB " + parent.getLongName());
         for (OozieJob pjob : parent.getChildren()) {
-            Log.debug(level + ": RECURSIVE SETTING ACCESSIONS FOR CHILDOB " + pjob.getLongName());
+            logger.debug(level + ": RECURSIVE SETTING ACCESSIONS FOR CHILDOB " + pjob.getLongName());
             boolean added = pjob.addParentAccessionFile(parent.getAccessionFile().toArray(new String[parent.getAccessionFile().size()]));
-            Log.debug(level + ": Added success: " + added);
+            logger.debug(level + ": Added success: " + added);
             if (!added) {
                 // if no parent accession file was added, then recursive calls beyond this level
                 // of recursion should be unnecessary and can be ignored
@@ -471,10 +475,10 @@ public class WorkflowApp {
         if (!input) {
             numFiles = files.size() - numFiles;
         }
-        Log.debug(numFiles + " counted as unattached input files");
+        logger.debug(numFiles + " counted as unattached input files");
         BucketGenerator inputBucketGenerator = null;
         if (numFiles > THRESHOLD) {
-            Log.debug(numFiles + " above threshold of " + THRESHOLD + "using batching");
+            logger.debug(numFiles + " above threshold of " + THRESHOLD + "using batching");
             inputBucketGenerator = new BucketGenerator(input, uniqueName, workflowRunAccession);
         }
         return inputBucketGenerator;

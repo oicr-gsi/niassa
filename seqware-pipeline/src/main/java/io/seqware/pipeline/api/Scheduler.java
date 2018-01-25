@@ -4,7 +4,7 @@ import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.maptools.ReservedIniKeys;
@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class performs the actual work of scheduling a workflow.
@@ -24,6 +26,7 @@ import java.util.SortedSet;
  * @version $Id: $Id
  */
 public class Scheduler {
+    private final Logger logger = LoggerFactory.getLogger(Scheduler.class);
 
     /**
      *
@@ -170,13 +173,12 @@ public class Scheduler {
         MapTools.cli2Map(cmdLineOptions.toArray(new String[cmdLineOptions.size()]), map);
         substituteParentAccessions(parentAccessions, map);
         // perform variable substituion on any bundle path variables
-        Log.info("Attempting to substitute workflow_bundle_dir " + wi.getWorkflowDir());
+        logger.info("Attempting to substitute workflow_bundle_dir " + wi.getWorkflowDir());
         map = MapTools.expandVariables(map, MapTools.providedMap(wi.getWorkflowDir(), wi.getWorkflowSqwVersion()), allowMissingVars);
         // create the final ini for upload to the web service
         StringBuilder mapBuffer = new StringBuilder();
         for (Entry<String, String> entry : map.entrySet()) {
-            Log.info("KEY: " + entry.getKey() + " VALUE: " + entry.getValue());
-            // Log.error(key+"="+map.get(key));
+            logger.info("KEY: " + entry.getKey() + " VALUE: " + entry.getValue());
             mapBuffer.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
         }
         // need to figure out workflow_run_accession
@@ -188,7 +190,8 @@ public class Scheduler {
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_UNDERSCORES.getKey(), workflowRunAccession);
         // my new preferred variable name
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_DASHED.getKey(), workflowRunAccession);
-        Log.stdout("Created workflow run with SWID: " + workflowRunAccession);
+        //tests in seqware-webservice depend on this being printed to standard out
+        System.out.println("Created workflow run with SWID: " + workflowRunAccession);
         // need to link all the parents to this workflow run accession
         // this is actually linking them in the DB
         if (!parentsLinkedToWR.isEmpty()) {
@@ -200,7 +203,7 @@ public class Scheduler {
             try {
                 this.metadata.linkWorkflowRunAndParent(workflowRunId, parentsAsArray);
             } catch (Exception e) {
-                Log.error("Could not link workflow run to its parents " + parentsLinkedToWR.toString());
+                logger.error("Could not link workflow run to its parents " + parentsLinkedToWR.toString(), e);
                 throw Rethrow.rethrow(e);
             }
         }
@@ -223,7 +226,7 @@ public class Scheduler {
         boolean first = true;
 
         // make parent accession string
-        Log.info("ARRAY SIZE: " + parentAccessions.size());
+        logger.info("ARRAY SIZE: " + parentAccessions.size());
         for (String id : parentAccessions) {
             if (first) {
                 first = false;
@@ -251,7 +254,7 @@ public class Scheduler {
         assert (workflowAccession != null);
         // the map
         HashMap<String, String> map = new HashMap<>();
-        Log.info("loading ini files from DB");
+        logger.info("loading ini files from DB");
         // iterate over all the generic default params
         // these params are created when a workflow is installed
         SortedSet<WorkflowParam> workflowParams = this.metadata.getWorkflowParams(workflowAccession.toString());

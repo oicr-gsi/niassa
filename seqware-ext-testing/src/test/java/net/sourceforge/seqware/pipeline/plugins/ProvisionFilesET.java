@@ -17,7 +17,7 @@
 package net.sourceforge.seqware.pipeline.plugins;
 
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, ProvisionFiles
@@ -36,6 +38,7 @@ import java.util.Random;
  * @author dyuen
  */
 public class ProvisionFilesET {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionFilesET.class);
 
     public static final String SETTINGS_PREFIX_KEY = "IT_DATASTORE_PREFIX";
     public static final String DEFAULT_DATASTORE_PREFIX = "/datastore/";
@@ -47,7 +50,7 @@ public class ProvisionFilesET {
                 return settings.get(SETTINGS_PREFIX_KEY);
             }
         } catch (Exception e) {
-            Log.fatal("Could not read .seqware/settings, this will likely crash extended integration tests", e);
+            LOGGER.error("Could not read .seqware/settings, this will likely crash extended integration tests", e);
         }
         return DEFAULT_DATASTORE_PREFIX;
     }
@@ -80,7 +83,7 @@ public class ProvisionFilesET {
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.ModuleRunner -- --module net.sourceforge.seqware.pipeline.modules.utilities.ProvisionFiles "
                 + " --no-metadata " + " -- -i" + provisionedFile.getAbsolutePath() + " -o " + tempDir.getAbsolutePath();
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
-        Log.info(listOutput);
+        LOGGER.info(listOutput);
         File retrievedFile = new File(tempDir.getAbsoluteFile(), provisionedFile.getName());
 
         Assert.assertTrue("file locations do not differ: " + retrievedFile.getAbsolutePath() + "vs" + provisionedFile.getAbsolutePath(),
@@ -109,7 +112,7 @@ public class ProvisionFilesET {
                 + " -- -im text::text/plain::"
                 + inputFile.getAbsolutePath() + " -o " + getDatastorePrefix() + " --force-copy";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
-        Log.info(listOutput);
+        LOGGER.info(listOutput);
         // check that file was ended up being provisioned correctly
         File provisioned = new File(getDatastorePrefix() + inputFile.getName());
         Assert.assertTrue("file did not end up in final location", provisioned.exists());
@@ -120,7 +123,7 @@ public class ProvisionFilesET {
         String metadataContent = FileUtils.readFileToString(metadataFile, StandardCharsets.UTF_8).trim();
         try {
             int processingInt = Integer.parseInt(metadataContent);
-            Log.info("provisioned file as sw_accession: " + processingInt);
+            LOGGER.info("provisioned file as sw_accession: " + processingInt);
         } catch (NumberFormatException e) {
             Assert.assertTrue("did not output metadata sw_accession properly", false);
         }

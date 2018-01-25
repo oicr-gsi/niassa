@@ -32,7 +32,7 @@ import net.sourceforge.seqware.common.model.LibraryStrategy;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -91,7 +91,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 SequencerRun copySR = copier.hibernate2dto(SequencerRun.class, sr);
                 dto.setSequencerRun(copySR);
             } else {
-                Log.info("Could not be found sequencer run");
+                logger.info("Could not be found sequencer run");
             }
         }
 
@@ -165,7 +165,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 if (newSample != null && newSample.givesPermission(registration)) {
                     lane.setSample(newSample);
                 } else if (newSample == null) {
-                    Log.info("Could not be found " + sample);
+                    logger.info("Could not be found " + sample);
                 }
             }
 
@@ -175,7 +175,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     lane.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found " + owner);
+                    logger.info("Could not be found " + owner);
                 }
             } else if (lane.getOwner() == null) {
                 lane.setOwner(registration);

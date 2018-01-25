@@ -26,7 +26,7 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.lists.IUSList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
@@ -111,7 +111,7 @@ public class IUSIDFilterTest extends AbstractResourceTest {
 
     private List<IUS> getIUSs(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         IUSList parent = new IUSList();
         JaxbObject<IUSList> jaxb = new JaxbObject<>();
         try {

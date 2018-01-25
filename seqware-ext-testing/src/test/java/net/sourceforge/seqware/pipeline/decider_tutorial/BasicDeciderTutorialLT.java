@@ -19,7 +19,7 @@ package net.sourceforge.seqware.pipeline.decider_tutorial;
 import com.google.common.io.Files;
 import io.seqware.cli.Main;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ExtendedTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import org.junit.Assert;
@@ -28,6 +28,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support the tutorial for BasicDeciders
@@ -37,6 +39,7 @@ import java.io.IOException;
  * @author dyuen
  */
 public class BasicDeciderTutorialLT {
+    private final Logger logger = LoggerFactory.getLogger(BasicDeciderTutorialLT.class);
 
     @BeforeClass
     public static void resetDatabase() {
@@ -49,7 +52,7 @@ public class BasicDeciderTutorialLT {
         Main main = new Main();
         String SEQWARE_VERSION = main.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         String listCommand = " create study --title 'Study1' --description 'This is a test description' --accession 'InternalID123' --center-name 'SeqWare' --center-project-name 'SeqWare Test Project' --study-type 4";
         String listOutput = ITUtility.runSeqwareCLI(listCommand, ReturnValue.SUCCESS, null);
@@ -100,14 +103,14 @@ public class BasicDeciderTutorialLT {
                 + "Tar"
                 + " -Dworkflow-name=Tar -B -Dgoals=install";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.info(genOutput);
+        logger.info(genOutput);
         command = "mvn archetype:generate -DarchetypeCatalog=local -Dpackage=com.github.seqware -DgroupId=com.github.seqware -DarchetypeArtifactId="
                 + "seqware-archetype-java-workflow"
                 + " -Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId="
                 + "GZ"
                 + " -Dworkflow-name=GZ -B -Dgoals=install";
         genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.info(genOutput);
+        logger.info(genOutput);
 
         // Replace contents of WorkflowClient from both workflows with code from tutorial
         String tarTemplatePath = BasicDeciderTutorialLT.class.getResource("TarWorkflow.template").getPath();
@@ -127,9 +130,9 @@ public class BasicDeciderTutorialLT {
         // rebuild bundles
         command = "mvn clean install";
         genOutput = ITUtility.runArbitraryCommand(command, 0, new File(tempDir, "Tar"));
-        Log.info(genOutput);
+        logger.info(genOutput);
         genOutput = ITUtility.runArbitraryCommand(command, 0, new File(tempDir, "GZ"));
-        Log.info(genOutput);
+        logger.info(genOutput);
         // package bundles
         listCommand = " bundle package --dir Tar/target/Workflow_Bundle_Tar_1.0-SNAPSHOT_SeqWare_" + SEQWARE_VERSION + "/";
         listOutput = ITUtility.runSeqwareCLI(listCommand, ReturnValue.SUCCESS, tempDir);

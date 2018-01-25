@@ -26,7 +26,6 @@ import net.sourceforge.seqware.common.metadata.MetadataInMemory;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.commons.io.FileUtils;
 
@@ -38,6 +37,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a KISS implementation of persistence for WhiteStar relying upon JSON text files in the working directory.
@@ -45,6 +46,7 @@ import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
  * @author dyuen
  */
 public class Persistence {
+    private final Logger logger = LoggerFactory.getLogger(Persistence.class);
 
     public static final String PERSISTENT_DIR = "whitestar";
     public static final String WORKFLOW_RUN_FILENAME = "workflowRun.json";
@@ -77,7 +79,7 @@ public class Persistence {
             SortedSet<String> states = gson.fromJson(statesString, collectionType);
             return states;
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to read workflowrun state");
+            logger.error("Persistence.readCompletedJobs Unable to read workflowrun state", ex);
             rethrow(ex);
         }
         return null;
@@ -103,7 +105,7 @@ public class Persistence {
             }
             return workflowRun;
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to read workflowrun state");
+            logger.error("Persistence.readWorkflowRun Unable to read workflowrun state", ex);
             rethrow(ex);
         }
         return null;
@@ -137,7 +139,7 @@ public class Persistence {
                 }
             }
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to write workflowrun state");
+            logger.error("Persistence.persistState Unable to write workflowrun state",ex);
             rethrow(ex);
         }
     }

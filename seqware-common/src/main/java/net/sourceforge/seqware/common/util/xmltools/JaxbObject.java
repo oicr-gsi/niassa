@@ -19,8 +19,6 @@ package net.sourceforge.seqware.common.util.xmltools;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -103,7 +101,8 @@ import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Convenience class for converting objects into JAXB XML.
@@ -113,6 +112,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @param <T>
  */
 public class JaxbObject<T> {
+private static final Logger LOGGER = LoggerFactory.getLogger(JaxbObject.class);
 
     private static JAXBContext context = null;
 
@@ -175,7 +175,7 @@ public class JaxbObject<T> {
                         ArrayList.class, IntegerList.class, IntegerSet.class);
             }
         } catch (JAXBException e) {
-            Log.error("JaxbObject constructor exception:", e);
+            LOGGER.error("JaxbObject constructor exception:", e);
         }
     }
 
@@ -206,14 +206,14 @@ public class JaxbObject<T> {
             // try {
             // XmlTools.getDocument(output);
             // } catch (Exception ex) {
-            // Log.info("Exception while marshaling: " + ex.getMessage() + ". Trying again.");
+            // LOGGER.info("JaxbObject.marshalToDocument: Exception while marshaling: " + ex.getMessage() + ". Trying again.");
             // output = marshal(t);
             // }
 
         } catch (ParserConfigurationException ex) {
-            Logger.getLogger(JaxbObject.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error("JaxbObject.marshalToDocument:",ex.toString(), ex);
         } catch (JAXBException jbe) {
-            Log.error("JaxbObject.marshalToDocument exception:",jbe);
+            LOGGER.error("JaxbObject.marshalToDocument exception:",jbe);
             throw jbe;
         }
         return doc;
@@ -243,7 +243,7 @@ public class JaxbObject<T> {
             StringBuffer buffer = writer.getBuffer();
             output = buffer.toString();
         } catch (JAXBException jbe) {
-            Log.error("JaxbObject.marshal exception:",jbe);
+            LOGGER.error("JaxbObject.marshal exception:",jbe);
             throw jbe;
         }
         return output;
@@ -267,7 +267,7 @@ public class JaxbObject<T> {
             JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
             object = o.getValue();
         } catch (JAXBException jbe) {
-            Log.error("JaxbObject.unMarshal exception:",jbe);
+            LOGGER.error("JaxbObject.unMarshal exception:",jbe);
             throw jbe;
         }
         return object;
@@ -292,7 +292,7 @@ public class JaxbObject<T> {
             JAXBElement<T> o = m.unmarshal(d, expectedType);
             object = o.getValue();
         } catch (JAXBException jbe) {
-            Log.error("JaxbObject.unMarshal exception2:",jbe);
+            LOGGER.error("JaxbObject.unMarshal exception2:",jbe);
             throw jbe;
         }
         return object;

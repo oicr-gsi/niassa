@@ -5,7 +5,8 @@ import net.sourceforge.seqware.common.business.RegistrationService;
 import net.sourceforge.seqware.common.dao.RegistrationDAO;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.RegistrationDTO;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor=Exception.class)
 public class RegistrationServiceImpl implements RegistrationService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationServiceImpl.class);
+
     private RegistrationDAO registrationDAO = null;
 
     /**
@@ -40,7 +43,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     @Override
     public void setRegistrationDAO(RegistrationDAO registrationDAO) {
-        Log.stderr("SETTING REGDAO HERE: " + registrationDAO + " " + this);
+        LOGGER.error("RegistrationServiceImpl.setRegistrationDAO: SETTING REGDAO HERE: " + registrationDAO + " " + this);
         this.registrationDAO = registrationDAO;
     }
 
@@ -96,7 +99,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         RegistrationDTO registrationDTO = null;
         if (emailAddress != null) {
             if (registrationDAO == null) {
-                Log.stderr("regDAW IS NULL! " + registrationDAO + " " + this);
+                LOGGER.error("RegistrationServiceImpl.findByEmailAddress regDAW IS NULL! " + registrationDAO + " " + this);
                 return null;
             }
             try {
@@ -105,8 +108,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                     registrationDTO = this.populateRegistrationDTO(registration);
                 }
             } catch (Exception exception) {
-                Log.stderr("EXCEPTION: " + exception.getMessage());
-                Log.debug("Cannot find Registration by email address " + emailAddress);
+                LOGGER.error("RegistrationServiceImpl.findByEmailAddress: EXCEPTION: " + exception.getMessage());
+                LOGGER.debug("RegistrationServiceImpl.findByEmailAddress: Cannot find Registration by email address " + emailAddress);
             }
         }
         return registrationDTO;
@@ -128,7 +131,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                     registrationDTO = this.populateRegistrationDTO(registration);
                 }
             } catch (Exception exception) {
-                Log.debug("Cannot find Registration by email address " + emailAddress + " and password " + password);
+                LOGGER.debug("RegistrationServiceImpl.findByEmailAddressAndPassword: Cannot find Registration by email address " + emailAddress + " and password " + password);
             }
         }
         return registrationDTO;
@@ -165,7 +168,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             registrationDTO.setRegistrationId(registration.getRegistrationId());
             BeanUtils.copyProperties(registrationDTO, registration);
         } catch (Exception exception) {
-            Log.error("Error copying RegistrationDTO to Registration.");
+            LOGGER.error("RegistrationServiceImpl.populateRegistration: Error copying RegistrationDTO to Registration.");
         }
         return registration;
     }
@@ -181,8 +184,8 @@ public class RegistrationServiceImpl implements RegistrationService {
             registrationDTO.setConfirmPassword(registration.getPassword());
             registrationDTO.setDomainObject(registration);
         } catch (Exception exception) {
-            Log.stderr("EXCEPTION2: " + exception.getMessage());
-            Log.error("Error copying Registration to RegistrationDTO.");
+            LOGGER.error("RegistrationServiceImpl.populateRegistrationDTO: EXCEPTION2: " + exception.getMessage());
+            LOGGER.error("RegistrationServiceImpl.populateRegistrationDTO: Error copying Registration to RegistrationDTO.");
         }
         return registrationDTO;
     }

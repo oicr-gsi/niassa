@@ -24,7 +24,7 @@ import net.sourceforge.seqware.common.model.LibraryStrategy;
 import net.sourceforge.seqware.common.model.Organism;
 import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.StudyType;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.runtools.ConsoleAdapter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,12 +33,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public abstract class BatchMetadataParser {
+    private final Logger logger = LoggerFactory.getLogger(BatchMetadataParser.class);
 
     public enum Field {
 
@@ -83,9 +86,9 @@ public abstract class BatchMetadataParser {
     protected String choiceOf(String sampleName, String title, String[] choices, String deflt) {
         String choice = null;
         int choiceInt = 0;
-        Log.stdout("\nFor sample " + sampleName + ", choose one of the following for " + title + " or enter 0 to skip:");
+        logger.info("\nFor sample " + sampleName + ", choose one of the following for " + title + " or enter 0 to skip:");
         for (int i = 1; i <= choices.length; i++) {
-            Log.stdout(i + " : " + choices[i - 1]);
+            logger.info(i + " : " + choices[i - 1]);
             if (choices[i - 1].equals(deflt)) {
                 choiceInt = i;
             }
@@ -240,7 +243,7 @@ public abstract class BatchMetadataParser {
                 Organism l = (Organism) o;
                 libs[i++] = new KeyVal(l.getOrganismId(), l.getName(), String.valueOf(l.getNcbiTaxId()));
             } else {
-                Log.error("The type of list was not recognized. Contact your local SeqWare developer.");
+                logger.error("The type of list was not recognized. Contact your local SeqWare developer.");
             }
         }
         return libs;
@@ -374,7 +377,7 @@ public abstract class BatchMetadataParser {
         if (organismId <= 0) {
             List<Organism> organisms = new ArrayList<>(metadata.getOrganisms());
             for (int i = 0; i < organisms.size(); i++) {
-                Log.stdout((i + 1) + " : " + organisms.get(i).getName());
+                logger.info((i + 1) + " : " + organisms.get(i).getName());
             }
             organismId = promptPositiveInteger("Organism id", 34, Field.organism_id, 1, organisms.size());
             if (organismId > 0 && organismId <= organisms.size()) {
@@ -410,7 +413,7 @@ public abstract class BatchMetadataParser {
     }
 
     protected int promptInteger(String description, int deflt, Field fieldName) throws OptionException {
-        Log.debug("checking for field '" + description + "'");
+        logger.debug("checking for field '" + description + "'");
 
         String d = extractDefault(fieldName, String.valueOf(deflt));
         if (StringUtils.isNumeric(d)) {
@@ -430,7 +433,7 @@ public abstract class BatchMetadataParser {
     }
 
     protected int promptAccession(String description, int deflt, KeyVal[] values, Field fieldName) throws OptionException {
-        Log.debug("checking for accession '" + description + "'");
+        logger.debug("checking for accession '" + description + "'");
 
         String d = extractDefault(fieldName, String.valueOf(deflt));
         if (StringUtils.isNumeric(d)) {
@@ -442,7 +445,7 @@ public abstract class BatchMetadataParser {
         } // interactively work with the user to determine the choice
         else {
             for (int i = 1; i <= values.length; i++) {
-                Log.stdout(i + " : " + values[i - 1].toString());
+                logger.info(i + " : " + values[i - 1].toString());
             }
             Integer i = promptPositiveInteger(description, deflt, fieldName, 1, values.length);
             if (fieldName != null) {
@@ -453,7 +456,7 @@ public abstract class BatchMetadataParser {
     }
 
     protected String promptString(String description, String deflt, Field fieldName) throws OptionException {
-        Log.debug("checking for field '" + description + "'");
+        logger.debug("checking for field '" + description + "'");
         deflt = extractDefault(fieldName, deflt);
         // not using interactive input
         if (!interactive) {
@@ -485,7 +488,7 @@ public abstract class BatchMetadataParser {
      * @return the choice for the field, or an OptionException if other methods fail. This method can return null.
      */
     protected String promptString(String sampleName, String title, String[] choices, String deflt, Field fieldName) {
-        Log.debug("checking for field '" + sampleName + "'");
+        logger.debug("checking for field '" + sampleName + "'");
         deflt = extractDefault(fieldName, deflt);
         // not using interactive input
         if (!interactive) {
@@ -539,7 +542,7 @@ public abstract class BatchMetadataParser {
         try {
             info.print(writer, metadata);
         } catch (IOException ex) {
-            Log.warn("IO error when printing SampleInfo information! This should not happen!", ex);
+            logger.warn("IO error when printing SampleInfo information! This should not happen!", ex);
         }
     }
 
@@ -547,7 +550,7 @@ public abstract class BatchMetadataParser {
         try {
             info.print(writer, metadata);
         } catch (IOException ex) {
-            Log.warn("IO error when printing RunInfo information! This should not happen!", ex);
+            logger.warn("IO error when printing RunInfo information! This should not happen!", ex);
         }
     }
 
@@ -555,7 +558,7 @@ public abstract class BatchMetadataParser {
         try {
             info.print(writer, metadata);
         } catch (IOException ex) {
-            Log.warn("IO error when printing LaneInfo information! This should not happen!", ex);
+            logger.warn("IO error when printing LaneInfo information! This should not happen!", ex);
         }
     }
 }

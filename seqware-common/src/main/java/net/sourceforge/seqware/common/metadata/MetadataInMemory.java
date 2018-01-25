@@ -85,8 +85,9 @@ import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This stores some metadata in memory as an exploration of running workflows without a running database or web service.
@@ -96,6 +97,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
  * @author dyuen
  */
 public class MetadataInMemory implements Metadata {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataInMemory.class);
 
     /**
      * Stores SWID/id -> Model object. Unlike the postgres database, we re-use the sw accession as the id
@@ -470,12 +472,12 @@ public class MetadataInMemory implements Metadata {
             for (FileMetadata file : retval.getFiles()) {
                 // If the file path is empty, warn and skip
                 if (file.getFilePath().compareTo("") == 0) {
-                    Log.error("WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
+                    LOGGER.error("MetadataInMemory.update_processing_event WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
                     continue;
                 }
                 // If the meta type is empty, warn and skip
                 if (file.getMetaType().compareTo("") == 0) {
-                    Log.error("WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
+                    LOGGER.error("MetadataInMemory.update_processing_event WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
                     continue;
                 }
                 File modelFile = new File();
@@ -661,7 +663,7 @@ public class MetadataInMemory implements Metadata {
             wrs.add(workflowRun);
             lane.setWorkflowRuns(wrs);
         } else {
-            Log.error("ERROR: SW Accession is neither a lane nor an IUS: " + parentAccession);
+            LOGGER.error("MetadataInMemory.update_processing_event ERROR: SW Accession is neither a lane nor an IUS: " + parentAccession);
             return false;
         }
     }
@@ -697,7 +699,7 @@ public class MetadataInMemory implements Metadata {
         workflow.setSwAccession(nextKey);
         MetadataInMemory.getStore().put(nextKey, Workflow.class, workflow);
         ReturnValue returnValue = new ReturnValue();
-        Log.stdout("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
+        LOGGER.info("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
         returnValue.setAttribute("sw_accession", String.valueOf(workflow.getSwAccession()));
         returnValue.setReturnValue(workflow.getSwAccession());
 

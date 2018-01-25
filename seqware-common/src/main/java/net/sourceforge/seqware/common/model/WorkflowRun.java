@@ -23,7 +23,6 @@ import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.adapters.XmlizeXML;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -983,15 +982,15 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on Workflow Run object " + swAccession);
+            LOGGER.debug("WorkflowRun.givesPermissionInternal Skipping permissions admin on Workflow Run object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for WorkflowRun object " + swAccession);
+            LOGGER.debug("WorkflowRun.givesPermissionInternal Checking permissions for WorkflowRun object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for WorkflowRun object " + swAccession + " , checked before");
+            LOGGER.debug("WorkflowRun.givesPermissionInternal Skipping permissions for WorkflowRun object " + swAccession + " , checked before");
             return true;
         }
 

@@ -42,7 +42,8 @@ import net.sourceforge.seqware.common.business.WorkflowParamService;
 import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,6 +54,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public class ContextImpl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextImpl.class);
 
     private static ContextImpl ctx;
 
@@ -120,7 +122,7 @@ public class ContextImpl {
         if (ctx == null) {
             ApplicationContext c = ContextLoader.getCurrentWebApplicationContext();
             if (c == null) {
-                Log.info("ContextImpl: Could not find web context. Switching to XML context.");
+                LOGGER.info("ContextImpl.getInstance: Could not find web context. Switching to XML context.");
                 c = new ClassPathXmlApplicationContext("applicationContext.xml");
             }
             ctx = (ContextImpl) c.getBean("contextImpl");

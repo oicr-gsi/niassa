@@ -13,15 +13,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
@@ -250,7 +250,7 @@ public class S3DeleteFiles extends Module {
                     String bucket = m.group(1);
                     String key = m.group(2);
 
-                    Log.info("  * Deleting file: bucket: " + bucket + " key: " + key);
+                    logger.info("  * Deleting file: bucket: " + bucket + " key: " + key);
                     s3.deleteObject(bucket, key);
 
                 }
@@ -288,8 +288,6 @@ public class S3DeleteFiles extends Module {
     public ReturnValue init() {
         ReturnValue ret = new ReturnValue();
         ret.setReturnValue(ReturnValue.SUCCESS);
-        Logger logger = Logger.getLogger("com.amazonaws");
-        logger.setLevel(Level.SEVERE);
         return ret;
     }
 

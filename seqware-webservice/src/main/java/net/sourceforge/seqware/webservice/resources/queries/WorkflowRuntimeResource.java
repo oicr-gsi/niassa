@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import net.sourceforge.seqware.common.factory.DBAccess;
-import net.sourceforge.seqware.common.util.Log;
+
 import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
 import net.sourceforge.seqware.webservice.resources.BasicRestlet;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -31,6 +31,8 @@ import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -41,6 +43,7 @@ import org.restlet.data.Status;
  * @version $Id: $Id
  */
 public class WorkflowRuntimeResource extends BasicRestlet {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRuntimeResource.class);
 
     /**
      * <p>
@@ -72,7 +75,7 @@ public class WorkflowRuntimeResource extends BasicRestlet {
             String workflowAccession = null;
             final String workflowId = "workflowId";
             if (queryValues.containsKey(workflowId)) {
-                Log.debug("Processing attributes for: " + request.getEntityAsText());
+                logger.debug("Processing attributes for: " + request.getEntityAsText());
                 String localWorkflowAccession = queryValues.get(workflowId);
                 if (localWorkflowAccession != null) {
                     workflowAccession = localWorkflowAccession;
@@ -99,7 +102,7 @@ public class WorkflowRuntimeResource extends BasicRestlet {
                 if (workflowAccession != null) {
                     query = query + " and w.sw_accession = " + workflowAccession;
                 }
-                Log.debug("Running query: " + query);
+                logger.debug("Running query: " + query);
 
                 query = query + " order by p.create_tstmp";
 

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.xml.bind.DatatypeConverter;
-import net.sourceforge.seqware.common.util.Log;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -29,6 +28,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -40,6 +41,7 @@ import org.junit.Test;
  * @since 0.13.6.2
  */
 public class MapToolsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapToolsTest.class);
 
     /**
      * <p>
@@ -288,8 +290,8 @@ public class MapToolsTest {
         // make a single string from the map
         StringBuffer mapBuffer = new StringBuffer();
         for (String key : hm.keySet()) {
-            Log.info("KEY: " + key + " VALUE: " + hm.get(key));
-            // Log.error(key+"="+map.get(key));
+            LOGGER.info("MapToolsTest.createStringFromMap: KEY: " + key + " VALUE: " + hm.get(key));
+            // LOGGER.error(key+"="+map.get(key));
             mapBuffer.append(key).append("=").append(hm.get(key).get("default_value")).append("\n");
         }
         return mapBuffer;

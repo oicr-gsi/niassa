@@ -30,7 +30,7 @@ import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Study;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -182,7 +182,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
                 if (newStudy != null && newStudy.givesPermission(registration)) {
                     exp.setStudy(newStudy);
                 } else if (newStudy == null) {
-                    Log.info("Could not be found " + study);
+                    logger.warn("Could not be found " + study);
                 }
             }
 
@@ -192,7 +192,7 @@ public class ExperimentIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     exp.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found " + owner);
+                    logger.warn("Could not be found " + owner);
                 }
             } else if (exp.getOwner() == null) {
                 exp.setOwner(registration);
