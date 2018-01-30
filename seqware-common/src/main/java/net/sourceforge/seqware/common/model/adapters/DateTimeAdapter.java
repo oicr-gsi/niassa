@@ -41,7 +41,7 @@ public class DateTimeAdapter extends XmlAdapter<String, ZonedDateTime> {
 
 	@Override
 	public ZonedDateTime unmarshal(String date) throws Exception {
-		return date == null ? null : ZonedDateTime.parse(date, FMT);
+		return date == null || date.length() == 0 ? null : ZonedDateTime.parse(date, FMT);
 	}
 
 	@Override
