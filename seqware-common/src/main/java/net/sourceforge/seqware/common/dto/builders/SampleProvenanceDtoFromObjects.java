@@ -428,7 +428,8 @@ public class SampleProvenanceDtoFromObjects extends SampleProvenanceDto {
 						.filter(Objects::nonNull)//
 						.map(Date::toInstant))
 				.filter(Objects::nonNull)//
-				.max(Instant::compareTo).map(i -> ZonedDateTime.ofInstant(i, ZoneId.of("Z")))//
+				.max(Instant::compareTo)//
+				.map(i -> ZonedDateTime.ofInstant(i, ZoneId.of("Z")))//
 				.orElse(null);
 	}
 

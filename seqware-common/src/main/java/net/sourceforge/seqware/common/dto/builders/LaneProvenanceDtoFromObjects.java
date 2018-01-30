@@ -213,25 +213,29 @@ public class LaneProvenanceDtoFromObjects extends LaneProvenanceDto {
 
 	@Override
 	public ZonedDateTime getLastModified() {
-		Instant updated = Stream.of(createdDate == null ? null : createdDate.toInstant(),
+		return Stream.of(createdDate == null ? null : createdDate.toInstant(),
 				lastModified == null ? null : lastModified.toInstant(),
 				lane.getCreateTimestamp() == null ? null : lane.getCreateTimestamp().toInstant(),
 				lane.getUpdateTimestamp() == null ? null : lane.getUpdateTimestamp().toInstant(),
 				sequencerRun.getCreateTimestamp() == null ? null : sequencerRun.getCreateTimestamp().toInstant(),
 				sequencerRun.getUpdateTimestamp() == null ? null : sequencerRun.getUpdateTimestamp().toInstant())
-				.filter(Objects::nonNull).max(Instant::compareTo).orElse(null);
-		return updated == null ? null : ZonedDateTime.ofInstant(updated, ZoneId.of("Z"));
+				.filter(Objects::nonNull)//
+				.max(Instant::compareTo)//
+				.map(d -> ZonedDateTime.ofInstant(d, ZoneId.of("Z")))//
+				.orElse(null);
 	}
 
 	@Override
 	public ZonedDateTime getCreatedDate() {
-		Instant created = Stream
+		return Stream
 				.of(createdDate == null ? null : createdDate.toInstant(),
 						lane.getCreateTimestamp() == null ? null : lane.getCreateTimestamp().toInstant(),
 						sequencerRun.getCreateTimestamp() == null ? null
 								: sequencerRun.getCreateTimestamp().toInstant())
-				.filter(Objects::nonNull).min(Instant::compareTo).orElse(null);
-		return created == null ? null : ZonedDateTime.ofInstant(created, ZoneId.of("Z"));
+				.filter(Objects::nonNull)//
+				.min(Instant::compareTo)//
+				.map(d -> ZonedDateTime.ofInstant(d, ZoneId.of("Z")))//
+				.orElse(null);
 	}
 
 }
