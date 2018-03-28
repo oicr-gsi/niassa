@@ -21,7 +21,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -31,9 +30,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Stream;
-
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import java.time.temporal.ChronoField;
 
 /**
  *
@@ -106,14 +104,12 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
 		}
 	}
 
-	private static final DateTimeFormatter FMT = new DateTimeFormatterBuilder()//
-			.appendPattern("yyyy-MM-dd[ HH:mm:ss[.S]X]")//
-			.toFormatter();
-	private static final DateTimeFormatter FMT2 = new DateTimeFormatterBuilder()//
-			.appendPattern("yyyy-MM-dd[ HH:mm:ss.SSX]")//
-			.toFormatter();
-	private static final DateTimeFormatter FMT3 = new DateTimeFormatterBuilder()//
-			.appendPattern("yyyy-MM-dd[ HH:mm:ss.SSSX]")//
+        public static final DateTimeFormatter FMT = new DateTimeFormatterBuilder()
+                        .appendPattern("yyyy-MM-dd")
+                        .appendLiteral(" ")
+                        .appendPattern("HH:mm:ss")
+                        .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+                        .appendPattern("X")
 			.toFormatter();
 
 	private static Set<IusLimsKey> convertIusLimsKeyString(String iusLimsKeyString) {
@@ -132,14 +128,7 @@ public class AnalysisProvenanceSqlResultDto extends AnalysisProvenanceDto {
 				lk.setProvider(vals[1]);
 				lk.setId(vals[2]);
 				lk.setVersion(vals[3]);
-				lk.setLastModified(Stream.of(FMT, FMT2, FMT3).flatMap(f -> {
-					try {
-						return Stream.of(ZonedDateTime.parse(vals[4], f));
-					}catch (DateTimeParseException e) {
-						return Stream.empty();
-					}
-				}).findFirst().get()
-				);
+				lk.setLastModified(ZonedDateTime.parse(vals[4], FMT));
 				dto.setLimsKey(lk);
 
 				iusLimsKeys.add(dto);
