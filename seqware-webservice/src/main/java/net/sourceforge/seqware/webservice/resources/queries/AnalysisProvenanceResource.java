@@ -84,6 +84,7 @@ public class AnalysisProvenanceResource extends BasicResource {
 					});
 			buildResponse(filters);
 		} catch (IOException ex) {
+			LOG.error("Failed to get analyis provenance", ex);
 			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
 		}
 	}
