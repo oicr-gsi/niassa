@@ -34,9 +34,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -2856,7 +2858,7 @@ public class MetadataWS implements Metadata {
 			ObjectMapper mapper = new ObjectMapper();
 			clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance");
 			Log.info("getObjectViaPost: " + clientResource);
-			representation = clientResource.post(mapper.writeValueAsString(filters));
+			representation = clientResource.post(mapper.writeValueAsString(filters.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().name(), Entry::getValue))));
 
 			// response
 			JaxbObject<AnalysisProvenanceDtoList> jaxb = new JaxbObject<>();
