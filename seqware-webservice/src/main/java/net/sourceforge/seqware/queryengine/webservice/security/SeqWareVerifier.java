@@ -23,16 +23,16 @@ import org.restlet.security.SecretVerifier;
  */
 public class SeqWareVerifier extends SecretVerifier {
 
-    private final LoadingCache<Key, Integer> credentials;
+    private final LoadingCache<Credentials, Integer> credentials;
 
     public SeqWareVerifier() {
         //Cache credential requests for one minute to improve webservice performance
         credentials = CacheBuilder.newBuilder()
                 .expireAfterWrite(1, TimeUnit.MINUTES)
                 .maximumSize(100)
-                .build(new CacheLoader<Key, Integer>() {
+                .build(new CacheLoader<Credentials, Integer>() {
                     @Override
-                    public Integer load(Key key) {
+                    public Integer load(Credentials key) {
                         RegistrationService registrationService = BeanFactory.getRegistrationServiceBean();
                         Registration registration = registrationService.findByEmailAddress(key.getIdentifier());
                         Logger.getLogger(SeqWareVerifier.class).debug(registration);
@@ -60,15 +60,15 @@ public class SeqWareVerifier extends SecretVerifier {
      */
     @Override
     public int verify(String identifier, char[] secret) {
-        return credentials.getUnchecked(new Key(identifier, secret));
+        return credentials.getUnchecked(new Credentials(identifier, secret));
     }
 
-    private class Key {
+    private class Credentials {
 
         private final String identifier;
         private final char[] secret;
 
-        public Key(String identifier, char[] secret) {
+        public Credentials(String identifier, char[] secret) {
             this.identifier = identifier;
             this.secret = secret;
         }
@@ -100,7 +100,7 @@ public class SeqWareVerifier extends SecretVerifier {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final Key other = (Key) obj;
+            final Credentials other = (Credentials) obj;
             if (!Objects.equals(this.identifier, other.identifier)) {
                 return false;
             }
