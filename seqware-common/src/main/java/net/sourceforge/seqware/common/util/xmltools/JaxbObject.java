@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -32,9 +33,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.w3c.dom.Document;
+
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
+import net.sourceforge.seqware.common.dto.LimsKeyDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.ExperimentAttribute;
@@ -59,7 +64,6 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SampleAttribute;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
@@ -99,7 +103,6 @@ import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
-import org.w3c.dom.Document;
 
 /**
  * Convenience class for converting objects into JAXB XML.
@@ -142,6 +145,7 @@ public class JaxbObject<T> {
                         LibraryStrategy.class,
                         IusLimsKeyDto.class,
                         LimsKey.class,
+                        LimsKeyDto.class,
                         LimsKeyList.class,
                         MapOfSetAdapter.class,
                         MapOfSetEntryType.class,
@@ -158,7 +162,6 @@ public class JaxbObject<T> {
                         SampleProvenanceDto.class,
                         SampleProvenanceDtoList.class,
                         SequencerRun.class,
-                        SequencerRunWizardDTO.class,
                         // ShareExperiment.class, ShareFile.class, ShareLane.class,
                         // ShareProcessing.class, ShareSample.class, ShareStudy.class, ShareWorkflowRun.class,
                         Study.class, StudyAttribute.class, StudyType.class, Workflow.class, WorkflowParam.class,
@@ -184,7 +187,7 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public Document marshalToDocument(T t) throws JAXBException {
+    public Document marshalToDocument(T t, Class<T> type) throws JAXBException {
         Document doc = null;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -197,7 +200,7 @@ public class JaxbObject<T> {
             // get the XML
             // JAXBContext context = JAXBContext.newInstance(object.getClass());
             Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement(new QName(object.getClass().getSimpleName()), object.getClass(), object), doc);
+            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), doc);
 
             // try {
             // XmlTools.getDocument(output);
@@ -224,29 +227,20 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public String marshal(T t) throws JAXBException {
+    public String marshal(T t, Class<T> type) throws JAXBException {
         String output = null;
         try {
             StreamResult result = new StreamResult(new StringWriter());
             T object = t;
 
             // get the XML
-            // JAXBContext context = JAXBContext.newInstance(object.getClass());
             Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement(new QName(object.getClass().getSimpleName()), object.getClass(), object), result);
+            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), result);
 
             // convert to String
             StringWriter writer = (StringWriter) result.getWriter();
             StringBuffer buffer = writer.getBuffer();
             output = buffer.toString();
-
-            // try {
-            // XmlTools.getDocument(output);
-            // } catch (Exception ex) {
-            // Log.info("Exception while marshaling: " + ex.getMessage() + ". Trying again.");
-            // output = marshal(t);
-            // }
-
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;
@@ -265,13 +259,12 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public T unMarshal(T expectedType, Reader reader) throws JAXBException {
+    public T unMarshal(Class<T> expectedType, Reader reader) throws JAXBException {
         T object = null;
         try {
-            // JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
             Unmarshaller m = context.createUnmarshaller();
-            JAXBElement o = m.unmarshal(new StreamSource(reader), expectedType.getClass());
-            object = (T) o.getValue();
+            JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
+            object = o.getValue();
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;
@@ -290,13 +283,13 @@ public class JaxbObject<T> {
      * @throws javax.xml.bind.JAXBException
      *             if any.
      */
-    public T unMarshal(Document d, T expectedType) throws JAXBException {
+    public T unMarshal(Document d, Class<T> expectedType) throws JAXBException {
         T object = null;
         try {
             // JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
             Unmarshaller m = context.createUnmarshaller();
-            JAXBElement o = m.unmarshal(d, expectedType.getClass());
-            object = (T) o.getValue();
+            JAXBElement<T> o = m.unmarshal(d, expectedType);
+            object = o.getValue();
         } catch (JAXBException jbe) {
             jbe.printStackTrace();
             throw jbe;

@@ -18,38 +18,28 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 
 /**
  * 
  * @author mtaschuk
  */
-public class ProcessIDTest extends DatabaseResourceIDTest {
+public class ProcessIDTest extends DatabaseResourceIDTest<Processing> {
 
-    public ProcessIDTest() {
-        super("/processes/2804");
-        jo = new JaxbObject<>();
-        o = new Processing();
-    }
+	public ProcessIDTest() {
+		super("/processes/2804", Processing.class);
+	}
 
-    @Override
-    public void testPut() {
+	@Override
+	public void testPut() {
 
-    }
+	}
 
-    @Override
-    protected int testObject(Object o) {
-        if (o instanceof Processing) {
-            Processing e = (Processing) o;
-            if (e.getSwAccession() != Integer.parseInt(id)) {
-                System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
-                return ReturnValue.INVALIDFILE;
-            }
-
-        } else {
-            System.err.println("Object is not an instance of Processing");
-            return ReturnValue.FILENOTREADABLE;
-        }
-        return ReturnValue.SUCCESS;
-    }
+	@Override
+	protected int testObject(Processing e) {
+		if (e.getSwAccession() != Integer.parseInt(id)) {
+			System.err.println("Actual ID: " + e.getSwAccession() + " and expected ID: " + Integer.parseInt(id));
+			return ReturnValue.INVALIDFILE;
+		}
+		return ReturnValue.SUCCESS;
+	}
 }

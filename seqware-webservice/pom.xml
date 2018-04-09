@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>1.1.2-gsi</version>
+        <version>2.0.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -76,7 +76,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>copy-rename-context</id>
@@ -102,10 +102,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-<!-- try this as an integration test instead -->
+                    <!-- try this as an integration test instead -->
                     <skipTests>true</skipTests>
-                    <argLine>${argLine} -Xms512m -Xmx512m</argLine>
                     <forkMode>pertest</forkMode>
+		            <trimStackTrace>false</trimStackTrace>
                     <includes>
                         <include>**/WSResourceTestSuite.java</include>
                     </includes>
@@ -133,7 +133,6 @@
                 </executions>
 
                 <configuration>
-                    <argLine>${argLine} -Xms512m -Xmx512m</argLine>
                     <forkMode>pertest</forkMode>
                     <!-- enforce that our WSResourceTests run before the plugin tests, this sucks and our tests shouldn't have state -->
 		    <runOrder>reversealphabetical</runOrder>
@@ -141,6 +140,7 @@
                         <include>**/WSResourceTestSuite.java</include>
                         <include>**/plugins/*.java</include>
                         <include>**/deciders/*.java</include>
+                        <include>**/runner/*.java</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -156,12 +156,6 @@
             <name>Public online Restlet repository</name>
             <url>http://maven.restlet.org</url>
         </repository>
-<!--        <repository>
-            <url>http://ftp.ing.umu.se/mirror/eclipse/rt/eclipselink/maven.repo</url>
-            <id>eclipselink</id>
-            <layout>default</layout>
-            <name>Repository for library Library[eclipselink]</name>
-        </repository>-->
         <repository>
             <url>https://maven.java.net/content/groups/public/</url>
             <id>restapi</id>
@@ -180,6 +174,21 @@
             <artifactId>org.restlet.ext.jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20160212</version>
+        </dependency>
+
         <dependency>
             <groupId>net.sf.beanlib</groupId>
             <artifactId>beanlib</artifactId>
@@ -212,6 +221,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+<dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+</dependency>
         <dependency>
             <groupId>com.github.seqware</groupId>
             <artifactId>seqware-pipeline</artifactId>
@@ -261,6 +274,18 @@
                     <artifactId>jackson-core-asl</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-mapper-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-jaxrs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-xc</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
@@ -278,11 +303,7 @@
                 </exclusion>
                 <exclusion>
                     <artifactId>jasper-compiler</artifactId>
-                    <groupId>tomcat</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>rendersnake</artifactId>
-                    <groupId>org.rendersnake</groupId>
+		    <groupId>tomcat</groupId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.validation</groupId>
@@ -303,6 +324,10 @@
                 <exclusion>
                     <groupId>commons-httpclient</groupId>
                     <artifactId>commons-httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -356,7 +381,7 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -414,11 +439,6 @@
         End Hibernate test dependencies
 
         -->
-        <!-- Commented out while solving SEQWARE-848 -->
-        <!-- <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet.ext.protobuf</artifactId>
-        </dependency> -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -440,6 +460,12 @@
         <dependency>
             <groupId>org.restlet.jee</groupId>
             <artifactId>org.restlet.ext.json</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -452,6 +478,10 @@
             <artifactId>org.restlet.test</artifactId>
             <scope>test</scope>
             <exclusions>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>junit</groupId>
                     <artifactId>junit</artifactId>
@@ -506,36 +536,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.8</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>asm</groupId>
-                    <artifactId>asm</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Validator is need for tests not running inside a web containter. -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.3.1</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -553,12 +564,6 @@
             <version>1.4.01</version>
         </dependency>
         <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet.lib.org.restlet.lib.org.json</artifactId>
-            <type>jar</type>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
             <artifactId>org.restlet</artifactId>
             <groupId>org.restlet.jee</groupId>
             <type>jar</type>
@@ -569,15 +574,9 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <groupId>org.codehaus.jackson</groupId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <artifactId>hibernate-core</artifactId>
             <groupId>org.hibernate</groupId>
             <type>jar</type>
-            <version>3.6.6.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>antlr</groupId>
@@ -600,18 +599,6 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-joda</artifactId>
-            <version>2.6.3</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
@@ -619,7 +606,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.3.2</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -643,30 +629,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ca.on.oicr.gsi</groupId>
-            <artifactId>provenance-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.6.3</version>
-            <scope>runtime</scope>
-        </dependency>
+<dependency>
+  <groupId>joda-time</groupId>
+  <artifactId>joda-time</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+</dependency>
+<dependency>
+  <groupId>ca.on.oicr.gsi</groupId>
+  <artifactId>provenance-api</artifactId>
+</dependency>
     </dependencies>
 
     <profiles>
@@ -680,6 +654,7 @@
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
                         <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.2</version>
                         <configuration>
                             <contextFile>target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
                             <useNaming>true</useNaming>

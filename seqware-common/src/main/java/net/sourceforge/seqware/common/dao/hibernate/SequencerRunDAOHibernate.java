@@ -2,29 +2,31 @@ package net.sourceforge.seqware.common.dao.hibernate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import net.sourceforge.seqware.common.dao.SequencerRunDAO;
-import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.model.SequencerRunWizardDTO;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.NullBeanUtils;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.sourceforge.seqware.common.dao.SequencerRunDAO;
+import net.sourceforge.seqware.common.model.Registration;
+import net.sourceforge.seqware.common.model.SequencerRun;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.NullBeanUtils;
 
 /**
  * <p>
  * SequencerRunDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class SequencerRunDAOHibernate extends HibernateDaoSupport implements SequencerRunDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(SequencerRunDAOHibernate.class);
@@ -40,29 +42,13 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override
     public Integer insert(SequencerRun sequencerRun) {
         this.getHibernateTemplate().save(sequencerRun);
-        getSession().flush();
-        return (sequencerRun.getSwAccession());
-    }
-
-    /**
-     * <p>
-     * insert.
-     * </p>
-     * 
-     * @param sequencerRun
-     *            a {@link net.sourceforge.seqware.common.model.SequencerRunWizardDTO} object.
-     * @return
-     */
-    @Override
-    public Integer insert(SequencerRunWizardDTO sequencerRun) {
-        this.getHibernateTemplate().save(sequencerRun);
-        getSession().flush();
+        currentSession().flush();
         return (sequencerRun.getSwAccession());
     }
 
@@ -70,7 +56,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
     @Override
     public void update(SequencerRun sequencerRun) {
         this.getHibernateTemplate().update(sequencerRun);
-        getSession().flush();
+        currentSession().flush();
     }
 
     /** {@inheritDoc} */
@@ -105,14 +91,14 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
             // +
             // " from SequencerRun as sequencerRun order by sequencerRun.createTimestamp asc ))";
             parameters = null;
-            list = this.getSession().createSQLQuery(query).addEntity(SequencerRun.class).list();
+            list = this.currentSession().createSQLQuery(query).addEntity(SequencerRun.class).list();
         } else {
             query = "select * from sequencer_run as sr where sr.owner_id = ? order by sr.create_tstmp " + sortValue + ";";
             // query =
             // "from SequencerRun as sequencerRun where sequencerRun.owner.registrationId=? "
             // +
             // "order by sequencerRun.createTimestamp " + sortValue;
-            list = this.getSession().createSQLQuery(query).addEntity(SequencerRun.class).setInteger(0, registration.getRegistrationId())
+            list = this.currentSession().createSQLQuery(query).addEntity(SequencerRun.class).setInteger(0, registration.getRegistrationId())
                     .list();
         }
 
@@ -151,7 +137,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of SequencerRun in the database by the SequencerRun name.
      */
     @Override
@@ -168,17 +154,17 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Finds an instance of SequencerRun in the database by the SequencerRun ID.
      */
     @Override
-    public SequencerRun findByID(Integer expID) {
-        String query = "from SequencerRun as sequencerRun where sequencerRun.sequencerRunId = ?";
-        SequencerRun sequencerRun = null;
+  public SequencerRun findByID(Integer expID) {
+    String query = "from SequencerRun as sequencerRun where sequencerRun.sequencerRunId = ?";
+    SequencerRun sequencerRun = null;
         Object[] parameters = { expID };
         List list = this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            sequencerRun = (SequencerRun) list.get(0);
+      sequencerRun = (SequencerRun) list.get(0);
         }
         return sequencerRun;
     }
@@ -190,9 +176,9 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         String query = "from SequencerRun as sequencerRun where sequencerRun.swAccession = ?";
         SequencerRun sequencerRun = null;
         Object[] parameters = { swAccession };
-        List<SequencerRun> list = this.getHibernateTemplate().find(query, parameters);
+        List<SequencerRun> list = (List<SequencerRun>) this.getHibernateTemplate().find(query, parameters);
         if (list.size() > 0) {
-            sequencerRun = (SequencerRun) list.get(0);
+            sequencerRun = list.get(0);
         }
         return sequencerRun;
     }
@@ -203,7 +189,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
     public List<SequencerRun> findByOwnerID(Integer registrationId) {
         String query = "from SequencerRun as sequencerRun where sequencerRun.owner.registrationId = ?";
         Object[] parameters = { registrationId };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<SequencerRun>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */
@@ -214,7 +200,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
                 + " or cast(sr.swAccession as string) like :sw " + " or sr.name like :name order by sr.description ";
         String queryStringICase = "from SequencerRun as sr where " + " lower(sr.description) like :description "
                 + " or cast(sr.swAccession as string) like :sw " + " or lower(sr.name) like :name order by sr.description ";
-        Query query = isCaseSens ? this.getSession().createQuery(queryStringCase) : this.getSession().createQuery(queryStringICase);
+        Query query = isCaseSens ? this.currentSession().createQuery(queryStringCase) : this.currentSession().createQuery(queryStringICase);
         if (!isCaseSens) {
             criteria = criteria.toLowerCase();
         }
@@ -223,23 +209,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         query.setString("sw", criteria);
         query.setString("name", criteria);
         List<SequencerRun> res = query.list();
-        filterResult(res);
         return res;
-    }
-
-    /**
-     * Filter WizardDTO classes here
-     * 
-     * @param res
-     */
-    private void filterResult(List<SequencerRun> res) {
-        Iterator<SequencerRun> iter = res.iterator();
-        while (iter.hasNext()) {
-            SequencerRun val = iter.next();
-            if (val instanceof SequencerRunWizardDTO) {
-                iter.remove();
-            }
-        }
     }
 
     /** {@inheritDoc} */
@@ -249,7 +219,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, sequencerRun);
-            return (SequencerRun) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             localLogger.error("Error updating detached SequencerRun", e);
         }
@@ -264,7 +234,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
         // SEQWARE-1489
         // bizarre, my initial thought was to restrict this to the base class
         // however, certain SequencerRuns in the test database get dropped that way
-        String query = "from SequencerRunWizardDTO as sr";
+    String query = "from SequencerRun as sr";
 
         List list = this.getHibernateTemplate().find(query);
         Log.trace("Hibernate query found " + list.size() + "sequencer runs");
@@ -293,7 +263,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override
@@ -302,25 +272,6 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
             localLogger.error("SequencerRunDAOHibernate insert SequencerRun registration is null");
         } else if (registration.isLIMSAdmin() || sequencerRun.givesPermission(registration)) {
             localLogger.info("insert sequencer run object");
-            insert(sequencerRun);
-            return (sequencerRun.getSwAccession());
-        } else {
-            localLogger.error("sequencerRunDAOHibernate insert not authorized");
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public Integer insert(Registration registration, SequencerRunWizardDTO sequencerRun) {
-        if (registration == null) {
-            localLogger.error("SequencerRunDAOHibernate insert SequencerRunWizardDTO registration is null");
-        } else if (registration.isLIMSAdmin() || sequencerRun.givesPermission(registration)) {
-            localLogger.info("insert SequencerRunWizardDTO object");
             insert(sequencerRun);
             return (sequencerRun.getSwAccession());
         } else {
@@ -346,7 +297,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
 
     private SequencerRun reattachSequencerRun(SequencerRun sequencerRun) throws IllegalStateException, DataAccessResourceFailureException {
         SequencerRun dbObject = sequencerRun;
-        if (!getSession().contains(sequencerRun)) {
+        if (!currentSession().contains(sequencerRun)) {
             dbObject = findByID(sequencerRun.getSequencerRunId());
         }
         return dbObject;

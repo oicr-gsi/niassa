@@ -1,8 +1,5 @@
 package net.sourceforge.seqware.common.dao.hibernate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import net.sourceforge.seqware.common.dao.WorkflowRunParamDAO;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Registration;
@@ -11,7 +8,12 @@ import net.sourceforge.seqware.common.model.WorkflowRunParam;
 import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -21,6 +23,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements WorkflowRunParamDAO {
 
     final Logger localLogger = LoggerFactory.getLogger(WorkflowRunParamDAOHibernate.class);
@@ -38,14 +41,14 @@ public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements
     @Override
     public void insert(WorkflowRunParam workflowRunParam) {
         this.getHibernateTemplate().save(workflowRunParam);
-        getSession().flush();
+        this.currentSession().flush();
     }
 
     /** {@inheritDoc} */
     @Override
     public void update(WorkflowRunParam workflowRunParam) {
         getHibernateTemplate().update(workflowRunParam);
-        getSession().flush();
+        this.currentSession().flush();
     }
 
     /** {@inheritDoc} */
@@ -57,7 +60,7 @@ public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements
     private Integer getProcessingSWID(Integer fileId) {
         Integer swid = null;
         String query = "select sw_accession from processing pr inner join processing_files pf on pr.processing_id=pf.processing_id where pf.file_id = ?";
-        List list = this.getSession().createSQLQuery(query).setInteger(0, fileId).list();
+        List list = this.getSessionFactory().getCurrentSession().createSQLQuery(query).setInteger(0, fileId).list();
         if (list.get(0) != null) {
             swid = Integer.parseInt(list.get(0).toString());
         }
@@ -89,7 +92,7 @@ public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements
                 String query = "INSERT INTO workflow_run_param (workflow_run_id, key, value, parent_processing_accession, type) VALUES"
                         + paramQuery;
 
-                SQLQuery sql = this.getSession().createSQLQuery(query);
+                SQLQuery sql = this.currentSession().createSQLQuery(query);
 
                 Integer workflowRunId = workflowRun.getWorkflowRunId();
 
@@ -124,7 +127,7 @@ public class WorkflowRunParamDAOHibernate extends HibernateDaoSupport implements
     /** {@inheritDoc} */
     @Override
     public WorkflowRunParam updateDetached(WorkflowRunParam workflowRunParam) {
-        return (WorkflowRunParam) this.getHibernateTemplate().merge(workflowRunParam);
+        return this.getHibernateTemplate().merge(workflowRunParam);
     }
 
     /** {@inheritDoc} */

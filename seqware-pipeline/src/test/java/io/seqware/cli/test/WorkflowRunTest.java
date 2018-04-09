@@ -1,6 +1,6 @@
 package io.seqware.cli.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import io.seqware.cli.Main;
 import io.seqware.pipeline.plugins.WorkflowLifecycle;
@@ -15,6 +15,7 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
 
@@ -114,14 +115,12 @@ public class WorkflowRunTest {
     }
 
     private void testWithError(String[] mainArgs, String errorMessage) throws Exception {
-        PowerMockito.spy(Main.class);
-        PowerMockito.doAnswer(new WriteFormattedMessageToBufferAnswer()).when(Main.class, "kill", anyString(),
-                Matchers.<Object> anyVararg());
-        try {
-            Main.main(mainArgs);
-        } catch (Exception e) {
-            assertEquals(errorMessage, e.getMessage());
-        }
+    	try {
+    		Main.mainInternal(mainArgs);
+    		assertTrue(false);
+    	} catch (ExitException e) {
+    		assertNotEquals(0, e.getExitCode());
+    	}
     }
 
     private void testWithSuccess(String[] mainArgs, String[] runnerArgs, String ini) throws Exception {
@@ -144,6 +143,10 @@ public class WorkflowRunTest {
 
         PowerMockito.whenNew(PluginRunner.class).withNoArguments().thenReturn(spiedRunner);
 
-        Main.main(mainArgs);
+        try {
+        	Main.mainInternal(mainArgs);
+        } catch (ExitException e) {
+        	assertEquals(0, e.getExitCode());
+        }
     }
 }

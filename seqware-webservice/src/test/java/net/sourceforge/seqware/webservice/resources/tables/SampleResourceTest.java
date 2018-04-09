@@ -58,9 +58,9 @@ public class SampleResourceTest extends DatabaseResourceTest {
             // Assert.assertEquals(2, samples.size());
             sample.setParents(samples);
 
-            Document doc = XmlTools.marshalToDocument(jbo, sample);
+            Document doc = XmlTools.marshalToDocument(jbo, sample, Sample.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
-            Sample s2 = (Sample) XmlTools.unMarshal(jbo, new Sample(), rep.getText());
+            Sample s2 = (Sample) XmlTools.unMarshal(jbo, Sample.class, rep.getText());
             Assert.assertEquals("Should have 1 parent! (" + s2.getSampleId() + ")", 1, s2.getParents().size());
             rep.exhaust();
             rep.release();
@@ -80,9 +80,9 @@ public class SampleResourceTest extends DatabaseResourceTest {
             sample.setUpdateTimestamp(new Date());
             sample.getParents().add(null);
 
-            Document doc = XmlTools.marshalToDocument(jbo, sample);
+            Document doc = XmlTools.marshalToDocument(jbo, sample, Sample.class);
             rep = resource.post(XmlTools.getRepresentation(doc));
-            Sample s2 = (Sample) XmlTools.unMarshal(jbo, new Sample(), rep.getText());
+            Sample s2 = (Sample) XmlTools.unMarshal(jbo, Sample.class, rep.getText());
             Assert.assertEquals("Should have no parents! (" + s2.getSampleId() + ")", 0, s2.getParents().size());
             rep.exhaust();
             rep.release();

@@ -20,18 +20,19 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import net.sourceforge.seqware.common.model.lists.IntegerList;
-import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
+
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.seqware.common.model.lists.IntegerList;
+import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 
 /**
  * This resource will pull back the workflow runs that are generated from a particular file.
@@ -57,7 +58,7 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
         authenticate();
         try {
             Log.debug("Dealing with FileChildWorkflowRunsResource with Json input");
-            JaxbObject jaxbTool;
+            JaxbObject<WorkflowRunList2> jaxbTool;
             Log.info("Using direct json search");
             List<Integer> workflows = new ArrayList<>();
             for (String key : queryValues.keySet()) {
@@ -76,7 +77,7 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
             Log.debug(text);
             List<Integer> o = null;
             try {
-                o = ((IntegerList) XmlTools.unMarshal(jo, new IntegerList(), text)).getList();
+                o = ((IntegerList) XmlTools.unMarshal(jo, IntegerList.class, text)).getList();
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -90,7 +91,7 @@ public class FileChildLimitedWorkflowRunsResource extends DatabaseResource {
             jaxbTool = new JaxbObject<>();
             Log.debug("JaxbObjects started");
             assert runs.getList().isEmpty();
-            final Document line = XmlTools.marshalToDocument(jaxbTool, runs);
+            final Document line = XmlTools.marshalToDocument(jaxbTool, runs, WorkflowRunList2.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setStatus(Status.SUCCESS_CREATED);
         } catch (IOException | SQLException e) {

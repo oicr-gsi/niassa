@@ -16,12 +16,6 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
-import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
-import net.sourceforge.seqware.common.model.File;
-import net.sourceforge.seqware.common.model.Processing;
-import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowRun;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,27 +23,31 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.springframework.beans.BeanUtils;
+
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.IusLimsKeyDto;
 import net.sourceforge.seqware.common.dto.LimsKeyDto;
+import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
+import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
+import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.SetUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.springframework.beans.BeanUtils;
 
 /**
  *
  * @author mlaszloffy
  */
-public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
+public class AnalysisProvenanceDtoBuilder {
 
     private Workflow workflow;
     private WorkflowRun workflowRun;
@@ -78,7 +76,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         return this;
     }
 
-    @Override
+    
     public Boolean getSkip() {
         return skip;
     }
@@ -87,7 +85,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         this.skip = skip;
     }
 
-    @Override
+    
     public String getWorkflowName() {
         if (workflow == null) {
             return null;
@@ -96,7 +94,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getWorkflowVersion() {
         if (workflow == null) {
             return null;
@@ -105,7 +103,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public Integer getWorkflowId() {
         if (workflow == null) {
             return null;
@@ -114,10 +112,10 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public SortedMap<String, SortedSet<String>> getWorkflowAttributes() {
         if (workflow == null) {
-            return MapUtils.EMPTY_SORTED_MAP;
+            return Collections.emptySortedMap();
         } else {
             SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (WorkflowAttribute attr : workflow.getWorkflowAttributes()) {
@@ -132,7 +130,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getWorkflowRunName() {
         if (workflowRun == null) {
             return null;
@@ -141,7 +139,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getWorkflowRunStatus() {
         if (workflowRun == null || workflowRun.getStatus() == null) {
             return null;
@@ -150,7 +148,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public Integer getWorkflowRunId() {
         if (workflowRun == null) {
             return null;
@@ -159,10 +157,10 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes() {
         if (workflowRun == null) {
-            return MapUtils.EMPTY_SORTED_MAP;
+            return Collections.emptySortedMap();
         } else {
             SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (WorkflowRunAttribute attr : workflowRun.getWorkflowRunAttributes()) {
@@ -177,16 +175,16 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public SortedSet<Integer> getWorkflowRunInputFileIds() {
         if (workflowRun == null || workflowRun.getInputFileAccessions() == null) {
-            return SetUtils.EMPTY_SORTED_SET;
+            return Collections.emptySortedSet();
         } else {
             return Collections.unmodifiableSortedSet(new TreeSet<>(workflowRun.getInputFileAccessions()));
         }
     }
 
-    @Override
+    
     public String getProcessingAlgorithm() {
         if (processing == null) {
             return null;
@@ -195,7 +193,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public Integer getProcessingId() {
         if (processing == null) {
             return null;
@@ -204,10 +202,10 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public SortedMap<String, SortedSet<String>> getProcessingAttributes() {
         if (processing == null) {
-            return MapUtils.EMPTY_SORTED_MAP;
+            return Collections.emptySortedMap();
         } else {
             SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (ProcessingAttribute attr : processing.getProcessingAttributes()) {
@@ -222,7 +220,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getProcessingStatus() {
         if (processing == null || processing.getStatus() == null) {
             return null;
@@ -231,7 +229,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getFileMetaType() {
         if (file == null) {
             return null;
@@ -240,7 +238,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public Integer getFileId() {
         if (file == null) {
             return null;
@@ -249,10 +247,10 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public SortedMap<String, SortedSet<String>> getFileAttributes() {
         if (file == null) {
-            return MapUtils.EMPTY_SORTED_MAP;
+            return Collections.emptySortedMap();
         } else {
             SortedMap<String, SortedSet<String>> map = new TreeMap<>();
             for (FileAttribute attr : file.getFileAttributes()) {
@@ -267,7 +265,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getFilePath() {
         if (file == null) {
             return null;
@@ -276,7 +274,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getFileMd5sum() {
         if (file == null) {
             return null;
@@ -285,7 +283,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public String getFileSize() {
         if (file == null) {
             return null;
@@ -296,7 +294,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         return file.getSize().toString();
     }
 
-    @Override
+    
     public String getFileDescription() {
         if (file == null) {
             return null;
@@ -305,7 +303,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         }
     }
 
-    @Override
+    
     public DateTime getLastModified() {
         if (processing == null) {
             return null;
@@ -326,7 +324,7 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         this.iuses.addAll(iuses);
     }
 
-    @Override
+    
     public SortedMap<String, SortedSet<String>> getIusAttributes() {
         SortedMap<String, SortedSet<String>> map = new TreeMap<>();
         for (IUS ius : iuses) {
@@ -342,9 +340,9 @@ public class AnalysisProvenanceDtoBuilder implements AnalysisProvenance {
         return Collections.unmodifiableSortedMap(map);
     }
 
-    @Override
-    public Set<IusLimsKey> getIusLimsKeys() {
-        Set<IusLimsKey> iusLimsKeys = new HashSet<>();
+    
+    public Set<IusLimsKeyDto> getIusLimsKeys() {
+        Set<IusLimsKeyDto> iusLimsKeys = new HashSet<>();
         for (IUS ius : iuses) {
             IusLimsKeyDto ilk = new IusLimsKeyDto();
             ilk.setIusSWID(ius.getSwAccession());

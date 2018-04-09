@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Reports on workflow run metadata, returning either all workflow runs, all runs of a particular workflow, or a specific workflow run. The
  * results can be filtered according to Date on the WorkflowRun's createTimestamp.
- * 
+ *
  * @author mtaschuk
  * @version $Id: $Id
  */
@@ -83,7 +83,7 @@ public class WorkflowRunReport {
 
     /**
      * Set the value of earliestDate. This date must be set prior to calling other methods in order to filter collections of workflow runs.
-     * 
+     *
      * @param earliestDate
      *            new value of earliestDate
      */
@@ -95,7 +95,7 @@ public class WorkflowRunReport {
      * Find all of the workflow runs, and report on each of the workflow runs the files, samples and processing events associated with each.
      * If the latest date and earliest date have been set in this class, the workflow runs will be filtered according to the
      * createTimestamp.
-     * 
+     *
      * @return a collection of workflow run reports
      */
     public Collection<WorkflowRunReportRow> getAllRuns() {
@@ -107,7 +107,7 @@ public class WorkflowRunReport {
     /**
      * Using a workflow run SWID, report on the files, samples and processing events associated with the run. Setting the earliest and
      * latest date has no effect on this method.
-     * 
+     *
      * @return a workflow run report
      * @param workflowRunSWID
      *            a {@link java.lang.Integer} object.
@@ -122,7 +122,7 @@ public class WorkflowRunReport {
      * Using a workflow SWID, find all of the workflow runs, and report on each of the workflow runs the files, samples and processing
      * events associated with each. If the latest date and earliest date have been set in this class, the workflow runs will be filtered
      * according to the createTimestamp.
-     * 
+     *
      * @param workflowSWID
      *            the SWID of the workflow
      * @return a collection of workflow run reports
@@ -172,7 +172,7 @@ public class WorkflowRunReport {
         } else {
             useThese = processings;
         }
-        Set<Sample> identitySamples = new HashSet<>();
+        Set<Sample> identitySamples = new TreeSet<>();
 
         for (Processing p : useThese) {
             identitySamples.addAll(findIdentitySamples(p));
@@ -215,7 +215,7 @@ public class WorkflowRunReport {
      * <p>
      * calculateTotalTime.
      * </p>
-     * 
+     *
      * @param processings
      *            a {@link java.util.Collection} object.
      * @return a {@link java.lang.String} object.
@@ -403,7 +403,7 @@ public class WorkflowRunReport {
      * <p>
      * testIfNull.
      * </p>
-     * 
+     *
      * @param o
      *            a {@link java.lang.Object} object.
      * @return a {@link java.lang.Object} object.

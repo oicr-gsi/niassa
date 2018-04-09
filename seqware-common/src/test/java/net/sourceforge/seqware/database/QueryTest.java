@@ -19,9 +19,13 @@ package net.sourceforge.seqware.database;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Stack;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.StudyService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.hibernate.InSessionExecutions;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
@@ -36,7 +40,6 @@ import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import org.junit.Test;
 
 /**
  * <p>
@@ -47,9 +50,13 @@ import org.junit.Test;
  * @version $Id: $Id
  * @since 0.13.3
  */
-public class QueryTest {
+public class QueryTest extends AbstractTestCase {
 
     private Collection<ReturnValue> returnValues = new ArrayList<>();
+    
+    @Autowired
+    @Qualifier("studyService")
+    private StudyService ss;
 
     /**
      * <p>
@@ -66,10 +73,6 @@ public class QueryTest {
      */
     @Test
     public void hello() {
-        StudyService ss = BeanFactory.getStudyServiceBean();
-        // Writer writer = null;
-        try {
-            InSessionExecutions.bindSessionToThread();
             Study study = ss.findBySWAccession(6144);
             for (Experiment e : study.getExperiments()) {
                 for (Sample parentSample : e.getSamples()) {
@@ -81,9 +84,6 @@ public class QueryTest {
                         filesFromSample(parentSample, sample, e, study);
                     }
                 }
-            }
-        } finally {
-            InSessionExecutions.unBindSessionFromTheThread();
         }
     }
 

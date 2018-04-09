@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -53,6 +57,8 @@ public class Processing extends PermissionsAware implements Serializable, Compar
         Annotatable<ProcessingAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 4681328115923390568L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer processingId;
     private String filePath;
     private Set<Study> studies = new TreeSet<>();
@@ -286,6 +292,7 @@ public class Processing extends PermissionsAware implements Serializable, Compar
      *
      * @return a {@link java.lang.Integer} object.
      */
+    @Override
     public Integer getSwAccession() {
         return swAccession;
     }

@@ -1,6 +1,9 @@
 package net.sourceforge.seqware.common.business.impl;
 
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.ProcessingSamplesService;
 import net.sourceforge.seqware.common.dao.ProcessingSamplesDAO;
 import net.sourceforge.seqware.common.model.Processing;
@@ -15,6 +18,7 @@ import net.sourceforge.seqware.common.model.Sample;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ProcessingSamplesServiceImpl implements ProcessingSamplesService {
 
     private ProcessingSamplesDAO dao;

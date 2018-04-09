@@ -1,6 +1,11 @@
 package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,6 +21,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class FileType implements Serializable, Comparable<FileType> {
     private static final long serialVersionUID = 2681345328115990568L;
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer fileTypeId;
     private String displayName;
     private String metaType;

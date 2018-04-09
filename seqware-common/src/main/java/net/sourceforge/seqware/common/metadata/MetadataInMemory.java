@@ -14,19 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package net.sourceforge.seqware.common.metadata;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
-import io.seqware.common.model.ProcessingStatus;
-import io.seqware.common.model.SequencerRunStatus;
-import io.seqware.common.model.WorkflowRunStatus;
-import io.seqware.pipeline.SqwKeys;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,10 +34,21 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import io.seqware.common.model.ProcessingStatus;
+import io.seqware.common.model.SequencerRunStatus;
+import io.seqware.common.model.WorkflowRunStatus;
+import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl;
 import net.sourceforge.seqware.common.business.impl.LaneProvenanceServiceImpl;
 import net.sourceforge.seqware.common.business.impl.SampleProvenanceServiceImpl;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.model.Experiment;
@@ -85,7 +89,6 @@ import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import org.joda.time.DateTime;
 
 /**
  * This stores some metadata in memory as an exploration of running workflows without a running database or web service.
@@ -311,7 +314,7 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
-    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified) {
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified) {
         LimsKey key = new LimsKey();
         key.setProvider(provider);
         key.setId(id);
@@ -595,7 +598,7 @@ public class MetadataInMemory implements Metadata {
     @Override
     public List<WorkflowRun> getWorkflowRunsAssociatedWithInputFiles(List<Integer> fileAccessions, List<Integer> workflowAccessions) {
         List<WorkflowRun> wrs = new ArrayList<>();
-        for (Entry e : MetadataInMemory.getStore().column(WorkflowRun.class).entrySet()) {
+        for (Entry<Integer, Object> e : MetadataInMemory.getStore().column(WorkflowRun.class).entrySet()) {
             WorkflowRun wr = (WorkflowRun) e.getValue();
             if (!workflowAccessions.contains(wr.getWorkflowAccession())) {
                 continue;
@@ -624,10 +627,11 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
-    public boolean linkWorkflowRunAndParent(int workflowRunId, int parentAccession) throws SQLException {
+  public boolean linkWorkflowRunAndParent(int workflowRunId, int... parentAccessions) throws SQLException {
         Integer workflowRunSwid = workflowRunId;
         WorkflowRun workflowRun = (WorkflowRun) MetadataInMemory.getStore().get(workflowRunSwid, WorkflowRun.class);
 
+    for (int parentAccession : parentAccessions) {
         IUS ius = (IUS) MetadataInMemory.getStore().get(parentAccession, IUS.class);
         Lane lane = (Lane) MetadataInMemory.getStore().get(parentAccession, Lane.class);
         if (ius != null) {
@@ -662,6 +666,7 @@ public class MetadataInMemory implements Metadata {
             Log.error("ERROR: SW Accession is neither a lane nor an IUS: " + parentAccession);
             return false;
         }
+    }
         return true;
     }
 
@@ -1172,12 +1177,12 @@ public class MetadataInMemory implements Metadata {
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
-        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), Collections.EMPTY_MAP);
+    public List<AnalysisProvenance> getAnalysisProvenance() {
+        return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), Collections.emptyMap());
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         return AnalysisProvenanceServiceImpl.buildList((Collection<IUS>) (Collection<?>) MetadataInMemory.getStore().column(IUS.class).values(), filters);
     }
 

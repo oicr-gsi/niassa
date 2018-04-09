@@ -3,6 +3,13 @@ package net.sourceforge.seqware.common.model;
 //default package
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 //Generated 09.12.2011 15:01:20 by Hibernate Tools 3.2.4.GA
 
@@ -15,6 +22,8 @@ import java.io.Serializable;
 public class ProcessingAttribute extends Attribute<Processing, ProcessingAttribute> implements Serializable {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int processingAttributeId;
     private Processing processing;
     private String tag;
@@ -66,6 +75,17 @@ public class ProcessingAttribute extends Attribute<Processing, ProcessingAttribu
         this.tag = tag;
         this.value = value;
         this.units = units;
+    }
+
+    public static Set<ProcessingAttribute> convertMapToAttributes(Map<String, String> keyvalueMap) {
+        Set<ProcessingAttribute> atts = new TreeSet<>();
+        for (Map.Entry<String, String> entry2 : keyvalueMap.entrySet()) {
+            ProcessingAttribute a = new ProcessingAttribute();
+            a.setTag(entry2.getKey());
+            a.setValue(entry2.getValue());
+            atts.add(a);
+        }
+        return atts;
     }
 
     /**

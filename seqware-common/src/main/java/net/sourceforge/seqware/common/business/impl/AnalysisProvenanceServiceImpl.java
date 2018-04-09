@@ -16,8 +16,6 @@
  */
 package net.sourceforge.seqware.common.business.impl;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,21 +24,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
 import net.sourceforge.seqware.common.dao.IUSDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.dto.builders.AnalysisProvenanceDtoBuilder;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService {
 
     @Autowired
@@ -60,16 +64,16 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
     }
 
     @Override
-    public List<AnalysisProvenanceDto> list() {
+    public List<AnalysisProvenance> list() {
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.list();
         } else {
-            return buildList(iusDAO.list(), Collections.EMPTY_MAP);
+            return buildList(iusDAO.list(), Collections.emptyMap());
         }
     }
 
     @Override
-    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> list(Map<FileProvenanceFilter, Set<String>> filters) {
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.list(filters);
         } else {
@@ -78,20 +82,20 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
     }
 
     @Override
-    public List<AnalysisProvenanceDto> findForIus(IUS ius) {
+    public List<AnalysisProvenance> findForIus(IUS ius) {
         //TODO: this will not work for cases where AP has multiple IUS
         //return buildList(Arrays.asList(iusDAO.findByID(ius.getIusId())));
         Integer targetIusSwid = ius.getSwAccession();
 
-        List<AnalysisProvenanceDto> unfilteredAps;
+        List<AnalysisProvenance> unfilteredAps;
         if (analysisProvenanceDAO != null) {
             unfilteredAps = analysisProvenanceDAO.list();
         } else {
-            unfilteredAps = buildList(iusDAO.list(), Collections.EMPTY_MAP);
+            unfilteredAps = buildList(iusDAO.list(), Collections.emptyMap());
         }
 
-        List<AnalysisProvenanceDto> aps = new ArrayList<>();
-        for (AnalysisProvenanceDto ap : unfilteredAps) {
+        List<AnalysisProvenance> aps = new ArrayList<>();
+        for (AnalysisProvenance ap : unfilteredAps) {
             for (IusLimsKey ilk : ap.getIusLimsKeys()) {
                 if (targetIusSwid.equals(ilk.getIusSWID())) {
                     aps.add(ap);
@@ -108,17 +112,17 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
         if (analysisProvenanceDAO != null) {
             return analysisProvenanceDAO.getSupportedFilters();
         } else {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
     }
 
-    public static List<AnalysisProvenanceDto> buildList(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
+    public static List<AnalysisProvenance> buildList(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
         return AnalysisProvenanceListBuilder.calculate(iuses, filters);
     }
 
     public static class AnalysisProvenanceListBuilder {
 
-        private List<AnalysisProvenanceDto> aps = new ArrayList<>();
+        private List<AnalysisProvenance> aps = new ArrayList<>();
         private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToWorkflowRun = new HashMap<>();
         private Map<Integer, AnalysisProvenanceDtoBuilder> buildersRelatedToFile = new HashMap<>();
 
@@ -221,7 +225,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
             }
         }
 
-        public List<AnalysisProvenanceDto> build() {
+        public List<AnalysisProvenance> build() {
 
             for (AnalysisProvenanceDtoBuilder ap : buildersRelatedToFile.values()) {
                 if (ap != null) {
@@ -240,7 +244,7 @@ public class AnalysisProvenanceServiceImpl implements AnalysisProvenanceService 
             return aps;
         }
 
-        public static List<AnalysisProvenanceDto> calculate(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
+        public static List<AnalysisProvenance> calculate(Collection<IUS> iuses, Map<FileProvenanceFilter, Set<String>> filters) {
             return new AnalysisProvenanceListBuilder(iuses, filters).build();
         }
     }

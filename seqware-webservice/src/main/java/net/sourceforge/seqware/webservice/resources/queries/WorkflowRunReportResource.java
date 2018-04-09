@@ -19,7 +19,7 @@ package net.sourceforge.seqware.webservice.resources.queries;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.seqware.common.model.WorkflowRunStatus;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -69,7 +69,7 @@ public class WorkflowRunReportResource extends BasicRestlet {
         super(context);
 
         mapper = new ObjectMapper();
-        mapper.registerModule(new JodaModule());
+        mapper.registerModule(new JavaTimeModule());
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 

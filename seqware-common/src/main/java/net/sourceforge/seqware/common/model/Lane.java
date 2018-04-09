@@ -7,6 +7,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,7 +33,9 @@ public class Lane extends PermissionsAware implements Serializable, Comparable<L
         FirstTierModel {
 
     private static final long serialVersionUID = 5681328115923390568L;
-    private Integer laneId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+private Integer laneId;
     private Integer laneIndex;
     private SequencerRun sequencerRun;
     private Sample sample;

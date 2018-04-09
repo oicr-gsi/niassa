@@ -16,26 +16,10 @@
  */
 package net.sourceforge.seqware.pipeline.deciders;
 
-import static org.junit.Assert.*;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
 import io.seqware.Reports;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import net.sourceforge.seqware.common.err.NotFoundException;
 import net.sourceforge.seqware.common.hibernate.FindAllTheFiles.Header;
 import net.sourceforge.seqware.common.metadata.MetadataWS;
@@ -53,11 +37,26 @@ import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.maptools.ReservedIniKeys;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.PluginTest;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * <p>
@@ -98,13 +97,13 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsWorkflowRunWithFailureStatus() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         boolean pendingStatus = decider.determineStatus(metadata.getWorkflowRun(6602).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.OTHER;
         boolean failedStatus = decider.determineStatus(metadata.getWorkflowRun(6603).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.FAILED;
         boolean completedStatus = decider.determineStatus(metadata.getWorkflowRun(6604).getStatus()) == BasicDecider.PREVIOUS_RUN_STATUS.COMPLETED;
-        Assert.assertTrue("pending status was not false", pendingStatus == true);
-        Assert.assertTrue("failed status was not true", failedStatus == true);
-        Assert.assertTrue("completed status was not false", completedStatus == true);
+        Assert.assertTrue("pending status was not false", pendingStatus);
+        Assert.assertTrue("failed status was not true", failedStatus);
+        Assert.assertTrue("completed status was not false", completedStatus);
     }
 
     @Test
@@ -202,10 +201,7 @@ public class BasicDeciderTest extends PluginTest {
         catch (RuntimeException e) {
             testPassed = true;
         }
-        if (testPassed)
-            return;
-        else
-            fail("RuntimeException was expected due to invalid SequencerRun name.");
+        if (!testPassed) {fail("RuntimeException was expected due to invalid SequencerRun name.");}
     }
 
     @Test
@@ -405,6 +401,9 @@ public class BasicDeciderTest extends PluginTest {
 
     @Test
     public void testDecidingWithAttributes() {
+    new BasicTestDatabaseCreator().resetDatabaseWithUsers();
+        Reports.triggerProvenanceReport();
+        
         // swap out the decider
         instance = new AttributeCheckingDecider();
         // instance = new BasicDecider();
@@ -543,7 +542,7 @@ public class BasicDeciderTest extends PluginTest {
         instance.setMetadata(metadata);
     }
 
-    public class AlwaysBlockFinalCheckDecider extends TestingDecider {
+    private class AlwaysBlockFinalCheckDecider extends TestingDecider {
 
         @Override
         protected ReturnValue doFinalCheck(String commaSeparatedFilePaths, String commaSeparatedParentAccessions) {
@@ -552,7 +551,7 @@ public class BasicDeciderTest extends PluginTest {
 
     }
 
-    public class HaltingDecider extends TestingDecider {
+    private class HaltingDecider extends TestingDecider {
 
         boolean haltedOnce = false;
 
@@ -571,7 +570,7 @@ public class BasicDeciderTest extends PluginTest {
 
     }
 
-    public class AttributeCheckingDecider extends TestingDecider {
+    private class AttributeCheckingDecider extends TestingDecider {
 
         int filesChecked = 0;
 
@@ -606,10 +605,10 @@ public class BasicDeciderTest extends PluginTest {
                     Gson gson = new GsonBuilder().create();
                     String toJson = gson.toJson(returnValue.getAttributes());
                     File file = new File(file_swa + ".json");
-                    FileUtils.writeStringToFile(file, toJson);
+                    FileUtils.writeStringToFile(file, toJson, StandardCharsets.UTF_8);
                 } else {
                     // ensure that json check files contain a subset of the decider attributes
-                    String query = FileUtils.readFileToString(new File((BasicDeciderTest.class.getResource(file_swa + ".json").getPath())));
+                    String query = FileUtils.readFileToString(new File((BasicDeciderTest.class.getResource(file_swa + ".json").getPath())), StandardCharsets.UTF_8);
                     Gson gson = new GsonBuilder().create();
                     Type fooType = new TypeToken<Map<String, String>>() {
                     }.getType();
@@ -725,7 +724,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_Same() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -741,7 +740,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_SameSize_different_set() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -757,7 +756,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_More() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -774,7 +773,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testIsContained_Less() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -794,7 +793,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Same() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -815,7 +814,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_BothEmpty() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
 
         List<String> filesToRun = new ArrayList<>();
 
@@ -831,7 +830,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Bigger() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -853,7 +852,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_SameButDifferent() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -874,7 +873,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Smaller() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();
@@ -893,7 +892,7 @@ public class BasicDeciderTest extends PluginTest {
     @Test
     public void testCompareWorkflowRunFiles_Disjoint() {
         TestingDecider decider = (TestingDecider) instance;
-        decider.setMetaws((MetadataWS) metadata);
+        decider.setMetaws(metadata);
         decider.setMetaType(fastq_gz);
 
         List<String> filesToRun = new ArrayList<>();

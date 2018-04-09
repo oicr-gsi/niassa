@@ -16,23 +16,28 @@
  */
 package io.seqware.pipeline.plugins;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Table;
+import static org.junit.Assert.assertEquals;
+
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.powermock.reflect.Whitebox;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Table;
+
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataInMemory;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
-import org.joda.time.DateTime;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
-import org.powermock.reflect.Whitebox;
-import org.testng.annotations.AfterMethod;
 
 /**
  *
@@ -58,7 +63,7 @@ public class WorkflowReschedulerTest {
         Integer workflowRunId = metadata.add_workflow_run(workflowSwid);
         workflowRunSwid = metadata.get_workflow_run_accession(workflowRunId);
 
-        Integer limsKeySwid = metadata.addLimsKey("provider", "id", "version", DateTime.now());
+        Integer limsKeySwid = metadata.addLimsKey("provider", "id", "version", ZonedDateTime.now());
         Integer iusSwid1 = metadata.addIUS(limsKeySwid, false);
         Integer iusSwid2 = metadata.addIUS(limsKeySwid, false);
 
@@ -66,7 +71,7 @@ public class WorkflowReschedulerTest {
         metadata.linkWorkflowRunAndParent(workflowRunSwid, iusSwid2);
     }
 
-    @AfterMethod
+  @After
     public void reset() {
         Whitebox.<Table>getInternalState(MetadataInMemory.class, "STORE").clear();
     }

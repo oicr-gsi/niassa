@@ -35,7 +35,6 @@ import org.restlet.resource.ClientResource;
  */
 public class ClientResourceInstance {
 
-    private static ClientResource clientResource = null;
     private static String webservicePrefix = "/seqware-webservice";
 
     private ClientResourceInstance() {
@@ -43,30 +42,28 @@ public class ClientResourceInstance {
 
     public static ClientResource getChild(String relativeURL) {
         Map<String, String> settings = new HashMap<>();
-        if (clientResource == null) {
-            String hostURL = "http://localhost:8889";
-            try {
-                settings = ConfigTools.getSettings();
-            } catch (Exception e) {
-                Log.stderr("Error reading settings file: " + e.getMessage());
-            }
-            if (settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey())) {
-                String restURL = settings.get(SqwKeys.SW_REST_URL.getSettingKey());
-                Pattern pattern = Pattern.compile("(https?://.*)(/.*)");
-                Matcher matcher = pattern.matcher(restURL);
-                matcher.find();
-                hostURL = matcher.group(1);
-                webservicePrefix = matcher.group(2);
-                Log.fatal("Detected overriden hostURL as: " + hostURL);
-                Log.fatal("Detected overriden webservicePrefix as: " + webservicePrefix);
-            }
-            clientResource = new ClientResource(hostURL);
-            Client client = new Client(new Context(), Protocol.HTTP);
-            client.getContext().getParameters().add("useForwardedForHeader", "false");
-            clientResource.setNext(client);
-            clientResource.setFollowingRedirects(false);
-            clientResource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "jane.smith@abc.com", "test");
+        String hostURL = "http://localhost:8889";
+        try {
+            settings = ConfigTools.getSettings();
+        } catch (Exception e) {
+            Log.stderr("Error reading settings file: " + e.getMessage());
         }
+        if (settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey())) {
+            String restURL = settings.get(SqwKeys.SW_REST_URL.getSettingKey());
+            Pattern pattern = Pattern.compile("(https?://.*)(/.*)");
+            Matcher matcher = pattern.matcher(restURL);
+            matcher.find();
+            hostURL = matcher.group(1);
+            webservicePrefix = matcher.group(2);
+            Log.fatal("Detected overriden hostURL as: " + hostURL);
+            Log.fatal("Detected overriden webservicePrefix as: " + webservicePrefix);
+        }
+        ClientResource clientResource = new ClientResource(hostURL);
+        Client client = new Client(new Context(), Protocol.HTTP);
+        client.getContext().getParameters().add("useForwardedForHeader", "false");
+        clientResource.setNext(client);
+        clientResource.setFollowingRedirects(false);
+        clientResource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "jane.smith@abc.com", "test");
         return clientResource.getChild(webservicePrefix + relativeURL);
     }
 }

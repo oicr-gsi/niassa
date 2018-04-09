@@ -2775,7 +2775,8 @@ CREATE TABLE workflow_run (
     create_tstmp timestamp without time zone NOT NULL,
     update_tstmp timestamp without time zone,
     sw_accession integer DEFAULT nextval('sw_accession_seq'::regclass),
-    workflow_engine text
+    workflow_engine text,
+	  sge_name_id_map text
 );
 
 

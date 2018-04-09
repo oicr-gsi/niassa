@@ -18,6 +18,9 @@ package net.sourceforge.seqware.webservice.resources.queries;
 
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.tables.DatabaseResourceTest;
+
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -30,51 +33,75 @@ import org.restlet.resource.ClientResource;
  */
 public class WorkflowRunReportResourceTest extends DatabaseResourceTest {
 
-    public WorkflowRunReportResourceTest() {
-        super("/reports/workflowruns");
-    }
+	public WorkflowRunReportResourceTest() {
+		super("/reports/workflowruns");
+	}
 
-    @Ignore
-    @Override
-    public void testDelete() {
-    }
+	@Ignore
+	@Override
+	public void testDelete() {
+	}
 
-    @Ignore
-    @Override
-    public void testPost() {
-    }
+	@Ignore
+	@Override
+	public void testPost() {
+	}
 
-    @Ignore
-    @Override
-    public void testPut() {
-    }
+	@Ignore
+	@Override
+	public void testPut() {
+	}
 
-    @Override
-    public void testGet() {
-        try {
-            ClientResource cr = ClientResourceInstance.getChild("/reports/workflowruns/6819");
-            Representation rep = cr.get();
-            String result = rep.getText();
-            System.out.println(result);
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
+	@Override
+	public void testGet() {
+		ClientResource cr = null;
+		Representation rep = null;
+		try {
+			cr = ClientResourceInstance.getChild("/reports/workflowruns/6819");
+			rep = cr.get();
+			String result = rep.getText();
+			System.out.println(result);
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		} finally {
+			if (rep != null) {
+				try {
+					rep.exhaust();
+				} catch (IOException e) {
+					Assert.fail(e.getMessage());
+				}
+				rep.release();
+			}
+			if (cr != null) {
+				cr.release();
+			}
+		}
+	}
 
-    @Test
-    public void testGetFromWorkflowSwid() {
-        try {
-            ClientResource cr = ClientResourceInstance.getChild("/reports/workflow/6595/runs");
-            Representation rep = cr.get();
-            String result = rep.getText();
-            System.out.println(result);
-            rep.exhaust();
-            rep.release();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
+	@Test
+	public void testGetFromWorkflowSwid() {
+		ClientResource cr = null;
+		Representation rep = null;
+		try {
+			cr = ClientResourceInstance.getChild("/reports/workflow/6595/runs");
+			rep = cr.get();
+			String result = rep.getText();
+			System.out.println(result);
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		} finally {
+			if (rep != null) {
+				try {
+					rep.exhaust();
+				} catch (IOException e) {
+					Assert.fail(e.getMessage());
+				}
+				rep.release();
+			}
+			if (cr != null) {
+				cr.release();
+			}
+		}
+	}
 
 }

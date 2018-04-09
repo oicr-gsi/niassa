@@ -9,6 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.LaneService;
@@ -39,6 +43,8 @@ import org.slf4j.LoggerFactory;
 public class WorkflowRun extends PermissionsAware implements Serializable, Comparable<WorkflowRun>, Annotatable<WorkflowRunAttribute>, FirstTierModel {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer workflowRunId;
     private Workflow workflow;
     private Integer swAccession;
@@ -73,6 +79,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
     private Set<WorkflowRunAttribute> workflowRunAttributes = new TreeSet<>();
     private String workflowEngine;
     private Set<Integer> inputFileAccessions = new HashSet<>();
+    private String sgeNameIdMap;
 
     // artificial fields for SEQWARE-1134, we will need to populate these artificially
     // this is an ugly hack, need to get a better solution
@@ -85,6 +92,16 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      */
     public static final Set<String> USABLE_CONSTRAINTS = ImmutableSet.of("status", "statusCmd", "host", "currentWorkingDir",
             "workflowEngine", "ownerUserName");
+
+
+
+    public String getSgeNameIdMap() {
+        return sgeNameIdMap;
+    }
+
+    public void setSgeNameIdMap(String sgeNameIdMap) {
+        this.sgeNameIdMap = sgeNameIdMap;
+    }
 
     /**
      * <p>
@@ -101,7 +118,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param that
-     *            a {@link net.sourceforge.seqware.common.model.Workflow} object.
+     *            a {@link Workflow} object.
      * @return a int.
      */
     public int compareTo(Workflow that) {
@@ -155,7 +172,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>template</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getTemplate() {
         return template;
@@ -167,7 +184,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param template
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setTemplate(String template) {
         this.template = template;
@@ -178,7 +195,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>command</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getCommand() {
         return command;
@@ -190,7 +207,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param command
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setCommand(String command) {
         this.command = command;
@@ -201,7 +218,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>workflowRunId</code>.
      * </p>
      *
-     * @return a {@link java.lang.Integer} object.
+     * @return a {@link Integer} object.
      */
     public Integer getWorkflowRunId() {
         return workflowRunId;
@@ -213,7 +230,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param workflowRunId
-     *            a {@link java.lang.Integer} object.
+     *            a {@link Integer} object.
      */
     public void setWorkflowRunId(Integer workflowRunId) {
         this.workflowRunId = workflowRunId;
@@ -224,7 +241,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>workflow</code>.
      * </p>
      *
-     * @return a {@link net.sourceforge.seqware.common.model.Workflow} object.
+     * @return a {@link Workflow} object.
      */
     public Workflow getWorkflow() {
         return workflow;
@@ -236,7 +253,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param workflow
-     *            a {@link net.sourceforge.seqware.common.model.Workflow} object.
+     *            a {@link Workflow} object.
      */
     public void setWorkflow(Workflow workflow) {
         this.workflow = workflow;
@@ -250,7 +267,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>swAccession</code>.
      * </p>
      *
-     * @return a {@link java.lang.Integer} object.
+     * @return a {@link Integer} object.
      */
     @Override
     public Integer getSwAccession() {
@@ -263,7 +280,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param swAccession
-     *            a {@link java.lang.Integer} object.
+     *            a {@link Integer} object.
      */
     public void setSwAccession(Integer swAccession) {
         this.swAccession = swAccession;
@@ -274,7 +291,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>name</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getName() {
         return name;
@@ -285,7 +302,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * getJsonEscapeName.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getJsonEscapeName() {
         return JsonUtil.forJSON(name);
@@ -297,7 +314,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param name
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setName(String name) {
         this.name = name;
@@ -308,7 +325,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>createTimestamp</code>.
      * </p>
      *
-     * @return a {@link java.util.Date} object.
+     * @return a {@link Date} object.
      */
     public Date getCreateTimestamp() {
         return createTimestamp;
@@ -320,7 +337,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param createTimestamp
-     *            a {@link java.util.Date} object.
+     *            a {@link Date} object.
      */
     public void setCreateTimestamp(Date createTimestamp) {
         this.createTimestamp = createTimestamp;
@@ -331,7 +348,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>updateTimestamp</code>.
      * </p>
      *
-     * @return a {@link java.util.Date} object.
+     * @return a {@link Date} object.
      */
     public Date getUpdateTimestamp() {
         return updateTimestamp;
@@ -343,7 +360,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param updateTimestamp
-     *            a {@link java.util.Date} object.
+     *            a {@link Date} object.
      */
     public void setUpdateTimestamp(Date updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
@@ -354,7 +371,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>owner</code>.
      * </p>
      *
-     * @return a {@link net.sourceforge.seqware.common.model.Registration} object.
+     * @return a {@link Registration} object.
      */
     public Registration getOwner() {
         return owner;
@@ -366,7 +383,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param owner
-     *            a {@link net.sourceforge.seqware.common.model.Registration} object.
+     *            a {@link Registration} object.
      */
     public void setOwner(Registration owner) {
         this.owner = owner;
@@ -380,7 +397,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>processings</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<Processing> getProcessings() {
         return processings;
@@ -392,7 +409,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param processings
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setProcessings(SortedSet<Processing> processings) {
         this.processings = processings;
@@ -403,7 +420,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>offspringProcessings</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<Processing> getOffspringProcessings() {
         return offspringProcessings;
@@ -415,7 +432,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param offspringProcessings
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setOffspringProcessings(SortedSet<Processing> offspringProcessings) {
         this.offspringProcessings = offspringProcessings;
@@ -426,7 +443,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>samples</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<Sample> getSamples() {
         return samples;
@@ -438,7 +455,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param samples
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setSamples(SortedSet<Sample> samples) {
         this.samples = samples;
@@ -449,7 +466,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>sharedWorkflowRuns</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<ShareWorkflowRun> getSharedWorkflowRuns() {
         return sharedWorkflowRuns;
@@ -461,7 +478,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param sharedWorkflowRuns
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setSharedWorkflowRuns(SortedSet<ShareWorkflowRun> sharedWorkflowRuns) {
         if (sharedWorkflowRuns == null) {
@@ -477,7 +494,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>isSelected</code>.
      * </p>
      *
-     * @return a {@link java.lang.Boolean} object.
+     * @return a {@link Boolean} object.
      */
     public Boolean getIsSelected() {
         return isSelected;
@@ -489,7 +506,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param isSelected
-     *            a {@link java.lang.Boolean} object.
+     *            a {@link Boolean} object.
      */
     public void setIsSelected(Boolean isSelected) {
         this.isSelected = isSelected;
@@ -500,7 +517,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>html</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getHtml() {
         return html;
@@ -512,7 +529,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param html
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setHtml(String html) {
         this.html = html;
@@ -523,7 +540,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>isHasFile</code>.
      * </p>
      *
-     * @return a {@link java.lang.Boolean} object.
+     * @return a {@link Boolean} object.
      */
     public Boolean getIsHasFile() {
         return isHasFile;
@@ -535,7 +552,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param isHasFile
-     *            a {@link java.lang.Boolean} object.
+     *            a {@link Boolean} object.
      */
     public void setIsHasFile(Boolean isHasFile) {
         this.isHasFile = isHasFile;
@@ -569,7 +586,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>statusCmd</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getStatusCmd() {
         return statusCmd;
@@ -581,7 +598,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param statusCmd
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setStatusCmd(String statusCmd) {
         this.statusCmd = statusCmd;
@@ -592,7 +609,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>seqwareRevision</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getSeqwareRevision() {
         return seqwareRevision;
@@ -604,7 +621,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param seqwareRevision
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setSeqwareRevision(String seqwareRevision) {
         this.seqwareRevision = seqwareRevision;
@@ -615,7 +632,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>host</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getHost() {
         return host;
@@ -627,7 +644,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param host
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setHost(String host) {
         this.host = host;
@@ -638,7 +655,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>currentWorkingDir</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getCurrentWorkingDir() {
         return currentWorkingDir;
@@ -650,7 +667,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param currentWorkingDir
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setCurrentWorkingDir(String currentWorkingDir) {
         this.currentWorkingDir = currentWorkingDir;
@@ -661,7 +678,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>userName</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getUserName() {
         return userName;
@@ -673,7 +690,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param username
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setUserName(String username) {
         this.userName = username;
@@ -684,7 +701,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>workflowRunParams</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<WorkflowRunParam> getWorkflowRunParams() {
         return workflowRunParams;
@@ -696,7 +713,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param workflowRunParams
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setWorkflowRunParams(SortedSet<WorkflowRunParam> workflowRunParams) {
         this.workflowRunParams = workflowRunParams;
@@ -708,7 +725,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>ius</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<IUS> getIus() {
         return ius;
@@ -720,7 +737,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param ius
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setIus(SortedSet<IUS> ius) {
         this.ius = ius;
@@ -731,7 +748,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>dax</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     @XmlJavaTypeAdapter(XmlizeXML.class)
     public String getDax() {
@@ -744,7 +761,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param dax
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setDax(String dax) {
         this.dax = dax;
@@ -755,7 +772,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>iniFile</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getIniFile() {
         return iniFile;
@@ -767,7 +784,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param iniFile
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setIniFile(String iniFile) {
         this.iniFile = iniFile;
@@ -779,7 +796,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>lanes</code>.
      * </p>
      *
-     * @return a {@link java.util.SortedSet} object.
+     * @return a {@link SortedSet} object.
      */
     public SortedSet<Lane> getLanes() {
         return lanes;
@@ -791,7 +808,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param lanes
-     *            a {@link java.util.SortedSet} object.
+     *            a {@link SortedSet} object.
      */
     public void setLanes(SortedSet<Lane> lanes) {
         this.lanes = lanes;
@@ -802,7 +819,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>stdErr</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getStdErr() {
         return stdErr;
@@ -814,7 +831,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param stdErr
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setStdErr(String stdErr) {
         this.stdErr = stdErr;
@@ -825,7 +842,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>stdOut</code>.
      * </p>
      *
-     * @return a {@link java.lang.String} object.
+     * @return a {@link String} object.
      */
     public String getStdOut() {
         return stdOut;
@@ -837,7 +854,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param stdOut
-     *            a {@link java.lang.String} object.
+     *            a {@link String} object.
      */
     public void setStdOut(String stdOut) {
         this.stdOut = stdOut;
@@ -849,8 +866,8 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param newWR
-     *            a {@link net.sourceforge.seqware.common.model.WorkflowRun} object.
-     * @return a {@link net.sourceforge.seqware.common.model.WorkflowRun} object.
+     *            a {@link WorkflowRun} object.
+     * @return a {@link WorkflowRun} object.
      */
     public static WorkflowRun cloneToHibernate(WorkflowRun newWR) {
         WorkflowRunService wrs = BeanFactory.getWorkflowRunServiceBean();
@@ -1013,7 +1030,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * Getter for the field <code>workflowRunAttributes</code>.
      * </p>
      *
-     * @return a {@link java.util.Set} object.
+     * @return a {@link Set} object.
      */
     public Set<WorkflowRunAttribute> getWorkflowRunAttributes() {
         return workflowRunAttributes;
@@ -1025,7 +1042,7 @@ public class WorkflowRun extends PermissionsAware implements Serializable, Compa
      * </p>
      *
      * @param workflowRunAttributes
-     *            a {@link java.util.Set} object.
+     *            a {@link Set} object.
      */
     public void setWorkflowRunAttributes(Set<WorkflowRunAttribute> workflowRunAttributes) {
         this.workflowRunAttributes = workflowRunAttributes;

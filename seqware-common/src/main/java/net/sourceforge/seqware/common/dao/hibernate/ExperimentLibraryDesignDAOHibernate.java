@@ -1,14 +1,16 @@
 package net.sourceforge.seqware.common.dao.hibernate;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import net.sourceforge.seqware.common.dao.ExperimentLibraryDesignDAO;
 import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -18,6 +20,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ExperimentLibraryDesignDAOHibernate extends HibernateDaoSupport implements ExperimentLibraryDesignDAO {
 
     /**
@@ -81,7 +84,7 @@ public class ExperimentLibraryDesignDAOHibernate extends HibernateDaoSupport imp
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, eld);
-            return (ExperimentLibraryDesign) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

@@ -77,26 +77,26 @@ public class FileResource extends DatabaseResource {
             File p = testIfNull(ss.findByID(parseClientInt(queryValues.get("id"))));
 
             File dto = copier.hibernate2dto(File.class, p);
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, File.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         } else if (queryValues.get("path") != null) {
             JaxbObject<File> jaxbTool = new JaxbObject<>();
             File p = testIfNull(ss.findByPath(queryValues.get("path")));
 
             File dto = copier.hibernate2dto(File.class, p);
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, File.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         } else {
             JaxbObject<FileList> jaxbTool = new JaxbObject<>();
             List<File> files = testIfNull(ss.findByOwnerId(registration.getRegistrationId()));
             FileList eList = new FileList();
-            eList.setList(new ArrayList());
+            eList.setList(new ArrayList<>());
 
             for (File file : files) {
                 File dto = copier.hibernate2dto(File.class, file);
                 eList.add(dto);
             }
-            Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+            Document line = XmlTools.marshalToDocument(jaxbTool, eList, FileList.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         }
     }
@@ -118,7 +118,7 @@ public class FileResource extends DatabaseResource {
             File p = null;
             try {
                 String text = entity.getText();
-                p = (File) XmlTools.unMarshal(jo, new File(), text);
+                p = (File) XmlTools.unMarshal(jo, File.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -152,7 +152,7 @@ public class FileResource extends DatabaseResource {
                 fileService.update(registration, newFile);
             }
 
-            Document line = XmlTools.marshalToDocument(jo, detachedFile);
+            Document line = XmlTools.marshalToDocument(jo, detachedFile, File.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/files/" + detachedFile.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

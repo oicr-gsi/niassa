@@ -7,6 +7,7 @@ import net.sourceforge.seqware.common.dao.ShareStudyDAO;
 import net.sourceforge.seqware.common.model.ShareStudy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -16,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ShareStudyServiceImpl implements ShareStudyService {
 
     private ShareStudyDAO dao = null;

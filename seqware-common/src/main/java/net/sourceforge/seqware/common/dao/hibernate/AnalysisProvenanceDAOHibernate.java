@@ -16,11 +16,6 @@
  */
 package net.sourceforge.seqware.common.dao.hibernate;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,19 +25,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceSqlResultDto;
+
 import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import net.sourceforge.seqware.common.dao.AnalysisProvenanceDAO;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceSqlResultDto;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implements AnalysisProvenanceDAO {
 
     private final String analysisProvenanceAllSql;
@@ -68,18 +73,18 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
     }
 
     @Override
-    public List<AnalysisProvenanceDto> list() {
-        return list(Collections.EMPTY_MAP);
+    public List<AnalysisProvenance> list() {
+    return list(Collections.emptyMap());
     }
 
     @Override
-    public List<AnalysisProvenanceDto> list(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> list(Map<FileProvenanceFilter, Set<String>> filters) {
         Session session = getSessionFactory().getCurrentSession();
 
         StringBuilder sqlQueryBuilder = new StringBuilder();
         sqlQueryBuilder.append(analysisProvenanceAllSql);
 
-        Map<String, Collection> parameterList = new HashMap<>();
+    Map<String, Collection<?>> parameterList = new HashMap<>();
         List<String> sqlFilters = new ArrayList<>();
         if (filters == null || filters.isEmpty()) {
 
@@ -112,11 +117,12 @@ public class AnalysisProvenanceDAOHibernate extends HibernateDaoSupport implemen
 
         SQLQuery query = session.createSQLQuery(sqlQueryBuilder.toString());
 
-        for (Entry<String, Collection> e : parameterList.entrySet()) {
+    for (Entry<String, Collection<?>> e : parameterList.entrySet()) {
             query.setParameterList(e.getKey(), e.getValue());
         }
 
-        List<AnalysisProvenanceDto> dtos = query.setResultTransformer(Transformers.aliasToBean(AnalysisProvenanceSqlResultDto.class)).list();
+    @SuppressWarnings("unchecked")
+        List<AnalysisProvenance> dtos = query.setResultTransformer(Transformers.aliasToBean(AnalysisProvenanceSqlResultDto.class)).list();
         return dtos;
     }
 

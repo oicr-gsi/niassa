@@ -66,7 +66,7 @@ public class SampleIDResource extends DatabaseIDResource {
     public void getXml() {
         authenticate();
 
-        JaxbObject<Lane> jaxbTool = new JaxbObject<>();
+        JaxbObject<Sample> jaxbTool = new JaxbObject<>();
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
 
         SampleService ss = BeanFactory.getSampleServiceBean();
@@ -101,7 +101,7 @@ public class SampleIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Sample.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 
@@ -120,7 +120,7 @@ public class SampleIDResource extends DatabaseIDResource {
             String text = entity.getText();
             Sample o = null;
             try {
-                o = (Sample) XmlTools.unMarshal(jo, new Sample(), text);
+                o = (Sample) XmlTools.unMarshal(jo, Sample.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -193,7 +193,7 @@ public class SampleIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Sample detachedSample = copier.hibernate2dto(Sample.class, sample);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedSample);
+            Document line = XmlTools.marshalToDocument(jo, detachedSample, Sample.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/samples/" + detachedSample.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

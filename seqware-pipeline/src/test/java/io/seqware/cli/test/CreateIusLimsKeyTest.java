@@ -16,22 +16,27 @@
  */
 package io.seqware.cli.test;
 
-import com.google.common.collect.ImmutableMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.sourceforge.seqware.common.metadata.MetadataFactory;
-import net.sourceforge.seqware.common.model.IUS;
-import net.sourceforge.seqware.common.model.LimsKey;
-import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import org.joda.time.DateTime;
-import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.google.common.collect.ImmutableMap;
+
+import net.sourceforge.seqware.common.metadata.MetadataFactory;
+import net.sourceforge.seqware.common.model.IUS;
+import net.sourceforge.seqware.common.model.LimsKey;
+import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 
 /**
  *
@@ -64,7 +69,7 @@ public class CreateIusLimsKeyTest {
         assertEquals(lk.getId(), id);
         assertEquals(lk.getProvider(), provider);
         assertEquals(lk.getVersion(), version);
-        assertEquals(lk.getLastModified(), DateTime.parse(lastModified));
+        assertEquals(lk.getLastModified(), ZonedDateTime.parse(lastModified));
     }
 
     @Test

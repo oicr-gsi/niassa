@@ -86,14 +86,14 @@ public class IUSIDFilter extends BasicResource {
         JaxbObject<IUSList> jaxbTool = new JaxbObject<>();
 
         IUSList eList = new IUSList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (IUS ius : iuss) {
             IUS dto = copier.hibernate2dto(IUS.class, ius);
             eList.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, IUSList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

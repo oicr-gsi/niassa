@@ -5,6 +5,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import net.sourceforge.seqware.common.security.PermissionsAware;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -23,6 +28,8 @@ import org.slf4j.LoggerFactory;
 public class Expense extends PermissionsAware implements Serializable, Comparable<Expense> {
 
     private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer expenseId;
     private Invoice invoice;
     private WorkflowRun workflowRun;

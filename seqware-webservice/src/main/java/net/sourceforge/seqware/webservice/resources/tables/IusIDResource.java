@@ -18,6 +18,14 @@ package net.sourceforge.seqware.webservice.resources.tables;
 
 import java.io.IOException;
 import java.util.Set;
+
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
@@ -38,13 +46,6 @@ import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import static net.sourceforge.seqware.webservice.resources.BasicResource.testIfNull;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -78,10 +79,9 @@ public class IusIDResource extends DatabaseIDResource {
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         if (getRequestAttributes().containsKey("object")) {
             if (getRequestAttributes().get("object").equals("limskey")) {
-                LimsKey limsKey = copier.hibernate2dto(LimsKey.class, ius.getLimsKey());
-                limsKey.setLastModified(ius.getLimsKey().getLastModified()); //hibernate dto copier does not set DateTime
+                LimsKey limsKey = ius.getLimsKey().asDetached();
                 JaxbObject<LimsKey> jaxbTool = new JaxbObject<>();
-                Document line = XmlTools.marshalToDocument(jaxbTool, limsKey);
+                Document line = XmlTools.marshalToDocument(jaxbTool, limsKey, LimsKey.class);
                 getResponse().setEntity(XmlTools.getRepresentation(line));
             } else {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Object type not supported");
@@ -93,7 +93,7 @@ public class IusIDResource extends DatabaseIDResource {
                     new String[]{"iusAttributes"});
             IUS dto = copier.hibernate2dto(IUS.class, ius, new Class<?>[]{}, createCollectionPropertyNames);
 
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, IUS.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         }
     }
@@ -111,7 +111,7 @@ public class IusIDResource extends DatabaseIDResource {
         JaxbObject<IUS> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            newIUS = (IUS) XmlTools.unMarshal(jo, new IUS(), text);
+            newIUS = (IUS) XmlTools.unMarshal(jo, IUS.class, text);
         } catch (SAXException | IOException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -204,7 +204,7 @@ public class IusIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             IUS detachedIUS = copier.hibernate2dto(IUS.class, ius);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedIUS);
+            Document line = XmlTools.marshalToDocument(jo, detachedIUS, IUS.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/ius/" + detachedIUS.getSwAccession());

@@ -96,7 +96,7 @@ public class WorkflowResource extends DatabaseResource {
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         JaxbObject<Workflow> jaxbTool = new JaxbObject<>();
         Workflow dto = copier.hibernate2dto(Workflow.class, workflow);
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Workflow.class);
         return line;
     }
 
@@ -104,13 +104,13 @@ public class WorkflowResource extends DatabaseResource {
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         JaxbObject<WorkflowList> jaxbTool = new JaxbObject<>();
         WorkflowList eList = new WorkflowList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Workflow workflow : workflows) {
             Workflow dto = copier.hibernate2dto(Workflow.class, workflow);
             eList.add(dto);
         }
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, WorkflowList.class);
         return line;
     }
 
@@ -130,7 +130,7 @@ public class WorkflowResource extends DatabaseResource {
             String text = entity.getText();
             Workflow p;
             try {
-                p = (Workflow) XmlTools.unMarshal(jo, new Workflow(), text);
+                p = (Workflow) XmlTools.unMarshal(jo, Workflow.class, text);
             } catch (SAXException ex) {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
@@ -151,7 +151,7 @@ public class WorkflowResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Workflow detachedW = copier.hibernate2dto(Workflow.class, w);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedW);
+            Document line = XmlTools.marshalToDocument(jo, detachedW, Workflow.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/workflows/" + detachedW.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);

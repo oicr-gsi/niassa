@@ -4,16 +4,18 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.IUSAttributeDAO;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
  * IUSAttributeDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class IUSAttributeDAOHibernate extends HibernateDaoSupport implements IUSAttributeDAO {
 
     /** {@inheritDoc} */
@@ -41,7 +43,7 @@ public class IUSAttributeDAOHibernate extends HibernateDaoSupport implements IUS
     public List<IUSAttribute> findAll(IUS ius) {
         String query = "from IUSAttribute as ia where ia.ius.iusId = ?";
         Object[] parameters = { ius.getIusId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<IUSAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
+
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.IUSService;
 import net.sourceforge.seqware.common.business.SequencerRunService;
@@ -88,14 +89,14 @@ public class LaneIDFilter extends BasicResource {
         JaxbObject<LaneList> jaxbTool = new JaxbObject<>();
 
         LaneList eList = new LaneList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Lane lane : lanes) {
             Lane dto = copier.hibernate2dto(Lane.class, lane);
             eList.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, LaneList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

@@ -6,7 +6,8 @@ import net.sourceforge.seqware.common.dao.ExperimentSpotDesignDAO;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -16,6 +17,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ExperimentSpotDesignDAOHibernate extends HibernateDaoSupport implements ExperimentSpotDesignDAO {
 
     /**
@@ -63,7 +65,7 @@ public class ExperimentSpotDesignDAOHibernate extends HibernateDaoSupport implem
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, experiment);
-            return (ExperimentSpotDesign) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

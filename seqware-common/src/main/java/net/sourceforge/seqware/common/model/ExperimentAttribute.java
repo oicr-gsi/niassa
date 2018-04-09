@@ -2,6 +2,10 @@ package net.sourceforge.seqware.common.model;
 
 import java.io.Serializable;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 //Generated 09.12.2011 15:01:20 by Hibernate Tools 3.2.4.GA
 
 /**
@@ -13,7 +17,9 @@ import java.io.Serializable;
 public class ExperimentAttribute extends Attribute<Experiment, ExperimentAttribute> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private int experimentAttributeId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int experimentAttributeId;
     private Experiment experiment;
     private String tag;
     private String value;

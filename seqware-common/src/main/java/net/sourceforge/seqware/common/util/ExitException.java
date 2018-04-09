@@ -21,4 +21,8 @@ public class ExitException extends SecurityException {
         super("No exit");
         status = st;
     }
+
+	public int getExitCode() {
+		return status;
+	}
 }

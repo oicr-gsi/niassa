@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>1.1.2-gsi</version>
+        <version>2.0.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -54,23 +54,17 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>rendersnake-repo</id>
-            <name>Repository for rendersnake</name>
-            <url>http://rendersnake.googlecode.com/svn/repo</url>
-        </repository>
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>io.seqware</groupId>
-            <artifactId>oozie-sge</artifactId>
-            <version>1.0.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.oozie</groupId>
-                    <artifactId>oozie-core</artifactId>
-                </exclusion>
-            </exclusions>
+          <groupId>org.powermock</groupId>
+          <artifactId>powermock-reflect</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.github.seqware</groupId>
@@ -113,7 +107,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.10.5</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -123,27 +116,21 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
-            <version>1.5.6</version>
+            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
-            <version>1.5.6</version>
+            <version>${powermock.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-reflect</artifactId>
-            <version>1.5.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.9.3</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
@@ -152,11 +139,11 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${aws-java-sdk.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -172,10 +159,7 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
@@ -204,17 +188,31 @@
                     <groupId>antlr</groupId>
                     <artifactId>antlr</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>hibernate-java8</artifactId>
+            <groupId>org.hibernate</groupId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>
+            <artifactId>hadoop-auth</artifactId>
+            <groupId>org.apache.hadoop</groupId>
+            <type>jar</type>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <artifactId>hadoop-hdfs</artifactId>
             <groupId>org.apache.hadoop</groupId>
             <type>jar</type>
-            <version>2.0.0-cdh4.5.0</version>
             <scope>runtime</scope>
             <exclusions>
                 <exclusion>
@@ -229,12 +227,27 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-jaxrs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-xc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.oozie</groupId>
             <artifactId>oozie-client</artifactId>
-            <version>3.3.2-cdh4.5.0 </version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-simple</artifactId>
@@ -244,16 +257,9 @@
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.rendersnake</groupId>
-            <artifactId>rendersnake</artifactId>
-            <version>1.7.2</version>
-            <exclusions>
                 <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -283,27 +289,40 @@
             <groupId>com.google.guava</groupId>
             <type>jar</type>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
         <dependency>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <groupId>org.codehaus.jackson</groupId>
-            <type>jar</type>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <artifactId>xercesImpl</artifactId>
-            <groupId>xerces</groupId>
-            <type>jar</type>
-            <version>2.10.0</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
         <dependency>
             <artifactId>commons-dbutils</artifactId>
             <groupId>commons-dbutils</groupId>
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <artifactId>hadoop-common</artifactId>
             <groupId>org.apache.hadoop</groupId>
             <type>jar</type>
             <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
                     <artifactId>commons-beanutils</artifactId>
@@ -324,13 +343,21 @@
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.jackson</groupId>
+                    <artifactId>jackson-mapper-asl</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <artifactId>powermock-core</artifactId>
             <groupId>org.powermock</groupId>
             <type>jar</type>
-            <version>1.5.6</version>
+            <version>${powermock.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -347,7 +374,6 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -360,12 +386,6 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.8.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

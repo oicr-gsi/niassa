@@ -17,11 +17,6 @@
 package net.sourceforge.seqware.pipeline.plugins;
 
 import com.google.common.io.Files;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.util.Log;
@@ -31,7 +26,13 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.junit.Assert;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 
@@ -98,6 +99,19 @@ public class ITUtility {
         String line = "java -jar " + jar.getAbsolutePath() + " " + parameters;
         String output = runArbitraryCommand(line, expectedReturnValue, workingDir);
         return output;
+    }
+
+
+    public static String runSeqWareJarDirect(String parameters, int expectedReturnValue, File workingDir) throws IOException {
+        File jar = retrieveFullAssembledJar();
+
+        if (workingDir == null) {
+            workingDir = Files.createTempDir();
+            workingDir.deleteOnExit();
+        }
+
+        String line = "java -cp " + jar.getAbsolutePath() + " " + parameters;
+        return runArbitraryCommand(line, expectedReturnValue, workingDir);
     }
 
     /**
@@ -180,13 +194,14 @@ public class ITUtility {
         exec.setExitValue(expectedReturnValue);
         try {
             int exitValue = exec.execute(commandline, environment);
-            Assert.assertTrue("exit value for full jar with no params should be " + expectedReturnValue + " was " + exitValue,
-                    exitValue == expectedReturnValue);
-            String output = outputStream.toString();
+            if (exitValue != expectedReturnValue){
+                throw new RuntimeException("exit value for full jar with no params should be " + expectedReturnValue + " was " + exitValue);
+            }
+            String output = outputStream.toString(StandardCharsets.UTF_8);
             return output;
         } catch (ExecuteException e) {
             Log.error("Execution failed with:");
-            Log.error(outputStream.toString());
+            Log.error(outputStream.toString(StandardCharsets.UTF_8));
             throw e;
         }
     }

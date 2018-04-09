@@ -16,15 +16,16 @@
  */
 package net.sourceforge.seqware.common.factory;
 
-import java.sql.SQLException;
-import java.util.Map;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * <p>
@@ -62,13 +63,7 @@ public class DBAccess {
     }
 
     private static MetadataDB create() {
-        DataSource ds = null;
-        try {
-            InitialContext initCtx = new InitialContext();
-            ds = (DataSource) initCtx.lookup("java:comp/env/jdbc/SeqWareMetaDB");
-        } catch (NamingException ex) {
-            Log.info("Could not lookup database via context", ex);
-        }
+        DataSource ds = getDataSource();
 
         if (ds != null) {
             Log.debug("Instantiate MetadataDB via datasource " + ds.getClass());
@@ -82,6 +77,17 @@ public class DBAccess {
             Map<String, String> settings = ConfigTools.getSettings();
             return MetadataFactory.getDB(settings);
         }
+    }
+
+    public static DataSource getDataSource() {
+        DataSource ds = null;
+        try {
+            InitialContext initCtx = new InitialContext();
+            ds = (DataSource) initCtx.lookup("java:comp/env/jdbc/SeqWareMetaDB");
+        } catch (NamingException ex) {
+            Log.info("Could not lookup database via context", ex);
+        }
+        return ds;
     }
 
     /**
@@ -99,5 +105,10 @@ public class DBAccess {
     }
 
     private DBAccess() {
+    }
+
+    @Override
+    public void finalize(){
+        METADATA_DB_WRAPPER.remove();
     }
 }

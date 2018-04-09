@@ -92,7 +92,7 @@ public class LaneIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Lane.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 
@@ -111,7 +111,7 @@ public class LaneIDResource extends DatabaseIDResource {
         try {
 
             String text = entity.getText();
-            newLane = (Lane) XmlTools.unMarshal(jo, new Lane(), text);
+            newLane = (Lane) XmlTools.unMarshal(jo, Lane.class, text);
         } catch (SAXException | IOException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
@@ -189,7 +189,7 @@ public class LaneIDResource extends DatabaseIDResource {
             Lane detachedLane = copier.hibernate2dto(Lane.class, lane, new Class<?>[] { LibraryStrategy.class, LibrarySource.class,
                     LibrarySelection.class }, new CollectionPropertyName<?>[] {});
 
-            Document line = XmlTools.marshalToDocument(jo, detachedLane);
+            Document line = XmlTools.marshalToDocument(jo, detachedLane, Lane.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/lanes/" + detachedLane.getSwAccession());

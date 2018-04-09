@@ -1,20 +1,23 @@
 package net.sourceforge.seqware.common.business.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
+
 import javax.naming.NamingException;
+
+import org.hibernate.SessionFactory;
+import org.junit.AfterClass;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreatorWrapper;
-import org.hibernate.SessionFactory;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * <p>
@@ -101,7 +104,7 @@ public class ExperimentServiceImplTest extends AbstractTestCase {
     @Test
     public void testUpdateDetached() {
         Experiment experiment = experimentService.findByID(6);
-        SessionFactoryUtils.getSession(sessionFactory, true).evict(experiment); //detach object
+        sessionFactory.getCurrentSession().evict(experiment); //detach object
         experiment.setTitle("New Title");
 
         Experiment newExperiment = experimentService.findByID(6);

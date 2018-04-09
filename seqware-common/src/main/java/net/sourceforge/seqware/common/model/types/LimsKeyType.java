@@ -16,9 +16,11 @@
  */
 package net.sourceforge.seqware.common.model.types;
 
-import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
+import java.time.ZonedDateTime;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.joda.time.DateTime;
+
+import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
 
 /**
  * JAXB type for LimsKey 
@@ -29,7 +31,7 @@ public class LimsKeyType {
     private String provider;
     private String id;
     private String version;
-    private DateTime lastModified;
+    private ZonedDateTime lastModified;
 
     public String getProvider() {
         return provider;
@@ -56,11 +58,11 @@ public class LimsKeyType {
     }
 
     @XmlJavaTypeAdapter(DateTimeAdapter.class)
-    public DateTime getLastModified() {
+    public ZonedDateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(DateTime lastModified) {
+    public void setLastModified(ZonedDateTime lastModified) {
         this.lastModified = lastModified;
     }
 

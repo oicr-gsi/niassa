@@ -93,14 +93,14 @@ public class SampleIDFilter extends BasicResource {
         JaxbObject<SampleList> jaxbTool = new JaxbObject<>();
 
         SampleList eList = new SampleList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Sample sample : samples) {
             Sample dto = copier.hibernate2dto(Sample.class, sample);
             eList.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, SampleList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

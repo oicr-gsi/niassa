@@ -17,9 +17,13 @@
 package net.sourceforge.seqware.common.business;
 
 import java.util.List;
-import net.sourceforge.seqware.common.model.LimsKey;
+
+import javax.persistence.PersistenceException;
+
+import org.hibernate.exception.ConstraintViolationException;
+
 import net.sourceforge.seqware.common.dao.LimsKeyDAO;
-import net.sourceforge.seqware.common.err.DataIntegrityException;
+import net.sourceforge.seqware.common.model.LimsKey;
 
 /**
  *
@@ -27,18 +31,18 @@ import net.sourceforge.seqware.common.err.DataIntegrityException;
  */
 public interface LimsKeyService {
 
-    public void setLimsKeyDAO(LimsKeyDAO dao);
+	public void setLimsKeyDAO(LimsKeyDAO dao);
 
-    public Integer insert(LimsKey limsKey);
+	public Integer insert(LimsKey limsKey);
 
-    public void update(LimsKey limsKey);
+	public void update(LimsKey limsKey);
 
-    public void delete(LimsKey limsKey) throws DataIntegrityException;
+	public void delete(LimsKey limsKey) throws ConstraintViolationException, PersistenceException;
 
-    public LimsKey findByID(Integer id);
+	public LimsKey findByID(Integer id);
 
-    public LimsKey findBySWAccession(Integer swAccession);
+	public LimsKey findBySWAccession(Integer swAccession);
 
-    public List<LimsKey> list();
+	public List<LimsKey> list();
 
 }

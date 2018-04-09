@@ -1,1 +1,0 @@
-../../../../../../seqware-portal/README.md

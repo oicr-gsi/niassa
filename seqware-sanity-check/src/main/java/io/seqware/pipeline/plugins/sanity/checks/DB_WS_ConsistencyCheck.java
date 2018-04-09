@@ -18,12 +18,14 @@ package io.seqware.pipeline.plugins.sanity.checks;
 
 import io.seqware.pipeline.plugins.sanity.QueryRunner;
 import io.seqware.pipeline.plugins.sanity.SanityCheckPluginInterface;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.UUID;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.Organism;
 import org.openide.util.lookup.ServiceProvider;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Checks that the database you're pointing to (if there is one) is consistent
@@ -56,9 +58,10 @@ public class DB_WS_ConsistencyCheck implements SanityCheckPluginInterface {
             System.err.println("Warning: No or invalid SeqWare metadb settings");
             return true;
         }
-        // create bizarro study
-        UUID randomUUID = UUID.randomUUID();
-        int rowsAffected = qRunner.updateQuery("insert into organism(code) VALUES ('" + randomUUID.toString() + "')");
+    UUID randomUUID = UUID.randomUUID();
+    PreparedStatement stmt = qRunner.prepare("insert into organism(code) VALUES (?)");
+    stmt.setString(0, randomUUID.toString());
+    int rowsAffected = stmt.executeUpdate();
         if (rowsAffected != 1) {
             System.err.println("Could not write to database using given database parameters");
             return false;
@@ -67,7 +70,7 @@ public class DB_WS_ConsistencyCheck implements SanityCheckPluginInterface {
         List<Organism> organisms = metadataWS.getOrganisms();
         boolean found = false;
         for (Organism o : organisms) {
-            if (o.getCode().equals(randomUUID.toString())) {
+      if (o.getCode().equals(randomUUID.toString())) {
                 found = true;
             }
         }

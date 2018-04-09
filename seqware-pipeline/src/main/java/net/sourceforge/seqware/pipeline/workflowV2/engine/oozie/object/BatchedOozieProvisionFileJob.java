@@ -1,36 +1,37 @@
 package net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object;
 
+import net.sourceforge.seqware.pipeline.workflowV2.model.AbstractJob;
+import org.jdom.Element;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import static net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object.OozieJob.file;
-import net.sourceforge.seqware.pipeline.workflowV2.model.AbstractJob;
-import org.jdom.Element;
 
 /**
  * Container for batching up provision file jobs
  *
  * @author dyuen
  */
-public class BatchedOozieProvisionFileJob extends OozieJob {
+class BatchedOozieProvisionFileJob extends OozieJob {
 
     private final List<OozieProvisionFileJob> provisionJobs = new ArrayList<>();
 
-    public BatchedOozieProvisionFileJob(AbstractJob job, String name, String oozie_working_dir, boolean useSge, File seqwareJar,
+    BatchedOozieProvisionFileJob(AbstractJob job, String name, String oozie_working_dir, boolean useSge, File seqwareJar,
             String threadsSgeParamFormat, String maxMemorySgeParamFormat, StringTruncator truncator) {
         super(job, name, oozie_working_dir, useSge, seqwareJar, threadsSgeParamFormat, maxMemorySgeParamFormat, truncator);
     }
 
     @Override
-    protected Element createSgeElement() {
-        File runnerScript = emitRunnerScript();
-        File optionsFile = emitOptionsFile();
-
-        Element sge = new Element("sge", SGE_XMLNS);
-        add(sge, "script", runnerScript.getAbsolutePath());
-        add(sge, "options-file", optionsFile.getAbsolutePath());
-
-        return sge;
+    public boolean addParentAccessionFile(String... pafs) {
+        super.addParentAccessionFile(pafs);
+        boolean added = false;
+        // also propagate to provision jobs
+        for(OozieProvisionFileJob job : provisionJobs){
+            if (job.addParentAccessionFile(pafs)){
+                added = true;
+            }
+        }
+        return added;
     }
 
     @Override
@@ -38,26 +39,44 @@ public class BatchedOozieProvisionFileJob extends OozieJob {
         throw new UnsupportedOperationException();
     }
 
-    public void attachProvisionFileJob(OozieProvisionFileJob job) {
+    void attachProvisionFileJob(OozieProvisionFileJob job) {
         // mutate longName in order to avoid repeats
         job.setLongName(job.getLongName() + "_" + provisionJobs.size());
         provisionJobs.add(job);
     }
 
-    public int getBatchSize() {
+    int getBatchSize() {
         return provisionJobs.size();
     }
 
-    private File emitRunnerScript() {
+    protected File emitRunnerScript() {
         File localFile = file(scriptsDir, runnerFileName(this.getLongName()), true);
 
-        ArrayList<String> args = new ArrayList<>();
+        List<String> args = new ArrayList<>();
         for (OozieProvisionFileJob batchedJob : provisionJobs) {
             batchedJob.setUseCheckFile(true);
             args.add(concat(" ", batchedJob.generateRunnerLine()));
         }
 
-        writeScript(concat("\n", args), localFile);
+        final String command = concat("\n", args);
+        writeScript(command, localFile);
+
+        // create archive of commands with metadata calls
+        final String commentedCommand = "#"+this.getLongName()+"\n" + command;
+        archiver.archiveSeqWareMetadataCalls(commentedCommand);
+
+        // create command version without metadata calls
+        this.turnOffMetadata();
+
+        List<String> argsWithoutMetadata = new ArrayList<>();
+        for (OozieProvisionFileJob batchedJob : provisionJobs) {
+            batchedJob.turnOffMetadata();
+            batchedJob.setUseCheckFile(true);
+            argsWithoutMetadata.add(concat(" ", batchedJob.generateRunnerLine()));
+        }
+        final String commandWithoutMetadata = concat("\n", argsWithoutMetadata);
+        final String commentedCommandWithoutMetadata = "#"+this.getLongName()+"\n" + commandWithoutMetadata;
+        archiver.archiveWorkflowCommands(commentedCommandWithoutMetadata);
         return localFile;
     }
 

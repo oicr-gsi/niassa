@@ -16,19 +16,22 @@
  */
 package net.sourceforge.seqware.common.dto;
 
-import ca.on.oicr.gsi.provenance.model.SampleProvenance;
+import java.time.ZonedDateTime;
 import java.util.SortedMap;
 import java.util.SortedSet;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
-import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
+
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
+import net.sourceforge.seqware.common.model.adapters.DateTimeAdapter;
+import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter;
 
 /**
  *
@@ -37,259 +40,258 @@ import org.joda.time.DateTime;
 @XmlRootElement
 public class SampleProvenanceDto implements SampleProvenance {
 
-    private String studyTitle;
-    private SortedMap<String, SortedSet<String>> studyAttributes;
-    private String rootSampleName;
-    private String parentSampleName;
-    private SortedMap<String, SortedSet<String>> parentSampleAttributes;
-    private String sampleName;
-    private String sampleOrganismCode;
-    private SortedMap<String, SortedSet<String>> sampleAttributes;
-    private String sequencerRunName;
-    private SortedMap<String, SortedSet<String>> sequencerRunAttributes;
-    private String sequencerRunPlatformModel;
-    private String laneNumber;
-    private SortedMap<String, SortedSet<String>> laneAttributes;
-    private String iusTag;
-    private Boolean skip;
-    private String sampleProvenanceId;
-    private String version;
-    private DateTime lastModified;
-    private DateTime createdDate;
+	private String studyTitle;
+	private SortedMap<String, SortedSet<String>> studyAttributes;
+	private String rootSampleName;
+	private String parentSampleName;
+	private SortedMap<String, SortedSet<String>> parentSampleAttributes;
+	private String sampleName;
+	private String sampleOrganismCode;
+	private SortedMap<String, SortedSet<String>> sampleAttributes;
+	private String sequencerRunName;
+	private SortedMap<String, SortedSet<String>> sequencerRunAttributes;
+	private String sequencerRunPlatformModel;
+	private String laneNumber;
+	private SortedMap<String, SortedSet<String>> laneAttributes;
+	private String iusTag;
+	private Boolean skip;
+	private String sampleProvenanceId;
+	private String version;
+	protected ZonedDateTime lastModified;
+	protected ZonedDateTime createdDate;
 
-    @XmlElement
-    @Override
-    public String getStudyTitle() {
-        return studyTitle;
-    }
+	@XmlElement
 
-    public void setStudyTitle(String studyTitle) {
-        this.studyTitle = studyTitle;
-    }
+	public String getStudyTitle() {
+		return studyTitle;
+	}
 
-    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
-    @Override
-    public SortedMap<String, SortedSet<String>> getStudyAttributes() {
-        return studyAttributes;
-    }
+	public void setStudyTitle(String studyTitle) {
+		this.studyTitle = studyTitle;
+	}
 
-    public void setStudyAttributes(SortedMap<String, SortedSet<String>> studyAttributes) {
-        this.studyAttributes = studyAttributes;
-    }
+	@XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
 
-    @XmlElement
-    @Override
-    public String getRootSampleName() {
-        return rootSampleName;
-    }
+	public SortedMap<String, SortedSet<String>> getStudyAttributes() {
+		return studyAttributes;
+	}
 
-    public void setRootSampleName(String rootSampleName) {
-        this.rootSampleName = rootSampleName;
-    }
+	public void setStudyAttributes(SortedMap<String, SortedSet<String>> studyAttributes) {
+		this.studyAttributes = studyAttributes;
+	}
 
-    @XmlElement
-    @Override
-    public String getParentSampleName() {
-        return parentSampleName;
-    }
+	@XmlElement
 
-    public void setParentSampleName(String parentSampleName) {
-        this.parentSampleName = parentSampleName;
-    }
+	public String getRootSampleName() {
+		return rootSampleName;
+	}
 
-    @XmlElement
-    @Override
-    public String getSampleName() {
-        return sampleName;
-    }
+	public void setRootSampleName(String rootSampleName) {
+		this.rootSampleName = rootSampleName;
+	}
 
-    public void setSampleName(String sampleName) {
-        this.sampleName = sampleName;
-    }
+	@XmlElement
 
-    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
-    @Override
-    public SortedMap<String, SortedSet<String>> getSampleAttributes() {
-        return sampleAttributes;
-    }
+	public String getParentSampleName() {
+		return parentSampleName;
+	}
 
-    public void setSampleAttributes(SortedMap<String, SortedSet<String>> sampleAttributes) {
-        this.sampleAttributes = sampleAttributes;
-    }
+	public void setParentSampleName(String parentSampleName) {
+		this.parentSampleName = parentSampleName;
+	}
 
-    @XmlElement
-    @Override
-    public String getSequencerRunName() {
-        return sequencerRunName;
-    }
+	@XmlElement
 
-    public void setSequencerRunName(String sequencerRunName) {
-        this.sequencerRunName = sequencerRunName;
-    }
+	public String getSampleName() {
+		return sampleName;
+	}
 
-    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
-    @Override
-    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
-        return sequencerRunAttributes;
-    }
+	public void setSampleName(String sampleName) {
+		this.sampleName = sampleName;
+	}
 
-    public void setSequencerRunAttributes(SortedMap<String, SortedSet<String>> sequencerRunAttributes) {
-        this.sequencerRunAttributes = sequencerRunAttributes;
-    }
+	@XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
 
-    @XmlElement
-    @Override
-    public String getSequencerRunPlatformModel() {
-        return sequencerRunPlatformModel;
-    }
+	public SortedMap<String, SortedSet<String>> getSampleAttributes() {
+		return sampleAttributes;
+	}
 
-    public void setSequencerRunPlatformModel(String sequencerRunPlatformModel) {
-        this.sequencerRunPlatformModel = sequencerRunPlatformModel;
-    }
+	public void setSampleAttributes(SortedMap<String, SortedSet<String>> sampleAttributes) {
+		this.sampleAttributes = sampleAttributes;
+	}
 
-    @XmlElement
-    @Override
-    public String getLaneNumber() {
-        return laneNumber;
-    }
+	@XmlElement
 
-    public void setLaneNumber(String laneNumber) {
-        this.laneNumber = laneNumber;
-    }
+	public String getSequencerRunName() {
+		return sequencerRunName;
+	}
 
-    @XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
-    @Override
-    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
-        return laneAttributes;
-    }
+	public void setSequencerRunName(String sequencerRunName) {
+		this.sequencerRunName = sequencerRunName;
+	}
 
-    public void setLaneAttributes(SortedMap<String, SortedSet<String>> laneAttributes) {
-        this.laneAttributes = laneAttributes;
-    }
+	@XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
 
-    @XmlElement
-    @Override
-    public String getIusTag() {
-        return iusTag;
-    }
+	public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+		return sequencerRunAttributes;
+	}
 
-    public void setIusTag(String iusTag) {
-        this.iusTag = iusTag;
-    }
+	public void setSequencerRunAttributes(SortedMap<String, SortedSet<String>> sequencerRunAttributes) {
+		this.sequencerRunAttributes = sequencerRunAttributes;
+	}
 
-    @XmlElement
-    @Override
-    public Boolean getSkip() {
-        return skip;
-    }
+	@XmlElement
 
-    public void setSkip(Boolean skip) {
-        this.skip = skip;
-    }
+	public String getSequencerRunPlatformModel() {
+		return sequencerRunPlatformModel;
+	}
 
-    @XmlElement
-    @Override
-    public String getSampleProvenanceId() {
-        return sampleProvenanceId;
-    }
+	public void setSequencerRunPlatformModel(String sequencerRunPlatformModel) {
+		this.sequencerRunPlatformModel = sequencerRunPlatformModel;
+	}
 
-    public void setSampleProvenanceId(String sampleProvenanceId) {
-        this.sampleProvenanceId = sampleProvenanceId;
-    }
+	@XmlElement
 
-    @XmlElement
-    @Override
-    public String getProvenanceId() {
-        return sampleProvenanceId;
-    }
+	public String getLaneNumber() {
+		return laneNumber;
+	}
 
-    @XmlElement
-    @Override
-    public String getVersion() {
-        return version;
-    }
+	public void setLaneNumber(String laneNumber) {
+		this.laneNumber = laneNumber;
+	}
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	@XmlJavaTypeAdapter(SortedMapOfSortedSetAdapter.class)
 
-    @XmlJavaTypeAdapter(DateTimeAdapter.class)
-    @Override
-    public DateTime getLastModified() {
-        return lastModified;
-    }
+	public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+		return laneAttributes;
+	}
 
-    public void setLastModified(DateTime lastModified) {
-        this.lastModified = lastModified;
-    }
+	public void setLaneAttributes(SortedMap<String, SortedSet<String>> laneAttributes) {
+		this.laneAttributes = laneAttributes;
+	}
 
-    @XmlJavaTypeAdapter(DateTimeAdapter.class)
-    @Override
-    public DateTime getCreatedDate() {
-        return createdDate;
-    }
+	@XmlElement
 
-    public void setCreatedDate(DateTime createdDate) {
-        this.createdDate = createdDate;
-    }
+	public String getIusTag() {
+		return iusTag;
+	}
 
-    @Override
-    public int hashCode() {
-        HashCodeBuilder b = new HashCodeBuilder();
-        b.append(getStudyTitle());
-        b.append(getStudyAttributes());
-        b.append(getRootSampleName());
-        b.append(getParentSampleName());
-        b.append(getSampleName());
-        b.append(getSampleAttributes());
-        b.append(getSequencerRunName());
-        b.append(getSequencerRunAttributes());
-        b.append(getSequencerRunPlatformModel());
-        b.append(getLaneNumber());
-        b.append(getLaneAttributes());
-        b.append(getIusTag());
-        b.append(getSkip());
-        b.append(getSampleProvenanceId());
-        b.append(getProvenanceId());
-        b.append(getVersion());
-        b.append(getLastModified());
-        b.append(getCreatedDate());
-        return b.toHashCode();
-    }
+	public void setIusTag(String iusTag) {
+		this.iusTag = iusTag;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SampleProvenanceDto) {
-            SampleProvenanceDto other = (SampleProvenanceDto) obj;
-            EqualsBuilder b = new EqualsBuilder();
-            b.append(getStudyTitle(), other.getStudyTitle());
-            b.append(getStudyAttributes(), other.getStudyAttributes());
-            b.append(getRootSampleName(), other.getRootSampleName());
-            b.append(getParentSampleName(), other.getParentSampleName());
-            b.append(getSampleName(), other.getSampleName());
-            b.append(getSampleAttributes(), other.getSampleAttributes());
-            b.append(getSequencerRunName(), other.getSequencerRunName());
-            b.append(getSequencerRunAttributes(), other.getSequencerRunAttributes());
-            b.append(getSequencerRunPlatformModel(), other.getSequencerRunPlatformModel());
-            b.append(getLaneNumber(), other.getLaneNumber());
-            b.append(getLaneAttributes(), other.getLaneAttributes());
-            b.append(getIusTag(), other.getIusTag());
-            b.append(getSkip(), other.getSkip());
-            b.append(getSampleProvenanceId(), other.getSampleProvenanceId());
-            b.append(getProvenanceId(), other.getProvenanceId());
-            b.append(getVersion(), other.getVersion());
-            b.append(getLastModified(), other.getLastModified());
-            b.append(getCreatedDate(), other.getCreatedDate());
-            return b.isEquals();
-        } else {
-            return false;
-        }
+	@XmlElement
 
-    }
+	public Boolean getSkip() {
+		return skip;
+	}
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
+	public void setSkip(Boolean skip) {
+		this.skip = skip;
+	}
+
+	@XmlElement
+
+	public String getSampleProvenanceId() {
+		return sampleProvenanceId;
+	}
+
+	public void setSampleProvenanceId(String sampleProvenanceId) {
+		this.sampleProvenanceId = sampleProvenanceId;
+	}
+
+	@XmlElement
+
+	public String getProvenanceId() {
+		return sampleProvenanceId;
+	}
+
+	@XmlElement
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	@XmlJavaTypeAdapter(DateTimeAdapter.class)
+
+	public ZonedDateTime getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(ZonedDateTime lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	@XmlJavaTypeAdapter(DateTimeAdapter.class)
+
+	public ZonedDateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(ZonedDateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public int hashCode() {
+		HashCodeBuilder b = new HashCodeBuilder();
+		b.append(getStudyTitle());
+		b.append(getStudyAttributes());
+		b.append(getRootSampleName());
+		b.append(getParentSampleName());
+		b.append(getSampleName());
+		b.append(getSampleAttributes());
+		b.append(getSequencerRunName());
+		b.append(getSequencerRunAttributes());
+		b.append(getSequencerRunPlatformModel());
+		b.append(getLaneNumber());
+		b.append(getLaneAttributes());
+		b.append(getIusTag());
+		b.append(getSkip());
+		b.append(getSampleProvenanceId());
+		b.append(getProvenanceId());
+		b.append(getVersion());
+		b.append(getLastModified() == null ? null : getLastModified().toInstant());
+		b.append(getCreatedDate() == null ? null : getCreatedDate().toInstant());
+		return b.toHashCode();
+	}
+
+	public boolean equals(Object obj) {
+		if (obj instanceof SampleProvenanceDto) {
+			SampleProvenanceDto other = (SampleProvenanceDto) obj;
+			EqualsBuilder b = new EqualsBuilder();
+			b.append(getStudyTitle(), other.getStudyTitle());
+			b.append(getStudyAttributes(), other.getStudyAttributes());
+			b.append(getRootSampleName(), other.getRootSampleName());
+			b.append(getParentSampleName(), other.getParentSampleName());
+			b.append(getSampleName(), other.getSampleName());
+			b.append(getSampleAttributes(), other.getSampleAttributes());
+			b.append(getSequencerRunName(), other.getSequencerRunName());
+			b.append(getSequencerRunAttributes(), other.getSequencerRunAttributes());
+			b.append(getSequencerRunPlatformModel(), other.getSequencerRunPlatformModel());
+			b.append(getLaneNumber(), other.getLaneNumber());
+			b.append(getLaneAttributes(), other.getLaneAttributes());
+			b.append(getIusTag(), other.getIusTag());
+			b.append(getSkip(), other.getSkip());
+			b.append(getSampleProvenanceId(), other.getSampleProvenanceId());
+			b.append(getProvenanceId(), other.getProvenanceId());
+			b.append(getVersion(), other.getVersion());
+			b.append(getLastModified() == null ? null : getLastModified().toInstant(),
+					other.getLastModified() == null ? null : other.getLastModified().toInstant());
+			b.append(getCreatedDate() == null ? null : getCreatedDate().toInstant(),
+					other.getCreatedDate() == null ? null : other.getCreatedDate().toInstant());
+			return b.isEquals();
+		} else {
+			return false;
+		}
+
+	}
+
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
 
 }

@@ -16,10 +16,6 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
 import net.sourceforge.seqware.common.business.RegistrationService;
@@ -38,6 +34,10 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * <p>
@@ -97,7 +97,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
             }
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+        Document line = XmlTools.marshalToDocument(jaxbTool, dto, Workflow.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 
@@ -114,13 +114,10 @@ public class WorkflowIDResource extends DatabaseIDResource {
         JaxbObject<Workflow> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            newWorkflow = (Workflow) XmlTools.unMarshal(jo, new Workflow(), text);
-        } catch (SAXException ex) {
+            newWorkflow = (Workflow) XmlTools.unMarshal(jo, Workflow.class, text);
+        } catch (SAXException | IOException ex) {
             ex.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
         }
         try {
             WorkflowService fs = BeanFactory.getWorkflowServiceBean();
@@ -154,7 +151,6 @@ public class WorkflowIDResource extends DatabaseIDResource {
             workflow.setTemplate(template);
             workflow.setUsername(username);
             workflow.setVersion(version);
-            workflow.setUpdateTimestamp(new Date());
             workflow.setWorkflowClass(newWorkflow.getWorkflowClass());
             workflow.setWorkflowType(newWorkflow.getWorkflowType());
             workflow.setWorkflowEngine(newWorkflow.getWorkflowEngine());
@@ -179,7 +175,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             Workflow detachedWorkflow = copier.hibernate2dto(Workflow.class, workflow);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedWorkflow);
+            Document line = XmlTools.marshalToDocument(jo, detachedWorkflow, Workflow.class);
             representation = XmlTools.getRepresentation(line);
             getResponse().setEntity(representation);
             getResponse().setLocationRef(getRequest().getRootRef() + "/workflows/" + detachedWorkflow.getSwAccession());

@@ -18,6 +18,7 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class IUSServiceImpl implements IUSService {
 
     private IUSDAO dao = null;

@@ -14,7 +14,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import joptsimple.OptionException;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.lang3.StringUtils;
+import org.openide.util.lookup.ServiceProvider;
+
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
@@ -22,10 +27,6 @@ import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.lang3.StringUtils;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * <p>
@@ -120,28 +121,6 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
             Log.fatal(e);
         }
         return ("");
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#parse_parameters()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue parse_parameters() {
-        ReturnValue ret = new ReturnValue();
-        try {
-            options = parser.parse(params);
-        } catch (OptionException e) {
-            get_syntax();
-            ret.setExitStatus(ReturnValue.INVALIDARGUMENT);
-        }
-        return ret;
     }
 
     /*

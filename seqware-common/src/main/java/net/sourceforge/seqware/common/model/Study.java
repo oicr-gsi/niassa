@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,6 +32,8 @@ public class Study extends PermissionsAware implements Serializable, ParentAcces
         FirstTierModel {
 
     private static final long serialVersionUID = 2L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer studyId;
     private Integer swAccession;
     private String title;

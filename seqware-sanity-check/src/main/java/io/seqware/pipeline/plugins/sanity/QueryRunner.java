@@ -16,6 +16,7 @@
  */
 package io.seqware.pipeline.plugins.sanity;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -38,4 +39,8 @@ public final class QueryRunner {
     public final int updateQuery(String s) throws SQLException {
         return this.mdb.executeUpdate(s);
     }
+
+  public final PreparedStatement prepare(String s) throws SQLException {
+    return this.mdb.getDb().prepareStatement(s);
+  }
 }

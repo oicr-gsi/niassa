@@ -4,16 +4,18 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.ProcessingAttributeDAO;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
  * ProcessingAttributeDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class ProcessingAttributeDAOHibernate extends HibernateDaoSupport implements ProcessingAttributeDAO {
 
     /** {@inheritDoc} */
@@ -41,7 +43,7 @@ public class ProcessingAttributeDAOHibernate extends HibernateDaoSupport impleme
     public List<ProcessingAttribute> findAll(Processing processing) {
         String query = "from ProcessingAttribute as ia where ia.processing.processingId = ?";
         Object[] parameters = { processing.getProcessingId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<ProcessingAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */

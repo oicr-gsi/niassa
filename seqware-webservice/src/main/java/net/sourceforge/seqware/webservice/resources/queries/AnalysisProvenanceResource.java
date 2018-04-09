@@ -25,7 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
 import org.restlet.resource.Get;
@@ -47,55 +50,59 @@ import org.w3c.dom.Document;
  */
 public class AnalysisProvenanceResource extends BasicResource {
 
-    private static final Logger LOG = Logger.getLogger(AnalysisProvenanceResource.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final Logger LOG = Logger.getLogger(AnalysisProvenanceResource.class);
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final CachedDocumentAutoUpdate CACHE = new CachedDocumentAutoUpdate() {
-        @Override
-        public Document calculateDocument() {
-            LOG.info("Updating analysis provenance");
-            AnalysisProvenanceService service = BeanFactory.getAnalysisProvenanceServiceBean();
-            JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
-            AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
-            list.setAnalysisProvenanceDtos(service.list());
-            return XmlTools.marshalToDocument(jaxbTool, list);
-        }
+	private static final CachedDocumentAutoUpdate CACHE = new CachedDocumentAutoUpdate() {
+		@Override
+		public Document calculateDocument() {
+			LOG.info("Updating analysis provenance");
+			AnalysisProvenanceService service = BeanFactory.getAnalysisProvenanceServiceBean();
+			JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
+			AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
+			list.setAnalysisProvenanceDtos(
+					service.list().stream().map(AnalysisProvenanceDto.class::cast).collect(Collectors.toList()));
+			return XmlTools.marshalToDocument(jaxbTool, list, AnalysisProvenanceDtoList.class);
+		}
 
-    };
+	};
 
-    @Get("xml")
-    public void getXml() {
-        Map<FileProvenanceFilter, Set<String>> filters = new HashMap<>();
-        for (Entry<String, String[]> e : BasicRestlet.queryMap(getRequest()).entrySet()) {
-            filters.put(FileProvenanceFilter.fromString(e.getKey()), Sets.newHashSet(e.getValue()));
-        }
-        buildResponse(filters);
-    }
+	@Get("xml")
+	public void getXml() {
+		Map<FileProvenanceFilter, Set<String>> filters = new HashMap<>();
+		for (Entry<String, String[]> e : BasicRestlet.queryMap(getRequest()).entrySet()) {
+			filters.put(FileProvenanceFilter.fromString(e.getKey()), Sets.newHashSet(e.getValue()));
+		}
+		buildResponse(filters);
+	}
 
-    @Post("json,xml")
-    public void postAndReturnXml(Representation entity) throws ResourceException {
-        try {
-            Map<FileProvenanceFilter, Set<String>> filters = MAPPER.readValue(entity.getText(),
-                    new TypeReference<Map<FileProvenanceFilter, Set<String>>>() {
-            });
-            buildResponse(filters);
-        } catch (IOException ex) {
-            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
-        }
-    }
+	@Post("json,xml")
+	public void postAndReturnXml(Representation entity) throws ResourceException {
+		try {
+			Map<FileProvenanceFilter, Set<String>> filters = MAPPER.readValue(entity.getText(),
+					new TypeReference<Map<FileProvenanceFilter, Set<String>>>() {
+					});
+			buildResponse(filters);
+		} catch (IOException ex) {
+			LOG.error("Failed to get analyis provenance", ex);
+			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
+		}
+	}
 
-    private void buildResponse(Map<FileProvenanceFilter, Set<String>> filters) {
-        AnalysisProvenanceService service = BeanFactory.getAnalysisProvenanceServiceBean();
-        if (Sets.intersection(filters.keySet(), service.getSupportedFilters()).isEmpty()) {
-            //no supported filters provided, return all records
-            CACHE.processRequest(getResponse());
-        } else {
-            JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
-            AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
-            list.setAnalysisProvenanceDtos(service.list(filters));
-            Representation rep = XmlTools.getRepresentation(XmlTools.marshalToDocument(jaxbTool, list));
-            getResponse().setEntity(rep);
-        }
-    }
+	private void buildResponse(Map<FileProvenanceFilter, Set<String>> filters) {
+		AnalysisProvenanceService service = BeanFactory.getAnalysisProvenanceServiceBean();
+		if (Sets.intersection(filters.keySet(), service.getSupportedFilters()).isEmpty()) {
+			// no supported filters provided, return all records
+			CACHE.processRequest(getResponse());
+		} else {
+			JaxbObject<AnalysisProvenanceDtoList> jaxbTool = new JaxbObject<>();
+			AnalysisProvenanceDtoList list = new AnalysisProvenanceDtoList();
+			list.setAnalysisProvenanceDtos(
+					service.list(filters).stream().map(AnalysisProvenanceDto.class::cast).collect(Collectors.toList()));
+			Representation rep = XmlTools
+					.getRepresentation(XmlTools.marshalToDocument(jaxbTool, list, AnalysisProvenanceDtoList.class));
+			getResponse().setEntity(rep);
+		}
+	}
 
 }

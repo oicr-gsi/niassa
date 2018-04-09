@@ -74,7 +74,7 @@ public class WorkflowRunResource extends DatabaseResource {
             WorkflowRun wr = (WorkflowRun) testIfNull(ss.findByID(parseClientInt(queryValues.get("id"))));
             WorkflowRun dto = copier.hibernate2dto(WorkflowRun.class, wr);
 
-            Document line = XmlTools.marshalToDocument(jaxbTool, dto);
+            Document line = XmlTools.marshalToDocument(jaxbTool, dto, WorkflowRun.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
         } else if (queryValues.get("email") != null) {
             // SEQWARE-1134
@@ -121,7 +121,7 @@ public class WorkflowRunResource extends DatabaseResource {
         JaxbObject<WorkflowRun> jo = new JaxbObject<>();
         try {
             String text = entity.getText();
-            p = (WorkflowRun) XmlTools.unMarshal(jo, new WorkflowRun(), text);
+            p = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
         } catch (IOException e) {
             e.printStackTrace();
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
@@ -144,7 +144,7 @@ public class WorkflowRunResource extends DatabaseResource {
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             WorkflowRun detachedWR = copier.hibernate2dto(WorkflowRun.class, wr);
 
-            Document line = XmlTools.marshalToDocument(jo, detachedWR);
+            Document line = XmlTools.marshalToDocument(jo, detachedWR, WorkflowRun.class);
             getResponse().setEntity(XmlTools.getRepresentation(line));
             getResponse().setLocationRef(getRequest().getRootRef() + "/workflowruns/" + detachedWR.getSwAccession());
             getResponse().setStatus(Status.SUCCESS_CREATED);
@@ -187,7 +187,7 @@ public class WorkflowRunResource extends DatabaseResource {
             list.add(dto);
         }
         eList.setList(list);
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, WorkflowRunList2.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
 }

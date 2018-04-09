@@ -8,7 +8,8 @@ import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class PlatformDAOHibernate extends HibernateDaoSupport implements PlatformDAO {
 
     /**
@@ -68,7 +70,7 @@ public class PlatformDAOHibernate extends HibernateDaoSupport implements Platfor
         try {
             BeanUtilsBean beanUtils = new NullBeanUtils();
             beanUtils.copyProperties(dbObject, platform);
-            return (Platform) this.getHibernateTemplate().merge(dbObject);
+            return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

@@ -5,6 +5,8 @@ import java.io.File;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.Collection;
+
+import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.Log;
 import org.junit.After;
 import org.junit.Assert;
@@ -47,16 +49,6 @@ public class RunnerTest {
         public void checkExit(int status) {
             super.checkExit(status);
             throw new ExitException(status);
-        }
-    }
-
-    class ExitException extends SecurityException {
-
-        public final int status;
-
-        public ExitException(int st) {
-            super("No exit");
-            status = st;
         }
     }
 
@@ -128,7 +120,7 @@ public class RunnerTest {
     @Test
     public void executeParameterizedTest() {
         try {
-            Runner.main(testArgs.split("\\s"));
+            new Runner().run(testArgs.split("\\s"));
         } catch (ExitException e) {
             Assert.assertEquals(e.status, expected);
         }

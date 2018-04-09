@@ -30,11 +30,13 @@ import net.sourceforge.seqware.common.dto.builders.SampleProvenanceDtoFromObject
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Sample;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author mlaszloffy
  */
+@Transactional(rollbackFor=Exception.class)
 public class SampleProvenanceServiceImpl implements SampleProvenanceService {
 
     private IUSDAO iusDAO;
@@ -73,7 +75,9 @@ public class SampleProvenanceServiceImpl implements SampleProvenanceService {
             sp.setParentSamples(parentSamples);
 
             SampleProvenanceDto dto = new SampleProvenanceDto();
-            BeanUtils.copyProperties(sp, dto);
+            BeanUtils.copyProperties(sp, dto, "createdDate", "lastModified");
+            dto.setCreatedDate(sp.getCreatedDate());
+            dto.setLastModified(sp.getLastModified());
 
             dtos.add(dto);
         }

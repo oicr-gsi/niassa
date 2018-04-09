@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent> 
-        <version>1.1.2-gsi</version> 
+        <version>2.0.1</version> 
         <groupId>com.github.seqware</groupId> 
         <artifactId>seqware</artifactId> 
         <relativePath>../pom.xml</relativePath> 
@@ -70,12 +70,10 @@
         <dependency>
             <groupId>org.restlet.jee</groupId>
             <artifactId>org.restlet</artifactId>
-            <version>2.2.2</version>
         </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <skipExtAdminTests>true</skipExtAdminTests>
     </properties>
     
     <build>
@@ -97,79 +95,92 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.glassfish.embedded</groupId>
-                <artifactId>maven-embedded-glassfish-plugin</artifactId>
-                <version>4.1.1</version>
-                <configuration>
-                    <autoDelete>true</autoDelete>
-                    <app>${project.parent.basedir}/seqware-admin-webservice/target/seqware-admin-webservice-${project.version}.war</app>
-                    <contextRoot>seqware-admin-webservice</contextRoot>
-                    <name>seqware-admin-webservice</name>
-                    <port>38080</port>
-                    <dbVendorName>postgresql</dbVendorName>
-                    <libraries>${project.parent.basedir}/seqware-admin-webservice/target/lib/postgresql-${postgresql.version}.jar</libraries>
-                    <goalPrefix>embedded-glassfish</goalPrefix>
-                    <skip>${skipExtAdminTests}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-glassfish</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>glassfish-deploy</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>glassfish-undeploy</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop-glassfish</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
-			
-                <configuration>
-                    <systemPropertyVariables>
-                        <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
-                    </systemPropertyVariables>
-                    <skip>${skipExtAdminTests}</skip>
-                </configuration>
-                        
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>embeddedGlassfish</id>
+            <activation>
+                <property>
+                    <name>embeddedGlassfish</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.glassfish.embedded</groupId>
+                        <artifactId>maven-embedded-glassfish-plugin</artifactId>
+                        <version>4.1.1</version>
+                        <configuration>
+                            <autoDelete>true</autoDelete>
+                            <app>${project.parent.basedir}/seqware-admin-webservice/target/seqware-admin-webservice-${project.version}.war</app>
+                            <contextRoot>seqware-admin-webservice</contextRoot>
+                            <name>seqware-admin-webservice</name>
+                            <port>38080</port>
+                            <dbVendorName>postgresql</dbVendorName>
+                            <libraries>${project.parent.basedir}/seqware-admin-webservice/target/lib/postgresql-${postgresql.version}.jar</libraries>
+                            <!-- <goalPrefix>embedded-glassfish</goalPrefix> -->
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-glassfish</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>glassfish-deploy</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>glassfish-undeploy</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-glassfish</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin> 
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
+			
+                        <configuration>
+                            <systemPropertyVariables>
+                                <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
+                            </systemPropertyVariables>
+                        </configuration>
+                        
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>                     
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -7,6 +7,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -40,6 +44,8 @@ public class Sample extends PermissionsAware implements Serializable, Comparable
     public static final String GEO_REACTION_ID_ATTR_TAG = "geo_reaction_id";
 
     private static final long serialVersionUID = 3681367228115990568L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sampleId;
     private Experiment experiment;
     private Registration owner;
@@ -749,6 +755,7 @@ public class Sample extends PermissionsAware implements Serializable, Comparable
      *
      * @return a {@link java.lang.Integer} object.
      */
+    @Override
     public Integer getSwAccession() {
         return swAccession;
     }

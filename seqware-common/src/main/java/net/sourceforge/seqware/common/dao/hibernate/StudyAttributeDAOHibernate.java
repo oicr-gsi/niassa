@@ -4,16 +4,18 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.StudyAttributeDAO;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
  * StudyAttributeDAOHibernate class.
  * </p>
- * 
+ *
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class StudyAttributeDAOHibernate extends HibernateDaoSupport implements StudyAttributeDAO {
 
     /** {@inheritDoc} */
@@ -40,7 +42,7 @@ public class StudyAttributeDAOHibernate extends HibernateDaoSupport implements S
     public List<StudyAttribute> findAll(Study study) {
         String query = "from StudyAttribute as sa where sa.study.studyId = ?";
         Object[] parameters = { study.getStudyId() };
-        return this.getHibernateTemplate().find(query, parameters);
+        return (List<StudyAttribute>) this.getHibernateTemplate().find(query, parameters);
     }
 
     /** {@inheritDoc} */

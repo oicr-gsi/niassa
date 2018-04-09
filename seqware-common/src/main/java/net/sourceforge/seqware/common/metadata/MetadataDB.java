@@ -1,9 +1,5 @@
 package net.sourceforge.seqware.common.metadata;
 
-import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
-import io.seqware.common.model.ProcessingStatus;
-import io.seqware.common.model.SequencerRunStatus;
-import io.seqware.common.model.WorkflowRunStatus;
 import java.io.Writer;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -13,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,8 +17,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+
 import javax.sql.DataSource;
-import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import io.seqware.common.model.ProcessingStatus;
+import io.seqware.common.model.SequencerRunStatus;
+import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.dto.LaneProvenanceDto;
 import net.sourceforge.seqware.common.dto.SampleProvenanceDto;
 import net.sourceforge.seqware.common.factory.DBAccess;
@@ -62,13 +72,6 @@ import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.Bool;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // FIXME: Have to record processing event (event), what the workflow it was, etc.
 // FIXME: Need to add workflow table, and then have each processing event associated with a workflowID for this particular run of the workflow
@@ -348,38 +351,41 @@ public class MetadataDB implements Metadata {
      * TODO: needs to support more relationship types, but will need to add to the SQL schema to support this
      */
     @Override
-    public boolean linkWorkflowRunAndParent(int workflowRunId, int parentAccession) throws SQLException {
-        StringBuilder sql = new StringBuilder();
-        if (findAccessionInTable("ius", "ius_id", parentAccession) != 0) {
+    public boolean linkWorkflowRunAndParent(int workflowRunId, int... parentAccessions) throws SQLException {
+        boolean success = true;
+        for(int parentAccession : parentAccessions) {
+            StringBuilder sql = new StringBuilder();
+            if (findAccessionInTable("ius", "ius_id", parentAccession) != 0) {
 
-            int parentId = findAccessionInTable("ius", "ius_id", parentAccession);
-            sql.append("INSERT INTO ius_workflow_runs (");
-            sql.append("ius_id, ");
-            sql.append("workflow_run_id ");
-            sql.append(") VALUES (");
-            sql.append(parentId).append(",");
-            sql.append(workflowRunId);
-            sql.append(")");
+                int parentId = findAccessionInTable("ius", "ius_id", parentAccession);
+                sql.append("INSERT INTO ius_workflow_runs (");
+                sql.append("ius_id, ");
+                sql.append("workflow_run_id ");
+                sql.append(") VALUES (");
+                sql.append(parentId).append(",");
+                sql.append(workflowRunId);
+                sql.append(")");
 
-            executeUpdate(sql.toString());
+                executeUpdate(sql.toString());
 
-        } else if (findAccessionInTable("lane", "lane_id", parentAccession) != 0) {
+            } else if (findAccessionInTable("lane", "lane_id", parentAccession) != 0) {
 
-            int parentId = findAccessionInTable("lane", "lane_id", parentAccession);
-            sql.append("INSERT INTO lane_workflow_runs (");
-            sql.append("lane_id, ");
-            sql.append("workflow_run_id ");
-            sql.append(") VALUES (");
-            sql.append(parentId).append(",");
-            sql.append(workflowRunId);
-            sql.append(")");
+                int parentId = findAccessionInTable("lane", "lane_id", parentAccession);
+                sql.append("INSERT INTO lane_workflow_runs (");
+                sql.append("lane_id, ");
+                sql.append("workflow_run_id ");
+                sql.append(") VALUES (");
+                sql.append(parentId).append(",");
+                sql.append(workflowRunId);
+                sql.append(")");
 
-            executeUpdate(sql.toString());
+                executeUpdate(sql.toString());
 
-        } else {
-            return (false);
+            } else {
+                success = false;
+            }
         }
-        return (true);
+        return success;
     }
 
     /**
@@ -768,14 +774,6 @@ public class MetadataDB implements Metadata {
      * {@inheritDoc}
      */
     @Override
-    public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void add_workflow_run_ancestor(int workflowRunAccession, int processingId) {
         int workflowRunId = 0;
         try {
@@ -925,7 +923,7 @@ public class MetadataDB implements Metadata {
     public ReturnValue update_processing_event(int processingID, ReturnValue retval) {
         // Create a SQL statement
         StringBuilder sql = new StringBuilder();
-        ArrayList params = new ArrayList();
+        ArrayList<Object> params = new ArrayList<>();
         try {
             // FIXME: Update a processing entry from ReturnValue
             sql.append("UPDATE processing SET ");
@@ -1390,17 +1388,17 @@ public class MetadataDB implements Metadata {
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance() {
+    public List<AnalysisProvenance> getAnalysisProvenance() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public List<AnalysisProvenanceDto> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public List<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Integer addLimsKey(String provider, String id, String version, DateTime lastModified) {
+    public Integer addLimsKey(String provider, String id, String version, ZonedDateTime lastModified) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1967,5 +1965,10 @@ public class MetadataDB implements Metadata {
     public List<Object> getViaAccessions(int[] accessions) {
         throw new NotImplementedException("This method is not supported through the direct MetaDB connection!");
     }
+
+  @Override
+  public WorkflowRun getWorkflowRunWithIuses(int workflowRunAccession) {
+    throw new NotImplementedException("Retrieving workflow runs must be performed through webservice");
+  }
 
 }

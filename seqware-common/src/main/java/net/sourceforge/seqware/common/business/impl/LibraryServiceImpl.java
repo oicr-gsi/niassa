@@ -8,6 +8,7 @@ import net.sourceforge.seqware.common.dao.LibraryDAO;
 import net.sourceforge.seqware.common.model.Sample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 /**
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class LibraryServiceImpl implements LibraryService {
 
     @Autowired

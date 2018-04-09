@@ -75,14 +75,14 @@ public class StudyTypeResource extends DatabaseResource {
         JaxbObject<StudyTypeList> jaxbTool = new JaxbObject<>();
 
         StudyTypeList list = new StudyTypeList();
-        list.setList(new ArrayList());
+        list.setList(new ArrayList<>());
 
         for (StudyType obj : objects) {
             StudyType dto = copier.hibernate2dto(StudyType.class, obj);
             list.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, list);
+        Document line = XmlTools.marshalToDocument(jaxbTool, list, StudyTypeList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

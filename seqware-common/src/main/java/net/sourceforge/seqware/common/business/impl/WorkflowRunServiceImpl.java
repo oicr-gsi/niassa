@@ -27,6 +27,7 @@ import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author boconnor
  * @version $Id: $Id
  */
+@Transactional(rollbackFor=Exception.class)
 public class WorkflowRunServiceImpl implements WorkflowRunService {
 
     private WorkflowRunDAO workflowRunDAO = null;

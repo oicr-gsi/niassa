@@ -77,14 +77,14 @@ public class ExperimentIDFilter extends BasicResource {
         JaxbObject<ExperimentList> jaxbTool = new JaxbObject<>();
 
         ExperimentList eList = new ExperimentList();
-        eList.setList(new ArrayList());
+        eList.setList(new ArrayList<>());
 
         for (Experiment experiment : experiments) {
             Experiment dto = copier.hibernate2dto(Experiment.class, experiment);
             eList.add(dto);
         }
 
-        Document line = XmlTools.marshalToDocument(jaxbTool, eList);
+        Document line = XmlTools.marshalToDocument(jaxbTool, eList, ExperimentList.class);
 
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }

@@ -16,33 +16,11 @@
  */
 package net.sourceforge.seqware.pipeline.plugins;
 
+import com.google.common.base.Joiner;
 import io.seqware.Engines;
+import io.seqware.util.XMLChar;
 import io.seqware.common.model.WorkflowRunStatus;
-import io.seqware.oozie.action.sge.JobStatus;
 import io.seqware.pipeline.SqwKeys;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringBufferInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -57,10 +35,38 @@ import net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object.OozieJob;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oozie.client.OozieClient;
+import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowAction;
 import org.apache.oozie.client.WorkflowJob;
-import org.apache.xerces.util.XMLChar;
 import org.openide.util.lookup.ServiceProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static io.seqware.common.model.WorkflowRunStatus.submitted_cancel;
 
 /**
  * This plugin lets you monitor the status of running workflows and updates the metadata object with their status.
@@ -72,6 +78,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class WorkflowStatusChecker extends Plugin {
     public static final String WORKFLOW_RUN_ACCESSION = "workflow-run-accession";
     private static final String METADATA_SYNC = "synch_for_metadata";
+    public static final String SEQWARE_SGE_NAME_ID_MAP = "SEQWARE_SGE_NAME_ID_MAP";
     // variables for use in the app
     private String hostname = null;
     private String username = null;
@@ -162,7 +169,7 @@ public class WorkflowStatusChecker extends Plugin {
         } else {
             runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.running));
             runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.pending));
-            runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.submitted_cancel));
+            runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(submitted_cancel));
             runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.submitted_retry));
             if (options.has("check-failed")) {
                 runningWorkflows.addAll(this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.failed));
@@ -247,7 +254,7 @@ public class WorkflowStatusChecker extends Plugin {
 
             // check that this workflow run matches the specified workflow if provided
             if (options.has("workflow-accession") && options.valueOf("workflow-accession") != null
-                    && !((String) options.valueOf("workflow-accession")).equals(wr.getWorkflowAccession().toString())) {
+                    && !options.valueOf("workflow-accession").equals(wr.getWorkflowAccession().toString())) {
                 return;
             }
 
@@ -256,7 +263,7 @@ public class WorkflowStatusChecker extends Plugin {
                 // check the host is either overridden or this is the same host the
                 // workflow was launched from
                 if (options.has("force-host") && options.valueOf("force-host") != null
-                        && !((String) options.valueOf("force-host")).equals(wr.getHost())) {
+                        && !options.valueOf("force-host").equals(wr.getHost())) {
                     return;
                 } else if (!options.has("force-host") && WorkflowStatusChecker.this.hostname != null
                         && !WorkflowStatusChecker.this.hostname.equals(wr.getHost())) {
@@ -293,100 +300,123 @@ public class WorkflowStatusChecker extends Plugin {
 
         private void checkOozie() {
             try {
-                OozieClient oc = new OozieClient((String) config.get(SqwKeys.OOZIE_URL.getSettingKey()));
+                OozieClient oc = new OozieClient(config.get(SqwKeys.OOZIE_URL.getSettingKey()));
                 String jobId = wr.getStatusCmd();
                 if (jobId == null) {
                     handlePreLaunch();
                     return;
                 }
 
-                WorkflowJob wfJob = oc.getJobInfo(jobId);
-                if (wfJob == null) {
-                    throw new IllegalStateException("No Oozie job found for WorkflowRun: swid=" + wr.getSwAccession() + " oozie-id="
-                            + jobId);
-                }
-
-                WorkflowRunStatus curSqwStatus = wr.getStatus();
+                WorkflowJob wfJob = null;
                 WorkflowRunStatus nextSqwStatus;
+                try {
+                    wfJob = oc.getJobInfo(jobId);
+                    if (wfJob == null) {
+                        throw new IllegalStateException("No Oozie job found for WorkflowRun: swid=" + wr.getSwAccession() + " oozie-id="
+                                + jobId);
+                    }
 
-                if (curSqwStatus == null) {
-                    nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
-                } else {
-                    switch (curSqwStatus) {
-                    case submitted_cancel: {
-                        switch (wfJob.getStatus()) {
-                        case PREP:
-                        case RUNNING:
-                        case SUSPENDED:
-                            // Note: here we treat SUSPENDED as running, so that it can be killed
-                            oc.kill(jobId);
-                            nextSqwStatus = WorkflowRunStatus.cancelled;
-                            break;
-                        default:
-                            // Let others propagate as normal
-                            nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
-                        }
-                        break;
-                    }
-                    case submitted_retry: {
-                        switch (wfJob.getStatus()) {
-                        case SUSPENDED:
-                            oc.resume(jobId);
-                            nextSqwStatus = WorkflowRunStatus.pending;
-                            break;
-                        case FAILED:
-                        case KILLED:
-                            Properties conf = getCurrentConf(wfJob);
-                            // here we need specify the precise nodes to skip since OozieClient.RERUN_FAIL_NODES is bugged due to
-                            // OOZIE-1879
-                            // conf.setProperty(OozieClient.RERUN_FAIL_NODES, "true");
-                            WorkflowJob jobInfo = oc.getJobInfo(jobId);
-                            StringBuilder nodesToSkip = new StringBuilder();
-                            for (WorkflowAction action : jobInfo.getActions()) {
-                                Log.debug("examining node: " + action.getName());
-                                if (JobStatus.SUCCESSFUL.name().equals(action.getExternalStatus())) {
-                                    if (nodesToSkip.length() != 0) {
-                                        nodesToSkip.append(",");
-                                    }
-                                    nodesToSkip.append(action.getName());
-                                }
-                            }
-                            Log.info("skipping nodes: " + nodesToSkip.toString());
-                            conf.setProperty(OozieClient.RERUN_SKIP_NODES, nodesToSkip.toString());
-                            oc.reRun(jobId, conf);
-                            nextSqwStatus = WorkflowRunStatus.pending;
-                            break;
-                        default:
-                            // Let others propagate as normal
-                            nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
-                        }
-                        break;
-                    }
-                    default:
+                    WorkflowRunStatus curSqwStatus = wr.getStatus();
+
+                    if (curSqwStatus == null) {
                         nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
+                    } else {
+                        switch (curSqwStatus) {
+                        case submitted_cancel: {
+                            switch (wfJob.getStatus()) {
+                            case PREP:
+                            case RUNNING:
+                            case SUSPENDED:
+                                // Note: here we treat SUSPENDED as running, so that it can be killed
+                                oc.kill(jobId);
+                                nextSqwStatus = WorkflowRunStatus.cancelled;
+                                break;
+                            default:
+                                // Let others propagate as normal
+                                nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
+                            }
+                            break;
+                        }
+                        case submitted_retry: {
+                            switch (wfJob.getStatus()) {
+                            case SUSPENDED:
+                                oc.resume(jobId);
+                                nextSqwStatus = WorkflowRunStatus.pending;
+                                break;
+                            case FAILED:
+                            case KILLED:
+                                Properties conf = getCurrentConf(wfJob);
+                                conf.setProperty(OozieClient.RERUN_FAIL_NODES, "true");
+                                // no longer needed due to upgrade past
+                                // here we need specify the precise nodes to skip since OozieClient.RERUN_FAIL_NODES is bugged due to
+                                // OOZIE-1879
+                                //                            WorkflowJob jobInfo = oc.getJobInfo(jobId);
+                                //                            StringBuilder nodesToSkip = new StringBuilder();
+                                //                            for (WorkflowAction action : jobInfo.getActions()) {
+                                //                                Log.debug("examining node: " + action.getName());
+                                //                                if (JobStatus.SUCCESSFUL.name().equals(action.getExternalStatus())) {
+                                //                                    if (nodesToSkip.length() != 0) {
+                                //                                        nodesToSkip.append(",");
+                                //                                    }
+                                //                                    nodesToSkip.append(action.getName());
+                                //                                }
+                                //                            }
+                                //                            Log.info("skipping nodes: " + nodesToSkip.toString());
+                                //                            conf.setProperty(OozieClient.RERUN_SKIP_NODES, nodesToSkip.toString());
+                                oc.reRun(jobId, conf);
+                                nextSqwStatus = WorkflowRunStatus.pending;
+                                break;
+                            default:
+                                // Let others propagate as normal
+                                nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
+                            }
+                            break;
+                        }
+                        default:
+                            nextSqwStatus = convertOozieToSeqware(wfJob.getStatus());
+                        }
                     }
+                } catch (OozieClientException e) {
+                    // properly set a failure if the oozie client cannot resume or retry
+                    nextSqwStatus = WorkflowRunStatus.failed;
                 }
+
 
                 String err;
                 String out;
+                LinkedHashMap<String, String> sgeMap = null;
+                String sgeMapString = null;
 
-                if (wr.getWorkflowEngine().equals("oozie-sge")) {
-                    Set<String> extIds = sgeIds(wfJob);
-                    out = extractStdOut(wr, extIds);
-                    err = extractStdErr(wr, extIds);
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    for (WorkflowAction action : wfJob.getActions()) {
-                        if (action.getErrorMessage() != null) {
-                            sb.append(MessageFormat.format("   Name: {0} Type: {1} ErrorMessage: {2}\n", action.getName(),
-                                    action.getType(), action.getErrorMessage()));
+                if (wfJob != null) {
+                    // populate map if possible
+                    sgeMap = sgeIdsMap(wfJob);
+                    sgeMapString = Joiner.on(',').join(sgeMap.entrySet());
+
+                    if (wr.getWorkflowEngine().equals("oozie-sge")) {
+                        Set<String> extIds = sgeIds(wfJob);
+                        out = extractStdOut(wr, extIds);
+                        err = extractStdErr(wr, extIds);
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        for (WorkflowAction action : wfJob.getActions()) {
+                            if (action.getErrorMessage() != null) {
+                                sb.append(MessageFormat
+                                        .format("   Name: {0} Type: {1} ErrorMessage: {2}\n", action.getName(), action.getType(), action.getErrorMessage()));
+                            }
                         }
+                        out = "";
+                        err = sb.toString();
                     }
+                } else{
                     out = "";
-                    err = sb.toString();
+                    err = "";
                 }
 
+
                 synchronized (METADATA_SYNC) {
+                    if (sgeMapString != null) {
+                        wr.setSgeNameIdMap(sgeMapString);
+                    }
                     wr.setStatus(nextSqwStatus);
                     wr.setStdErr(err);
                     wr.setStdOut(out);
@@ -532,7 +562,7 @@ public class WorkflowStatusChecker extends Plugin {
             sb.append(new Date(f.lastModified()));
             sb.append("\nContents Excerpt:\n");
             try {
-                sb.append(stripInvalidXmlCharacters(FileUtils.readFileToString(f)));
+                sb.append(stripInvalidXmlCharacters(FileUtils.readFileToString(f, StandardCharsets.UTF_8)));
             } catch (IOException ex) {
                 sb.append(" *** ERROR READING FILE: ");
                 sb.append(ex.getMessage());
@@ -550,6 +580,22 @@ public class WorkflowStatusChecker extends Plugin {
             sb.append("-----------------------------------------------------------------------\n\n");
         }
         return sb.toString();
+    }
+
+    private static LinkedHashMap<String, String> sgeIdsMap(WorkflowJob wf){
+        List<WorkflowAction> actions = wf.getActions();
+        final LinkedHashMap<String, String> extIds = new LinkedHashMap<>();
+        for (WorkflowAction a : actions) {
+            if (a == null) {
+                Log.fatal("Null action in Oozie provided list of actions in " + wf.toString());
+                continue;
+            }
+            if (a.getExternalId().equals("-")){
+                continue;
+            }
+            extIds.put(a.getName(), a.getExternalId());
+        }
+        return extIds;
     }
 
     private static Set<String> sgeIds(WorkflowJob wf) {

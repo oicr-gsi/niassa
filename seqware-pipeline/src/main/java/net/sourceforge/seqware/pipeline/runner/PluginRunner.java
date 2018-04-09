@@ -14,6 +14,7 @@ import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.module.ReturnValue;
+import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
@@ -361,24 +362,5 @@ public class PluginRunner {
 
     private void setupMetadata() {
         this.meta = MetadataFactory.get(config);
-    }
-
-    /**
-     * The exit code exception is used to communicate exit code values to methods that may wish to call the PluginRunner without running
-     * into System.exit calls
-     */
-    public static class ExitException extends RuntimeException {
-        private final int exitCode;
-
-        public ExitException(int exitCode) {
-            this.exitCode = exitCode;
-        }
-
-        /**
-         * @return the exitCode
-         */
-        public int getExitCode() {
-            return exitCode;
-        }
     }
 }
