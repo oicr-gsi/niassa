@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
@@ -28,8 +27,7 @@ public class WorkflowRunAttribute extends Attribute<WorkflowRun, WorkflowRunAttr
     private static final long serialVersionUID = 1L;
 
     @Id
-    @SequenceGenerator(name = "workflow_run_attribute_id_seq_gen", sequenceName = "workflow_run_attribute_id_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "workflow_run_attribute_id_seq_gen")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "workflow_run_attribute_id")
     private Integer workflowRunAttributeId;
 
