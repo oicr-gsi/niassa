@@ -1,12 +1,14 @@
 package net.sourceforge.seqware.pipeline.runner;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openide.util.Lookup;
+
 import joptsimple.NonOptionArgumentSpec;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -18,9 +20,9 @@ import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
+import net.sourceforge.seqware.pipeline.module.PluginMethod;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
-import org.openide.util.Lookup;
 
 /**
  * <p>
@@ -278,19 +280,19 @@ public class PluginRunner {
             Log.info("Invoking Plugin Methods:");
 
             // evaluate the plugin method parse_parameters
-            evaluateReturn(plugin, "parse_parameters");
+            evaluateReturn(plugin, PluginMethod.parse_parameters);
 
             // evaluate the plugin method init
-            evaluateReturn(plugin, "init");
+            evaluateReturn(plugin, PluginMethod.init);
 
             // evaluate the plugin method do_test
-            evaluateReturn(plugin, "do_test");
+            evaluateReturn(plugin, PluginMethod.do_test);
 
             // evaluate the plugin method do_run
-            evaluateReturn(plugin, "do_run");
+            evaluateReturn(plugin, PluginMethod.do_run);
 
             // evaluate the plugin method clean_up
-            evaluateReturn(plugin, "clean_up");
+            evaluateReturn(plugin, PluginMethod.clean_up);
 
         }
     }
@@ -301,15 +303,13 @@ public class PluginRunner {
      * @param app
      * @param methodName
      */
-    private void evaluateReturn(Plugin app, String methodName) {
+    private void evaluateReturn(Plugin app, PluginMethod methodName) {
 
-        Method method;
         ReturnValue newReturn = null;
 
         try {
             Log.debug("  Invoking Method: " + methodName);
-            method = app.getClass().getMethod(methodName);
-            newReturn = (ReturnValue) method.invoke(app);
+            newReturn = methodName.step(app);
 
         } catch (Exception e) {
             Log.stderr("Module caught exception during method: " + methodName + ":" + e.getMessage());

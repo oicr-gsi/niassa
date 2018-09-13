@@ -58,7 +58,7 @@ public class ProvisionDependenciesBundle extends Module {
      * @return a {@link joptsimple.OptionParser} object.
      */
     @Override
-    protected OptionParser getOptionParser() {
+	public OptionParser getOptionParser() {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(Arrays.asList("input-file", "i"), "Required: input file, multiple should be specified seperately")
                 .withRequiredArg().describedAs("input file path");

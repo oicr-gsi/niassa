@@ -38,7 +38,7 @@ public class S3UploadDirectory extends Module {
     protected OptionSet options = null;
 
     @Override
-    protected OptionParser getOptionParser() {
+	public OptionParser getOptionParser() {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(Arrays.asList("input-dir", "i"), "Required: the directory to copy recursively").withRequiredArg()
                 .describedAs("input dir path");
