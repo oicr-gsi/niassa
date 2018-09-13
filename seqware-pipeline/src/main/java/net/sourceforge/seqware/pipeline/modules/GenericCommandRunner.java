@@ -66,7 +66,7 @@ public class GenericCommandRunner extends Module {
      * @return OptionParser this is used to get command line options
      */
     @Override
-    protected OptionParser getOptionParser() {
+	public OptionParser getOptionParser() {
         OptionParser parser = new OptionParser();
 
         // FIXME: did I setup a boolean correctly!?!?

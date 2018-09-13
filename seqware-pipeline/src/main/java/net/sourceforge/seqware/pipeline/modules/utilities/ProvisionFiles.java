@@ -77,7 +77,8 @@ public class ProvisionFiles extends Module {
      *
      * @return a {@link joptsimple.OptionParser} object.
      */
-    @Override protected OptionParser getOptionParser() {
+    @Override
+	public OptionParser getOptionParser() {
         OptionParser parser = new OptionParser();
         this.annotationFileSpec = parser.accepts("annotation-file",
                 "Specify this option to create annotations on the processing event that is created describing this command. ")

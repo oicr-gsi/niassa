@@ -213,7 +213,7 @@ public abstract class Module implements ModuleInterface {
      * 
      * @return a {@link joptsimple.OptionParser} object.
      */
-    protected OptionParser getOptionParser() {
+    public OptionParser getOptionParser() {
         OptionParser parser = null;
         return (parser);
     }

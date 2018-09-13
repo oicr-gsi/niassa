@@ -56,7 +56,7 @@ public class S3CreateFileURLs extends Module {
      * @return a {@link joptsimple.OptionParser} object.
      */
     @Override
-    protected OptionParser getOptionParser() {
+	public OptionParser getOptionParser() {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(Arrays.asList("s3-url", "u"),
                 "A URL of the form s3://<bucket>/<path>/<file> or s3://<bucket> if using the --all-files option").withRequiredArg()
