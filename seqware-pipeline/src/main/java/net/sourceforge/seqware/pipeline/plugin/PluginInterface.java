@@ -3,6 +3,7 @@ package net.sourceforge.seqware.pipeline.plugin;
 import java.util.List;
 import java.util.Map;
 
+import joptsimple.OptionParser;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 
@@ -125,5 +126,7 @@ public interface PluginInterface {
      * @return Success or failure info from this phase, along with any console output.
      */
     public ReturnValue clean_up();
+    
+    public OptionParser parser();
 
 }

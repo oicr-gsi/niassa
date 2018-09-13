@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -278,7 +277,7 @@ public class Runner {
 	 * @param methodName
 	 *            a {@link java.lang.String} object.
 	 */
-	public void evaluateReturn(Module app, String methodName) {
+	public void evaluateReturn(Module app, ModuleMethod methodName) {
 
 		Log.debug("EvaluateReturn for " + methodName);
 		// If metaDB is defined, let's update status to methodName so we know what
@@ -287,16 +286,14 @@ public class Runner {
 			meta.update_processing_status(processingID, ProcessingStatus.running);
 		}
 
-		Method method;
 		ReturnValue newReturn = null;
 
 		try {
-			method = app.getClass().getMethod(methodName);
 			app.setProcessingAccession(this.processingAccession);
 			if (meta != null) {
 				app.setMetadata(meta);
 			}
-			newReturn = (ReturnValue) method.invoke(app);
+			newReturn = methodName.step(app);
 
 			// Fix filepaths if specified
 			if (options.has("metadata-output-file-prefix")) {
@@ -392,52 +389,53 @@ public class Runner {
 		int buffer = 2048;
 		File file = new File(zipFile);
 
-		ZipFile zip = new ZipFile(file);
+		try (ZipFile zip = new ZipFile(file)) {
 
-		String[] pkgNames = zipFile.substring(0, zipFile.length() - 4).split(File.separator);
-		String pkgName = pkgNames[pkgNames.length - 1];
-		// Log.info(pkgName);
-		String newPath = System.getProperty("user.dir").concat(File.separator).concat(pkgName);
+			String[] pkgNames = zipFile.substring(0, zipFile.length() - 4).split(File.separator);
+			String pkgName = pkgNames[pkgNames.length - 1];
+			// Log.info(pkgName);
+			String newPath = System.getProperty("user.dir").concat(File.separator).concat(pkgName);
 
-		Log.info(newPath);
+			Log.info(newPath);
 
-		new File(newPath).mkdir();
-		Enumeration zipFileEntries = zip.entries();
+			new File(newPath).mkdir();
+			Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
 
-		// Process each entry
-		while (zipFileEntries.hasMoreElements()) {
-			// grab a zip file entry
-			ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+			// Process each entry
+			while (zipFileEntries.hasMoreElements()) {
+				// grab a zip file entry
+				ZipEntry entry = zipFileEntries.nextElement();
 
-			String currentEntry = entry.getName();
+				String currentEntry = entry.getName();
 
-			File destFile = new File(newPath, currentEntry);
-			destFile = new File(newPath, destFile.getName());
-			File destinationParent = destFile.getParentFile();
+				File destFile = new File(newPath, currentEntry);
+				destFile = new File(newPath, destFile.getName());
+				File destinationParent = destFile.getParentFile();
 
-			// create the parent directory structure if needed
-			destinationParent.mkdirs();
-			if (!entry.isDirectory()) {
-				try (BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
-					int currentByte;
-					// establish buffer for writing file
-					byte data[] = new byte[buffer];
+				// create the parent directory structure if needed
+				destinationParent.mkdirs();
+				if (!entry.isDirectory()) {
+					try (BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
+						int currentByte;
+						// establish buffer for writing file
+						byte data[] = new byte[buffer];
 
-					// write the current file to disk
-					FileOutputStream fos = new FileOutputStream(destFile);
-					// read and write until last byte is encountered
-					try (BufferedOutputStream dest = new BufferedOutputStream(fos, buffer)) {
+						// write the current file to disk
+						FileOutputStream fos = new FileOutputStream(destFile);
 						// read and write until last byte is encountered
-						while ((currentByte = is.read(data, 0, buffer)) != -1) {
-							dest.write(data, 0, currentByte);
+						try (BufferedOutputStream dest = new BufferedOutputStream(fos, buffer)) {
+							// read and write until last byte is encountered
+							while ((currentByte = is.read(data, 0, buffer)) != -1) {
+								dest.write(data, 0, currentByte);
+							}
+							dest.flush();
 						}
-						dest.flush();
 					}
 				}
-			}
-			if (currentEntry.endsWith(".zip")) {
-				// found a zip file, try to open
-				unzipPkg(destFile.getAbsolutePath());
+				if (currentEntry.endsWith(".zip")) {
+					// found a zip file, try to open
+					unzipPkg(destFile.getAbsolutePath());
+				}
 			}
 		}
 	}
@@ -960,7 +958,7 @@ public class Runner {
 					throw new ExitException(ReturnValue.INVALIDFILE);
 				}
 			}
-			evaluateReturn(app, m.name());
+			evaluateReturn(app, m);
 			if ((m == outEnd) && (oldOut != null)) {
 				System.setOut(oldOut);
 			}

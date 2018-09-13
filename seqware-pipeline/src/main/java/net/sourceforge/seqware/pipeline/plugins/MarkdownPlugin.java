@@ -6,9 +6,6 @@ package net.sourceforge.seqware.pipeline.plugins;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +34,8 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 
 /**
  * <p>
- * This plugin outputs documentation for our plugins and modules in markdown format
+ * This plugin outputs documentation for our plugins and modules in markdown
+ * format
  * </p>
  * 
  * @author dyuen ProviderFor(PluginInterface.class)
@@ -46,360 +44,337 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 @ServiceProvider(service = PluginInterface.class)
 public class MarkdownPlugin extends Plugin {
 
-    /**
-     * <p>
-     * Constructor for HelloWorld.
-     * </p>
-     */
-    public MarkdownPlugin() {
-        super();
-        parser.acceptsAll(Arrays.asList("skip", "s"), "Optional: comma separated list of module/plugin names to skip").requiresArgument();
-        parser.acceptsAll(Arrays.asList("modules", "m"), "Optional: if provided will list out modules instead of plugins.");
-        parser.acceptsAll(Arrays.asList("help", "h", "?"), "Provides this help message.");
-    }
+	/**
+	 * <p>
+	 * Constructor for HelloWorld.
+	 * </p>
+	 */
+	public MarkdownPlugin() {
+		super();
+		parser.acceptsAll(Arrays.asList("skip", "s"), "Optional: comma separated list of module/plugin names to skip")
+				.requiresArgument();
+		parser.acceptsAll(Arrays.asList("modules", "m"),
+				"Optional: if provided will list out modules instead of plugins.");
+		parser.acceptsAll(Arrays.asList("help", "h", "?"), "Provides this help message.");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#setConfig(java.util.Map)
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @param config
-     */
-    @Override
-    public void setConfig(Map<String, String> config) {
-        /**
-         * explicitly no nothing
-         */
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.sourceforge.seqware.pipeline.plugin.PluginInterface#setConfig(java.util.
+	 * Map)
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param config
+	 */
+	@Override
+	public void setConfig(Map<String, String> config) {
+		/**
+		 * explicitly no nothing
+		 */
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#setParams(java.util.List)
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @param params
-     */
-    @Override
-    public void setParams(List<String> params) {
-        this.params = params.toArray(new String[params.size()]);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.sourceforge.seqware.pipeline.plugin.PluginInterface#setParams(java.util.
+	 * List)
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param params
+	 */
+	@Override
+	public void setParams(List<String> params) {
+		this.params = params.toArray(new String[params.size()]);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#setMetadata(net.sourceforge.seqware.pipeline.metadata.Metadata)
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @param metadata
-     */
-    @Override
-    public void setMetadata(Metadata metadata) {
-        // println("Setting Metadata: " + metadata);
-        this.metadata = metadata;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#setMetadata(net.
+	 * sourceforge.seqware.pipeline.metadata.Metadata)
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param metadata
+	 */
+	@Override
+	public void setMetadata(Metadata metadata) {
+		// println("Setting Metadata: " + metadata);
+		this.metadata = metadata;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#get_syntax()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public String get_syntax() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#get_syntax()
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public String get_syntax() {
 
-        try {
-            parser.printHelpOn(System.err);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Log.fatal(e);
-        }
-        return ("");
-    }
+		try {
+			parser.printHelpOn(System.err);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Log.fatal(e);
+		}
+		return ("");
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#init()
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public ReturnValue init() {
+		return new ReturnValue();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#init()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue init() {
-        return new ReturnValue();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#do_test()
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public ReturnValue do_test() {
+		return new ReturnValue();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#do_test()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue do_test() {
-        return new ReturnValue();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#do_run()
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public ReturnValue do_run() {
+		BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
+		Set<String> toSkip = new HashSet<>();
+		if (options.has("skip")) {
+			Object valueOf = options.valuesOf("skip");
+			String[] vals = valueOf.toString().split(",");
+			toSkip.addAll(Arrays.asList(vals));
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#do_run()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue do_run() {
-        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
-        Set<String> toSkip = new HashSet<>();
-        if (options.has("skip")) {
-            Object valueOf = options.valuesOf("skip");
-            String[] vals = valueOf.toString().split(",");
-            toSkip.addAll(Arrays.asList(vals));
-        }
+		if (options.has("modules")) {
+			Collection<ModuleInterface> mods;
+			mods = (Collection<ModuleInterface>) Lookup.getDefault().lookupAll(ModuleInterface.class);
+			List<ModuleInterface> modsList = new ArrayList<>();
+			modsList.addAll(mods);
+			Collections.sort(modsList, new ModuleComparator());
+			handlePlugins(bufferedWriter, modsList, toSkip);
+		} else {
+			Collection<PluginInterface> mods;
+			mods = (Collection<PluginInterface>) Lookup.getDefault().lookupAll(PluginInterface.class);
+			List<PluginInterface> modsList = new ArrayList<>();
+			modsList.addAll(mods);
+			Collections.sort(modsList, new PluginComparator());
+			handlePlugins(bufferedWriter, modsList, toSkip);
+		}
 
-        if (options.has("modules")) {
-            Collection<ModuleInterface> mods;
-            mods = (Collection<ModuleInterface>) Lookup.getDefault().lookupAll(ModuleInterface.class);
-            List<ModuleInterface> modsList = new ArrayList<>();
-            modsList.addAll(mods);
-            Collections.sort(modsList, new ModuleComparator());
-            handlePlugins(bufferedWriter, modsList, toSkip);
-        } else {
-            Collection<PluginInterface> mods;
-            mods = (Collection<PluginInterface>) Lookup.getDefault().lookupAll(PluginInterface.class);
-            List<PluginInterface> modsList = new ArrayList<>();
-            modsList.addAll(mods);
-            Collections.sort(modsList, new PluginComparator());
-            handlePlugins(bufferedWriter, modsList, toSkip);
-        }
+		return new ReturnValue();
+	}
 
-        return new ReturnValue();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#clean_up()
+	 */
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return
+	 */
+	@Override
+	public ReturnValue clean_up() {
+		return new ReturnValue();
+	}
 
-    private static Field getField(Class clazz, String fieldName) throws NoSuchFieldException {
-        try {
-            return clazz.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            Class superClass = clazz.getSuperclass();
-            if (superClass == null) {
-                throw e;
-            } else {
-                return getField(superClass, fieldName);
-            }
-        }
-    }
+	/**
+	 * <p>
+	 * get_description.
+	 * </p>
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
+	@Override
+	public String get_description() {
+		return ("A plugin that generates markdown documentation for all plugins.");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see net.sourceforge.seqware.pipeline.plugin.PluginInterface#clean_up()
-     */
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     */
-    @Override
-    public ReturnValue clean_up() {
-        return new ReturnValue();
-    }
+	private void handlePlugins(BufferedWriter bufferedWriter, List<? extends Object> plugs, Set<String> skip) {
+		writePageHeader(bufferedWriter, plugs);
 
-    /**
-     * <p>
-     * get_description.
-     * </p>
-     * 
-     * @return a {@link java.lang.String} object.
-     */
-    @Override
-    public String get_description() {
-        return ("A plugin that generates markdown documentation for all plugins.");
-    }
+		for (Object plug : plugs) {
+			try {
+				bufferedWriter.newLine();
+				if (plug instanceof PluginInterface) {
+					writePluginDescription(bufferedWriter, (PluginInterface) plug, skip);
+				} else if (plug instanceof Module) {
+					writeModuleDescription((Module) plug, bufferedWriter);
+				}
+			} catch (IOException ex) {
+				Log.fatal(ex, ex);
+			}
 
-    private void handlePlugins(BufferedWriter bufferedWriter, List<? extends Object> plugs, Set<String> skip) {
-        writePageHeader(bufferedWriter, plugs);
+		}
+	}
 
-        for (Object plug : plugs) {
-            try {
-                bufferedWriter.newLine();
-                if (plug instanceof PluginInterface) {
-                    writePluginDescription(bufferedWriter, plug, skip);
-                } else if (plug instanceof Module) {
-                    writeModuleDescription(plug, bufferedWriter);
-                }
+	private void writePageHeader(BufferedWriter bufferedWriter, List<? extends Object> plugs) {
+		try {
+			bufferedWriter.append("---");
+			bufferedWriter.newLine();
+			bufferedWriter.append("");
+			bufferedWriter.newLine();
+			if (plugs.toArray()[0] instanceof PluginInterface) {
+				bufferedWriter.append("title:                 \"Plugins\"");
+			} else if (plugs.toArray()[0] instanceof Module) {
+				bufferedWriter.append("title:                 \"Modules\"");
+			} else {
+				bufferedWriter.append("title:                 \"Unknown\"");
+			}
+			bufferedWriter.newLine();
+			bufferedWriter.append("toc_includes_sections: true");
+			bufferedWriter.newLine();
+			bufferedWriter.append("markdown:              advanced");
+			bufferedWriter.newLine();
+			bufferedWriter.append("");
+			bufferedWriter.newLine();
+			bufferedWriter.append("---");
+			bufferedWriter.newLine();
+		} catch (IOException ex) {
+			Log.fatal(ex, ex);
+		}
+	}
 
-            } catch (NoSuchFieldException | IllegalAccessException | IOException ex) {
-                Log.fatal(ex, ex);
-            }
+	private void writePluginDescription(BufferedWriter bufferedWriter, PluginInterface plug, Set<String> skip)
+			throws IOException {
+		// check for skipping
+		final String simpleName = plug.getClass().getSimpleName();
+		if (skip.contains(simpleName)) {
+			return;
+		}
 
-        }
-    }
+		bufferedWriter.newLine();
+		bufferedWriter.append("##  " + simpleName);
+		bufferedWriter.newLine();
+		bufferedWriter.append(plug.getClass().getPackage().getName() + "." + simpleName);
+		bufferedWriter.newLine();
+		bufferedWriter.append(((PluginInterface) plug).get_description());
+		bufferedWriter.newLine();
+		bufferedWriter.newLine();
+		OptionParser get = plug.parser();
+		get.formatHelpWith(new MarkDownFormatter());
+		get.printHelpOn(bufferedWriter);
+	}
 
-    private void writePageHeader(BufferedWriter bufferedWriter, List<? extends Object> plugs) {
-        try {
-            bufferedWriter.append("---");
-            bufferedWriter.newLine();
-            bufferedWriter.append("");
-            bufferedWriter.newLine();
-            if (plugs.toArray()[0] instanceof PluginInterface) {
-                bufferedWriter.append("title:                 \"Plugins\"");
-            } else if (plugs.toArray()[0] instanceof Module) {
-                bufferedWriter.append("title:                 \"Modules\"");
-            } else {
-                bufferedWriter.append("title:                 \"Unknown\"");
-            }
-            bufferedWriter.newLine();
-            bufferedWriter.append("toc_includes_sections: true");
-            bufferedWriter.newLine();
-            bufferedWriter.append("markdown:              advanced");
-            bufferedWriter.newLine();
-            bufferedWriter.append("");
-            bufferedWriter.newLine();
-            bufferedWriter.append("---");
-            bufferedWriter.newLine();
-        } catch (IOException ex) {
-            Log.fatal(ex, ex);
-        }
-    }
+	private void writeModuleDescription(Module plug, BufferedWriter bufferedWriter) throws IOException {
+		Module mod = (Module) plug;
+		bufferedWriter.newLine();
+		bufferedWriter.append("##  " + plug.getClass().getSimpleName());
+		bufferedWriter.newLine();
+		bufferedWriter.append(plug.getClass().getPackage().getName() + "." + plug.getClass().getSimpleName());
+		bufferedWriter.newLine();
+		String description = "";
+		try {
+			ReturnValue init = mod.init();
+			description = init.getDescription() == null ? "" : init.getDescription();
+		} catch (Exception e) {
+			Log.info("Could not print description for " + mod.getClass());
+		}
+		bufferedWriter.append(description);
 
-    private void writePluginDescription(BufferedWriter bufferedWriter, Object plug, Set<String> skip) throws IllegalAccessException,
-            SecurityException, IOException, IllegalArgumentException, NoSuchFieldException {
-        // check for skipping
-        final String simpleName = plug.getClass().getSimpleName();
-        if (skip.contains(simpleName)) {
-            return;
-        }
+		bufferedWriter.newLine();
+		bufferedWriter.newLine();
 
-        bufferedWriter.newLine();
-        bufferedWriter.append("##  " + simpleName);
-        bufferedWriter.newLine();
-        bufferedWriter.append(plug.getClass().getPackage().getName() + "." + simpleName);
-        bufferedWriter.newLine();
-        bufferedWriter.append(((PluginInterface) plug).get_description());
-        bufferedWriter.newLine();
-        bufferedWriter.newLine();
-        Class myClass = plug.getClass();
-        Field myField = getField(myClass, "parser");
-        // required if field is not normally accessible
-        myField.setAccessible(true);
-        OptionParser get = (OptionParser) myField.get(plug);
-        get.formatHelpWith(new MarkDownFormatter());
-        get.printHelpOn(bufferedWriter);
-    }
+		OptionParser get = plug.getOptionParser();
+		get.formatHelpWith(new MarkDownFormatter());
+		get.printHelpOn(bufferedWriter);
+	}
 
-    private void writeModuleDescription(Object plug, BufferedWriter bufferedWriter) throws SecurityException, IllegalAccessException,
-            IOException, IllegalArgumentException {
-        Module mod = (Module) plug;
-        bufferedWriter.newLine();
-        bufferedWriter.append("##  " + plug.getClass().getSimpleName());
-        bufferedWriter.newLine();
-        bufferedWriter.append(plug.getClass().getPackage().getName() + "." + plug.getClass().getSimpleName());
-        bufferedWriter.newLine();
-        String description = "";
-        try {
-            ReturnValue init = mod.init();
-            description = init.getDescription() == null ? "" : init.getDescription();
-        } catch (Exception e) {
-            Log.info("Could not print description for " + mod.getClass());
-        }
-        bufferedWriter.append(description);
+	public class MarkDownFormatter implements HelpFormatter {
 
-        bufferedWriter.newLine();
-        bufferedWriter.newLine();
+		@Override
+		public String format(Map<String, ? extends OptionDescriptor> options) {
+			if (options.isEmpty()) {
+				return "";
+			}
+			StringBuilder buffer = new StringBuilder();
+			buffer.append("| Command-line option | Description |\n");
+			buffer.append("|--------------------|--------------|\n");
+			// not sure why options are reported once per
+			Set<String> done = new HashSet<>();
+			for (Entry<String, ? extends OptionDescriptor> e : options.entrySet()) {
+				if (done.contains(e.getValue().description())) {
+					continue;
+				}
+				done.add(e.getValue().description());
 
-        Class myClass = plug.getClass();
-        try {
-            Method getOptionParserMethod = myClass.getDeclaredMethod("getOptionParser");
-            getOptionParserMethod.setAccessible(true);
-            Object invoke = getOptionParserMethod.invoke(plug, new Object[] {});
-            OptionParser get = (OptionParser) invoke;
-            get.formatHelpWith(new MarkDownFormatter());
-            get.printHelpOn(bufferedWriter);
-        } catch (InvocationTargetException ex) {
-            Log.info("Could not retrieve OptionParser for " + mod.getClass());
-        } catch (NoSuchMethodException ex) {
-            Log.info(ex, ex);
-        }
-    }
+				buffer.append("|");
+				for (String o : e.getValue().options()) {
+					buffer.append("--").append(o).append(", ");
+				}
+				buffer.deleteCharAt(buffer.length() - 1);
+				buffer.deleteCharAt(buffer.length() - 1);
+				buffer.append("|");
+				buffer.append(e.getValue().description());
+				buffer.append("|");
+				buffer.append("\n");
+			}
+			return buffer.toString();
+		}
+	}
 
-    public class MarkDownFormatter implements HelpFormatter {
+	public static void main(String[] args) {
+		MarkdownPlugin mp = new MarkdownPlugin();
+		mp.init();
+		List<String> arr = new ArrayList<>();
+		arr.add("-m");
+		mp.setParams(arr);
+		mp.parse_parameters();
+		mp.do_run();
+	}
 
-        @Override
-        public String format(Map<String, ? extends OptionDescriptor> options) {
-            if (options.isEmpty()) {
-                return "";
-            }
-            StringBuilder buffer = new StringBuilder();
-            buffer.append("| Command-line option | Description |\n");
-            buffer.append("|--------------------|--------------|\n");
-            // not sure why options are reported once per
-            Set<String> done = new HashSet<>();
-            for (Entry<String, ? extends OptionDescriptor> e : options.entrySet()) {
-                if (done.contains(e.getValue().description())) {
-                    continue;
-                }
-                done.add(e.getValue().description());
+	public class ModuleComparator implements Comparator<ModuleInterface> {
 
-                buffer.append("|");
-                for (String o : e.getValue().options()) {
-                    buffer.append("--").append(o).append(", ");
-                }
-                buffer.deleteCharAt(buffer.length() - 1);
-                buffer.deleteCharAt(buffer.length() - 1);
-                buffer.append("|");
-                buffer.append(e.getValue().description());
-                buffer.append("|");
-                buffer.append("\n");
-            }
-            return buffer.toString();
-        }
-    }
+		@Override
+		public int compare(ModuleInterface t, ModuleInterface t1) {
+			return (t.getClass().getSimpleName().compareTo(t1.getClass().getSimpleName()));
+		}
+	}
 
-    public static void main(String[] args) {
-        MarkdownPlugin mp = new MarkdownPlugin();
-        mp.init();
-        List<String> arr = new ArrayList<>();
-        arr.add("-m");
-        mp.setParams(arr);
-        mp.parse_parameters();
-        mp.do_run();
-    }
+	public class PluginComparator implements Comparator<PluginInterface> {
 
-    public class ModuleComparator implements Comparator<ModuleInterface> {
-
-        @Override
-        public int compare(ModuleInterface t, ModuleInterface t1) {
-            return (t.getClass().getSimpleName().compareTo(t1.getClass().getSimpleName()));
-        }
-    }
-
-    public class PluginComparator implements Comparator<PluginInterface> {
-
-        @Override
-        public int compare(PluginInterface t, PluginInterface t1) {
-            return (t.getClass().getSimpleName().compareTo(t1.getClass().getSimpleName()));
-        }
-    }
+		@Override
+		public int compare(PluginInterface t, PluginInterface t1) {
+			return (t.getClass().getSimpleName().compareTo(t1.getClass().getSimpleName()));
+		}
+	}
 }

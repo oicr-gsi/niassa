@@ -150,4 +150,9 @@ public abstract class Plugin implements PluginInterface {
 
     }
 
+	@Override
+	public OptionParser parser() {
+		return parser;
+	}
+
 }
