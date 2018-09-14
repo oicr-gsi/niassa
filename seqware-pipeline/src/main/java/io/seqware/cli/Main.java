@@ -7,11 +7,8 @@ import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.seqware.Engines;
-import io.seqware.Reports;
 import io.seqware.Studies;
 import io.seqware.WorkflowRuns;
 import io.seqware.common.model.WorkflowRunStatus;
@@ -47,8 +43,6 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.workflowtools.WorkflowInfo;
 import net.sourceforge.seqware.pipeline.bundle.Bundle;
 import net.sourceforge.seqware.pipeline.bundle.BundleInfo;
-import net.sourceforge.seqware.pipeline.plugins.fileprovenance.ProvenanceUtility;
-import net.sourceforge.seqware.pipeline.plugins.fileprovenance.ProvenanceUtility.HumanProvenanceFilters;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
 
 /*
@@ -1112,96 +1106,6 @@ public class Main {
 		}
 	}
 
-	private static void filesReport(List<String> args) {
-		if (isHelp(args, true)) {
-			out("");
-			out("Usage: seqware files report --help");
-			out("       seqware files report <params>");
-			out("");
-			out("Description:");
-			out("  A report of the provenance of output files.");
-			out("");
-			out("Optional parameters:");
-			out("  --out <file>                   The name of the output file");
-			for (HumanProvenanceFilters filter : ProvenanceUtility.HumanProvenanceFilters.values()) {
-				out("  --" + filter.human_str + " <value>            Limit files to the specified " + filter.desc
-						+ ". Can occur multiple times.");
-			}
-			out("");
-		} else {
-			Map<ProvenanceUtility.HumanProvenanceFilters, List<String>> map = new HashMap<>();
-			for (HumanProvenanceFilters filter : ProvenanceUtility.HumanProvenanceFilters.values()) {
-				List<String> optVals = optVals(args, "--" + filter.human_str);
-				map.put(filter, optVals);
-			}
-			String file = optVal(args, "--out", (new Date() + ".tsv").replace(" ", "_"));
-
-			extras(args, "files report");
-
-			List<String> runnerArgs = new ArrayList<>();
-			runnerArgs.add("--plugin");
-			runnerArgs.add("net.sourceforge.seqware.pipeline.plugins.fileprovenance.FileProvenanceReporter");
-			runnerArgs.add("--");
-
-			// check if all values in the map are empty
-			boolean allEmpty = true;
-			for (Entry<ProvenanceUtility.HumanProvenanceFilters, List<String>> e : map.entrySet()) {
-				if (!e.getValue().isEmpty()) {
-					allEmpty = false;
-				}
-			}
-
-			if (allEmpty) {
-				runnerArgs.add("--all");
-			} else {
-				for (Entry<ProvenanceUtility.HumanProvenanceFilters, List<String>> e : map.entrySet()) {
-					for (String val : e.getValue()) {
-						runnerArgs.add("--" + e.getKey().human_str);
-						runnerArgs.add(val);
-					}
-				}
-			}
-			if (file != null) {
-				runnerArgs.add("--out");
-				runnerArgs.add(file);
-			}
-
-			run(runnerArgs);
-			out("Created file " + file);
-		}
-	}
-
-	private static void files(List<String> args) {
-		if (isHelp(args, true)) {
-			out("");
-			out("Usage: seqware files --help");
-			out("       seqware files <sub-command> [--help]");
-			out("");
-			out("Description:");
-			out("  Extract information about workflow output files.");
-			out("");
-			out("Sub-commands:");
-			out("  report          A report of the provenance of output files");
-			out("  refresh         Refresh the static simplified provenance report table");
-			out("");
-		} else {
-			String cmd = args.remove(0);
-			if (null != cmd)
-				switch (cmd) {
-				case "report":
-					filesReport(args);
-					break;
-				case "refresh":
-					Log.stdoutWithTime("Triggered provenance report");
-					Reports.triggerProvenanceReport();
-					break;
-				default:
-					invalid("files", cmd);
-					break;
-				}
-		}
-	}
-
 	private static void studyList(List<String> args) {
 		if (isHelp(args, false)) {
 			out("");
@@ -2193,9 +2097,6 @@ public class Main {
 					break;
 				case "create":
 					create(args);
-					break;
-				case "files":
-					files(args);
 					break;
 				case "study":
 					study(args);

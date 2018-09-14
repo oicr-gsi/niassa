@@ -81,7 +81,6 @@ import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesignReadSpec;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
-import net.sourceforge.seqware.common.model.FileProvenanceParam;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.Lane;
@@ -1158,38 +1157,6 @@ public class MetadataWS implements Metadata {
 	public ReturnValue clean_up() {
 		ll.clean_up();
 		return new ReturnValue(ReturnValue.SUCCESS);
-	}
-
-	@Override
-	public void fileProvenanceReport(Map<FileProvenanceParam, List<String>> params, Writer out) {
-		ll.writeTo("/reports/file-provenance", params, out);
-	}
-
-	@Override
-	public void fileProvenanceReportTrigger() {
-		ll.getString("/reports/file-provenance/generate", new HashMap<>());
-	}
-
-	@Override
-	public List<Map<String, String>> fileProvenanceReport(Map<FileProvenanceParam, List<String>> params) {
-		String tsv = ll.getString("/reports/file-provenance", params);
-		List<Map<String, String>> list = new ArrayList<>();
-		if (tsv == null) {
-			return list;
-		}
-		String[] lines = tsv.split("\n");
-		if (lines.length > 1) {
-			String[] header = lines[0].split("\t");
-			for (int line = 1; line < lines.length; line++) {
-				Map<String, String> m = new HashMap<>();
-				String[] row = lines[line].split("\t");
-				for (int col = 0; col < row.length; col++) {
-					m.put(header[col], row[col]);
-				}
-				list.add(m);
-			}
-		}
-		return list;
 	}
 
 	/**
