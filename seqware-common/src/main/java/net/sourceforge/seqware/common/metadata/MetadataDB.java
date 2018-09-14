@@ -1,6 +1,5 @@
 package net.sourceforge.seqware.common.metadata;
 
-import java.io.Writer;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -41,7 +40,6 @@ import net.sourceforge.seqware.common.model.ExperimentLibraryDesign;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesignReadSpec;
 import net.sourceforge.seqware.common.model.FileAttribute;
-import net.sourceforge.seqware.common.model.FileProvenanceParam;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.Lane;
@@ -129,16 +127,6 @@ public class MetadataDB implements Metadata {
                     + bds.getRemoveAbandonedTimeout() + " Num-active: " + bds.getNumActive() + " Num-idle: " + bds.getNumIdle());
         }
         return ds.getConnection();
-    }
-
-    @Override
-    public void fileProvenanceReport(Map<FileProvenanceParam, List<String>> params, Writer out) {
-        throw new NotImplementedException("This is currently not implemented for a direct DB connection!");
-    }
-
-    @Override
-    public List<Map<String, String>> fileProvenanceReport(Map<FileProvenanceParam, List<String>> params) {
-        throw new NotImplementedException("This is currently not implemented for a direct DB connection!");
     }
 
     /**
@@ -1324,11 +1312,6 @@ public class MetadataDB implements Metadata {
 
     @Override
     public List<Study> getStudyByName(String name) {
-        throw new NotImplementedException("This method is not supported through the direct MetaDB connection!");
-    }
-
-    @Override
-    public void fileProvenanceReportTrigger() {
         throw new NotImplementedException("This method is not supported through the direct MetaDB connection!");
     }
 

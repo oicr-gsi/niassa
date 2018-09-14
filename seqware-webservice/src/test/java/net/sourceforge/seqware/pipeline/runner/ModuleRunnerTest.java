@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.seqware.Reports;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
@@ -46,7 +45,6 @@ public class ModuleRunnerTest extends ExtendedPluginTest {
 	@BeforeClass
 	public static void beforeClass() {
 		new BasicTestDatabaseCreator().resetDatabaseWithUsers();
-		Reports.triggerProvenanceReport();
 	}
 
 	@Before

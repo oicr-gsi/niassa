@@ -17,7 +17,6 @@
 
 package net.sourceforge.seqware.common.metadata;
 
-import java.io.Writer;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -58,7 +57,6 @@ import net.sourceforge.seqware.common.model.ExperimentSpotDesign;
 import net.sourceforge.seqware.common.model.ExperimentSpotDesignReadSpec;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.FileAttribute;
-import net.sourceforge.seqware.common.model.FileProvenanceParam;
 import net.sourceforge.seqware.common.model.FirstTierModel;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
@@ -754,21 +752,6 @@ public class MetadataInMemory implements Metadata {
 
     @Override
     public int getWorkflowAccession(String name, String version) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void fileProvenanceReportTrigger() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void fileProvenanceReport(Map<FileProvenanceParam, List<String>> params, Writer out) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public List<Map<String, String>> fileProvenanceReport(Map<FileProvenanceParam, List<String>> params) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
