@@ -1521,48 +1521,6 @@ public class Main {
 		}
 	}
 
-	private static void workflowRunDelete(List<String> args) {
-		if (isHelp(args, true)) {
-			out("");
-			out("Usage: seqware workflow-run delete --help");
-			out("       seqware workflow-run delete <params>");
-			out("");
-			out("Description:");
-			out("  Recursively delete workflow runs based on the SWID of an ancestral sequencer run, lane, or workflow run.");
-			out("");
-			out("Required parameters:");
-			out("  --accession <swid>  The SWID of the desired target");
-			out("");
-			out("Optional parameters:");
-			out("  --key <file>        Delete workflow runs given a key file containing records to be deleted in one transaction.");
-			out("  --out <file>        Override the filename for where to write a key file containing records.");
-			out("");
-		} else {
-			String swid = reqVal(args, "--accession");
-			String key = optVal(args, "--key", null);
-			String out = optVal(args, "--out", null);
-
-			extras(args, "workflow-run delete");
-
-			List<String> runnerArgs = new ArrayList<>();
-			runnerArgs.add("--plugin");
-			runnerArgs.add("net.sourceforge.seqware.pipeline.plugins.deletion.DeletionDB");
-			runnerArgs.add("--");
-			runnerArgs.add("--workflowrun");
-			runnerArgs.add(swid);
-			if (key != null) {
-				runnerArgs.add("--key");
-				runnerArgs.add(key);
-			}
-			if (out != null) {
-				runnerArgs.add("--out");
-				runnerArgs.add(out);
-			}
-
-			run(runnerArgs);
-		}
-	}
-
 	private static void workflow(List<String> args) {
 		if (isHelp(args, true)) {
 			out("");
@@ -1960,7 +1918,6 @@ public class Main {
 			out("  report              The details of a given workflow-run");
 			out("  watch               Watch a workflow-run in progress");
 			out("  ini                 Output the effective ini for a workflow run");
-			out("  delete              Recursively delete workflow-runs");
 			out("");
 		} else {
 			String cmd = args.remove(0);
@@ -1995,9 +1952,6 @@ public class Main {
 					break;
 				case "ini":
 					workflowRunIni(args);
-					break;
-				case "delete":
-					workflowRunDelete(args);
 					break;
 				default:
 					invalid("workflow-run", cmd);
