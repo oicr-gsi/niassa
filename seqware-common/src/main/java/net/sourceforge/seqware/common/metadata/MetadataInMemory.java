@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +79,6 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
@@ -700,17 +698,6 @@ public class MetadataInMemory implements Metadata {
         Log.stdout("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
         returnValue.setAttribute("sw_accession", String.valueOf(workflow.getSwAccession()));
         returnValue.setReturnValue(workflow.getSwAccession());
-
-        HashMap<String, Map<String, String>> hm = MetadataWS.convertIniToMap(configFile, provisionDir);
-        TreeSet<WorkflowParam> setOfDefaultParams = new TreeSet<>();
-        for (Entry<String, Map<String, String>> e : hm.entrySet()) {
-            WorkflowParam workflowParam = MetadataWS.convertMapToWorkflowParam(e.getValue(), workflow);
-            int nextSwAccession = getNextSwAccession();
-            workflowParam.setWorkflowParamId(nextSwAccession);
-            setOfDefaultParams.add(workflowParam);
-            MetadataInMemory.getStore().put(nextSwAccession, WorkflowParam.class, workflowParam);
-        }
-        workflow.setWorkflowParams(setOfDefaultParams);
         return returnValue;
     }
 
@@ -742,11 +729,6 @@ public class MetadataInMemory implements Metadata {
 
     @Override
     public String listInstalledWorkflows() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public String listInstalledWorkflowParams(String workflowAccession) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1009,12 +991,6 @@ public class MetadataInMemory implements Metadata {
     @Override
     public File getFile(int swAccession) {
         return (File) MetadataInMemory.getStore().get(swAccession, File.class);
-    }
-
-    @Override
-    public SortedSet<WorkflowParam> getWorkflowParams(String swAccession) {
-        Workflow workflow = (Workflow) MetadataInMemory.getStore().get(Integer.valueOf(swAccession), Workflow.class);
-        return workflow.getWorkflowParams();
     }
 
     @Override

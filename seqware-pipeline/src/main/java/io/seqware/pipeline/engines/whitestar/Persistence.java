@@ -16,19 +16,7 @@
  */
 package io.seqware.pipeline.engines.whitestar;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import net.sourceforge.seqware.common.metadata.Metadata;
-import net.sourceforge.seqware.common.metadata.MetadataFactory;
-import net.sourceforge.seqware.common.metadata.MetadataInMemory;
-import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
-import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import org.apache.commons.io.FileUtils;
+import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +25,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import org.apache.commons.io.FileUtils;
+
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import net.sourceforge.seqware.common.metadata.Metadata;
+import net.sourceforge.seqware.common.metadata.MetadataFactory;
+import net.sourceforge.seqware.common.metadata.MetadataInMemory;
+import net.sourceforge.seqware.common.model.Workflow;
+import net.sourceforge.seqware.common.model.WorkflowRun;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 
 /**
  * This is a KISS implementation of persistence for WhiteStar relying upon JSON text files in the working directory.
@@ -118,11 +119,6 @@ public class Persistence {
             Workflow workflow = workflowRun.getWorkflow();
             workflowRun.setWorkflow(null);
             workflow.setWorkflowRuns(null);
-            if (workflow.getWorkflowParams() != null) {
-                for (WorkflowParam param : workflow.getWorkflowParams()) {
-                    param.setWorkflow(null);
-                }
-            }
             // ugly, need to avoid circular reference before serialization
             FileUtils.write(new File(persistDir, WORKFLOW_RUN_FILENAME), gson.toJson(workflowRun),StandardCharsets.UTF_8);
             FileUtils.write(new File(persistDir, WORKFLOW_FILENAME), gson.toJson(workflow),StandardCharsets.UTF_8);
@@ -131,11 +127,6 @@ public class Persistence {
             SortedSet<WorkflowRun> set = new TreeSet<>();
             set.add(workflowRun);
             workflow.setWorkflowRuns(set);
-            if (workflow.getWorkflowParams() != null) {
-                for (WorkflowParam param : workflow.getWorkflowParams()) {
-                    param.setWorkflow(workflow);
-                }
-            }
         } catch (IOException ex) {
             Log.stdoutWithTime("Unable to write workflowrun state");
             rethrow(ex);
