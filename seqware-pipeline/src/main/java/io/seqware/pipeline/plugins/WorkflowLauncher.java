@@ -7,6 +7,8 @@ import io.seqware.pipeline.api.WorkflowTools;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -43,6 +45,8 @@ public class WorkflowLauncher extends Plugin {
     private final ArgumentAcceptingOptionSpec<String> launchScheduledSpec;
     private final ArgumentAcceptingOptionSpec<String> forceHostSpec;
     private final OptionSpecBuilder noRunSpec;
+    
+    private Optional<RunLock> lock = Optional.empty();
 
     public WorkflowLauncher() {
         super();
@@ -88,7 +92,7 @@ public class WorkflowLauncher extends Plugin {
 
     @Override
     public ReturnValue clean_up() {
-        RunLock.release();
+        lock.ifPresent(RunLock::release);
         return new ReturnValue();
     }
 
@@ -99,7 +103,7 @@ public class WorkflowLauncher extends Plugin {
 
     @Override
     public ReturnValue do_run() {
-        RunLock.acquire();
+        lock = Optional.of(new RunLock(hostname));
         launchScheduledWorkflows();
         return new ReturnValue();
 
