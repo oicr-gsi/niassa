@@ -38,7 +38,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  *
  * @author dyuen
  */
-@PrepareForTest({ FileTools.class, WorkflowLauncher.class, RunLock.class })
+@PrepareForTest({ FileTools.class, WorkflowLauncher.class })
 @RunWith(PowerMockRunner.class)
 public class WorkflowLauncherTest {
 
@@ -55,7 +55,6 @@ public class WorkflowLauncherTest {
         workflowLauncher = new WorkflowLauncher(); // this is kind of hacky
         // apparantly testNG retains the state of mocks and statuschecker from test to test, so we need to rebuild everything
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(RunLock.class);
     }
 
     @Test
