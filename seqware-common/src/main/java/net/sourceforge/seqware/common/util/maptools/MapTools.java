@@ -2,6 +2,7 @@ package net.sourceforge.seqware.common.util.maptools;
 
 import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -305,26 +307,14 @@ public class MapTools {
 	 * @return a {@link java.util.Map} object.
 	 */
 	public static Map<String, String> iniString2Map(String iniString) {
-		Map<String, String> result = new HashMap<>();
-		String[] lines = iniString.split("\n");
-		for (String line : lines) {
-			if (isLineMatchesKeyValue(line)) {
-				// seqware-1911 allow for second = in value
-				String[] kv = line.split("\\s*=\\s*", 2);
-				if (kv.length == 2) {
-					result.put(kv[0], kv[1]);
-				} else if (kv.length == 1) {
-					result.put(kv[0], "");
-				} else {
-					System.err.println("Found a line I couldn't parse: " + line);
-				}
-			}
+		try {
+			Properties p = new Properties();
+			p.load(new ByteArrayInputStream(iniString.getBytes()));
+			return p.entrySet().stream()//
+					.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+		} catch (IOException e1) {
+			throw rethrow(e1);
 		}
-		return (result);
-	}
-
-	private static boolean isLineMatchesKeyValue(String line) {
-		return !line.startsWith("#") && line.matches("\\S+\\s*=[^=]*");
 	}
 
 	/**

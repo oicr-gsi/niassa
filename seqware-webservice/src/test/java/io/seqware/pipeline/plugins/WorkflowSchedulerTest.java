@@ -16,24 +16,22 @@
  */
 package io.seqware.pipeline.plugins;
 
-import io.seqware.Engines;
-import io.seqware.common.model.WorkflowRunStatus;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.dbutils.handlers.ArrayListHandler;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.seqware.Engines;
+import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.maptools.ReservedIniKeys;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.ExtendedPluginTest;
-import org.apache.commons.dbutils.handlers.ArrayListHandler;
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Runs the tests for the FileLinker
@@ -164,107 +162,6 @@ public class WorkflowSchedulerTest extends ExtendedPluginTest {
         WorkflowRun workflowRun = metadata.getWorkflowRun(Integer.valueOf(firstWorkflowRun));
         Assert.assertTrue("input file links incorrect", workflowRun.getInputFileAccessions().contains(835)
                 && workflowRun.getInputFileAccessions().contains(838));
-    }
-
-    @Test
-    public void testDefaultIniFromBundle() {
-        launchPlugin("--workflow-accession", "2861", "--host", FileTools.getLocalhost(null).hostname);
-
-        String s = getOut();
-        String firstWorkflowRun = getAndCheckSwid(s);
-
-        List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
-                "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
-                Integer.valueOf(firstWorkflowRun));
-        Assert.assertTrue("schedule workflow is incorrect " + runQuery.get(0)[0].toString() + " " + runQuery.get(0)[1].toString(),
-                runQuery.get(0)[0].equals(WorkflowRunStatus.submitted.toString()) && runQuery.get(0)[1].equals(16));
-        WorkflowRun workflowRun = metadata.getWorkflowRun(Integer.valueOf(firstWorkflowRun));
-        // check that default keys are present
-        Map<String, String> baseMap = MapTools.iniString2Map(workflowRun.getIniFile());
-        Assert.assertTrue("base map is missing variables",
-                baseMap.containsKey("min_qual_score") && baseMap.containsKey("inputs_read_1") && baseMap.containsKey("inputs_read_2")
-                        && baseMap.containsKey("cat") && baseMap.containsKey("output_prefix") && baseMap.containsKey("output_dir")
-                        && baseMap.containsKey("min_percent_bases"));
-        Assert.assertTrue("base map has incorrect values", baseMap.get("min_qual_score").equals("20") && baseMap.get("cat").equals("zcat")
-                && baseMap.get("min_percent_bases").equals("90"));
-    }
-
-    @Test
-    public void testLeftToRightOverrideByIniFiles() throws IOException {
-        String[] iniFileContents1 = { "min_qual_score=30", "min_percent_bases=90", "cat=dog" };
-        String[] iniFileContents2 = { "min_qual_score=40", "min_percent_bases=100" };
-        String[] iniFileContents3 = { "min_qual_score=50" };
-        File ini1 = File.createTempFile("ini", "ini");
-        File ini2 = File.createTempFile("ini", "ini");
-        File ini3 = File.createTempFile("ini", "ini");
-        ini1.deleteOnExit();
-        ini2.deleteOnExit();
-        ini3.deleteOnExit();
-        FileUtils.writeLines(ini1, Arrays.asList(iniFileContents1));
-        FileUtils.writeLines(ini2, Arrays.asList(iniFileContents2));
-        FileUtils.writeLines(ini3, Arrays.asList(iniFileContents3));
-
-        launchPlugin("--workflow-accession", "2861", "--host", FileTools.getLocalhost(null).hostname, "--ini-files", ini1.getAbsolutePath()
-                + "," + ini2.getAbsolutePath() + "," + ini3.getAbsolutePath());
-
-        String s = getOut();
-        String firstWorkflowRun = getAndCheckSwid(s);
-
-        List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
-                "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
-                Integer.valueOf(firstWorkflowRun));
-        Assert.assertTrue("schedule workflow is incorrect " + runQuery.get(0)[0].toString() + " " + runQuery.get(0)[1].toString(),
-                runQuery.get(0)[0].equals(WorkflowRunStatus.submitted.toString()) && runQuery.get(0)[1].equals(16));
-        WorkflowRun workflowRun = metadata.getWorkflowRun(Integer.valueOf(firstWorkflowRun));
-        // check that default keys are present
-        Map<String, String> baseMap = MapTools.iniString2Map(workflowRun.getIniFile());
-        Assert.assertTrue("overridden map is missing variables",
-                baseMap.containsKey("min_qual_score") && baseMap.containsKey("inputs_read_1") && baseMap.containsKey("inputs_read_2")
-                        && baseMap.containsKey("cat") && baseMap.containsKey("output_prefix") && baseMap.containsKey("output_dir")
-                        && baseMap.containsKey("min_percent_bases"));
-        Assert.assertTrue(
-                "overridden map has incorrect values",
-                baseMap.get("min_qual_score").equals("50") && baseMap.get("cat").equals("dog")
-                        && baseMap.get("min_percent_bases").equals("100") && baseMap.get("output_dir").equals("results"));
-    }
-
-    @Test
-    public void testLeftToRightOverrideByCLI() throws IOException {
-        String[] iniFileContents1 = { "min_qual_score=30", "min_percent_bases=90", "cat=dog" };
-        String[] iniFileContents2 = { "min_qual_score=40", "min_percent_bases=100" };
-        String[] iniFileContents3 = { "min_qual_score=50" };
-        File ini1 = File.createTempFile("ini", "ini");
-        File ini2 = File.createTempFile("ini", "ini");
-        File ini3 = File.createTempFile("ini", "ini");
-        ini1.deleteOnExit();
-        ini2.deleteOnExit();
-        ini3.deleteOnExit();
-        FileUtils.writeLines(ini1, Arrays.asList(iniFileContents1));
-        FileUtils.writeLines(ini2, Arrays.asList(iniFileContents2));
-        FileUtils.writeLines(ini3, Arrays.asList(iniFileContents3));
-
-        launchPlugin("--workflow-accession", "2861", "--host", FileTools.getLocalhost(null).hostname, "--ini-files", ini1.getAbsolutePath()
-                + "," + ini2.getAbsolutePath() + "," + ini3.getAbsolutePath(), "--", "--output_dir", "zebra", "--min_qual_score", "0");
-
-        String s = getOut();
-        String firstWorkflowRun = getAndCheckSwid(s);
-
-        List<Object[]> runQuery = dbCreator.runQuery(new ArrayListHandler(),
-                "select r.status, r.workflow_id, r.ini_file from workflow_run r\n" + "WHERE \n" + "r.sw_accession = ?\n" + "; ",
-                Integer.valueOf(firstWorkflowRun));
-        Assert.assertTrue("schedule workflow is incorrect " + runQuery.get(0)[0].toString() + " " + runQuery.get(0)[1].toString(),
-                runQuery.get(0)[0].equals(WorkflowRunStatus.submitted.toString()) && runQuery.get(0)[1].equals(16));
-        WorkflowRun workflowRun = metadata.getWorkflowRun(Integer.valueOf(firstWorkflowRun));
-        // check that default keys are present
-        Map<String, String> baseMap = MapTools.iniString2Map(workflowRun.getIniFile());
-        Assert.assertTrue("overridden map is missing variables",
-                baseMap.containsKey("min_qual_score") && baseMap.containsKey("inputs_read_1") && baseMap.containsKey("inputs_read_2")
-                        && baseMap.containsKey("cat") && baseMap.containsKey("output_prefix") && baseMap.containsKey("output_dir")
-                        && baseMap.containsKey("min_percent_bases"));
-        Assert.assertTrue(
-                "overridden map has incorrect values",
-                baseMap.get("min_qual_score").equals("0") && baseMap.get("cat").equals("dog")
-                        && baseMap.get("min_percent_bases").equals("100") && baseMap.get("output_dir").equals("zebra"));
     }
 
     @Test
