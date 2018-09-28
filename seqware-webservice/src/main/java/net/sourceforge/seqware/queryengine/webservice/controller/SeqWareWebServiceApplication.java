@@ -1,6 +1,26 @@
 package net.sourceforge.seqware.queryengine.webservice.controller;
 
+import org.restlet.Component;
+import org.restlet.Context;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.Restlet;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Method;
+import org.restlet.data.Protocol;
+import org.restlet.data.Reference;
+import org.restlet.data.Status;
+import org.restlet.ext.wadl.ApplicationInfo;
+import org.restlet.ext.wadl.DocumentationInfo;
+import org.restlet.ext.wadl.WadlApplication;
+import org.restlet.routing.Filter;
+import org.restlet.routing.Router;
+import org.restlet.security.ChallengeAuthenticator;
+
+import io.prometheus.client.hibernate.HibernateStatisticsCollector;
+import io.prometheus.client.hotspot.DefaultExports;
 import net.sf.beanlib.hibernate.UnEnhancer;
+import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.queryengine.webservice.security.SeqWareVerifier;
 import net.sourceforge.seqware.webservice.resources.SeqwareAccessionIDResource;
 import net.sourceforge.seqware.webservice.resources.SeqwareAccessionResource;
@@ -63,21 +83,6 @@ import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamValueRes
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunIDResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunResource;
-import org.restlet.Component;
-import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
-import org.restlet.data.Reference;
-import org.restlet.data.Status;
-import org.restlet.ext.wadl.ApplicationInfo;
-import org.restlet.ext.wadl.DocumentationInfo;
-import org.restlet.ext.wadl.WadlApplication;
-import org.restlet.routing.Router;
-import org.restlet.security.ChallengeAuthenticator;
 
 /**
  * <p>
@@ -88,267 +93,296 @@ import org.restlet.security.ChallengeAuthenticator;
  * @version $Id: $Id
  */
 public class SeqWareWebServiceApplication extends WadlApplication {
+	private static final LatencyHistogram REQUEST_TIME = new LatencyHistogram("niassa_request_time",
+			"Time to process a request in seconds.", "dispatcher");
+	
+	public static final ThreadLocal<String> PROMETHEUS_ENDPOINT = new ThreadLocal<>();
 
-    /**
-     * Creates a root Restlet that will receive all incoming calls.
-     *
-     * @return a {@link org.restlet.Restlet} object.
-     */
-    @Override
-    public synchronized Restlet createInboundRoot() {
-        final Component component = new Component();
-        component.getClients().add(Protocol.CLAP);
+	/**
+	 * Creates a root Restlet that will receive all incoming calls.
+	 *
+	 * @return a {@link org.restlet.Restlet} object.
+	 */
+	@Override
+	public synchronized Restlet createInboundRoot() {
+		DefaultExports.initialize();
+		new HibernateStatisticsCollector(BeanFactory.getSessionFactoryBean(), "spring").register();
 
-        ChallengeAuthenticator guard = getGuard();
+		final Component component = new Component();
+		component.getClients().add(Protocol.CLAP);
 
-        // String rootURL = "";
-        // if (EnvUtil.getProperty("urlhack") != null) { rootURL = EnvUtil.getProperty("urlhack"); }
+		ChallengeAuthenticator guard = getGuard();
 
-        // We don't want to use CGLIB since it is a huge memory hog
-        // see for more information: http://beanlib.svn.sourceforge.net/viewvc/beanlib/trunk/beanlib-doc/faq.html
-        UnEnhancer.setDefaultCheckCGLib(false);
+		// String rootURL = "";
+		// if (EnvUtil.getProperty("urlhack") != null) { rootURL =
+		// EnvUtil.getProperty("urlhack"); }
 
-        String version = "queryengine";
-        // if (EnvUtil.getProperty("version") != null) { rootURL = EnvUtil.getProperty("version"); }
+		// We don't want to use CGLIB since it is a huge memory hog
+		// see for more information:
+		// http://beanlib.svn.sourceforge.net/viewvc/beanlib/trunk/beanlib-doc/faq.html
+		UnEnhancer.setDefaultCheckCGLib(false);
 
-        // Create a router Restlet that routes each call to a
-        // new instance of HelloWorldResource.
-        Router router = new Router(getContext());
-        router.setDefaultMatchingQuery(false);
+		String version = "queryengine";
+		// if (EnvUtil.getProperty("version") != null) { rootURL =
+		// EnvUtil.getProperty("version"); }
 
-        router.setRoutingMode(Router.MODE_LAST_MATCH);
+		// Create a router Restlet that routes each call to a
+		// new instance of HelloWorldResource.
+		Router router = new Router(getContext());
+		router.setDefaultMatchingQuery(false);
 
-        // I don't know if this is needed anymore
-        getConnectorService().getClientProtocols().add(Protocol.FILE);
+		router.setRoutingMode(Router.MODE_LAST_MATCH);
 
-        Restlet slashRedirect = new OptionalSlashRedirect(getContext());
+		// I don't know if this is needed anymore
+		getConnectorService().getClientProtocols().add(Protocol.FILE);
 
-        router.attachDefault(EnvironmentResource.class);
-        /*
-         * New version of webservices
-         */
-        router.attach("/SWA/", SeqwareAccessionResource.class);
-        router.attach("/SWA/{SWA}", SeqwareAccessionIDResource.class);
+		Restlet slashRedirect = new OptionalSlashRedirect(getContext());
 
-        router.attach("/experiments", ExperimentResource.class);
-        router.attach("/experiments/", slashRedirect);
-        router.attach("/experiments/{experimentId}", ExperimentIDResource.class);
-        router.attach("/experiments/{experimentId}/samples", SampleIDFilter.class);
-        // router.attach("/experiments/{ID}/processes", Resource.class);
-        // router.attach("/experiments/{ID}/processes/{ID}", Resource.class);
-        //
+		router.attachDefault(EnvironmentResource.class);
 
-        // TODO: make sure sequencer run, lane, and IUS have post methods!
+		/*
+		 * New version of webservices
+		 */
+		router.attach("/SWA/", SeqwareAccessionResource.class);
+		router.attach("/SWA/{SWA}", SeqwareAccessionIDResource.class);
 
-        router.attach("/platforms", PlatformResource.class);
-        router.attach("/platforms/", slashRedirect);
-        router.attach("/studytypes", StudyTypeResource.class);
-        router.attach("/studytypes/", slashRedirect);
-        router.attach("/libraryselections", LibrarySelectionResource.class);
-        router.attach("/libraryselections/", slashRedirect);
-        router.attach("/librarysources", LibrarySourceResource.class);
-        router.attach("/librarysources/", slashRedirect);
-        router.attach("/librarystrategies", LibraryStrategyResource.class);
-        router.attach("/librarystrategies/", slashRedirect);
-        router.attach("/organisms", OrganismResource.class);
-        router.attach("/organisms/", slashRedirect);
-        router.attach("/experimentspotdesigns", ExperimentSpotDesignResource.class);
-        router.attach("/experimentspotdesigns/", slashRedirect);
-        router.attach("/experimentlibrarydesigns", ExperimentLibraryDesignResource.class);
-        router.attach("/experimentlibrarydesigns/", slashRedirect);
-        router.attach("/experimentspotdesignreadspecs", ExperimentSpotDesignReadSpecResource.class);
-        router.attach("/experimentspotdesignreadspecs/", slashRedirect);
+		router.attach("/experiments", ExperimentResource.class);
+		router.attach("/experiments/", slashRedirect);
+		router.attach("/experiments/{experimentId}", ExperimentIDResource.class);
+		router.attach("/experiments/{experimentId}/samples", SampleIDFilter.class);
+		// router.attach("/experiments/{ID}/processes", Resource.class);
+		// router.attach("/experiments/{ID}/processes/{ID}", Resource.class);
+		//
 
-        router.attach("/files", FileResource.class);
-        router.attach("/files/", slashRedirect);
-        router.attach("/files/{fileId}", FileIDResource.class);
+		// TODO: make sure sequencer run, lane, and IUS have post methods!
 
-        router.attach("/limskey", LimsKeyResource.class);
-        router.attach("/limskey/", slashRedirect);
-        router.attach("/limskey/{limsKeyId}", LimsKeyResource.class);
-        router.attach("/ius", IusResource.class);
-        router.attach("/ius/", slashRedirect);
-        router.attach("/ius/{iusId}", IusIDResource.class);
-        router.attach("/ius/{iusId}/lane", LaneIDFilter.class);
+		router.attach("/platforms", PlatformResource.class);
+		router.attach("/platforms/", slashRedirect);
+		router.attach("/studytypes", StudyTypeResource.class);
+		router.attach("/studytypes/", slashRedirect);
+		router.attach("/libraryselections", LibrarySelectionResource.class);
+		router.attach("/libraryselections/", slashRedirect);
+		router.attach("/librarysources", LibrarySourceResource.class);
+		router.attach("/librarysources/", slashRedirect);
+		router.attach("/librarystrategies", LibraryStrategyResource.class);
+		router.attach("/librarystrategies/", slashRedirect);
+		router.attach("/organisms", OrganismResource.class);
+		router.attach("/organisms/", slashRedirect);
+		router.attach("/experimentspotdesigns", ExperimentSpotDesignResource.class);
+		router.attach("/experimentspotdesigns/", slashRedirect);
+		router.attach("/experimentlibrarydesigns", ExperimentLibraryDesignResource.class);
+		router.attach("/experimentlibrarydesigns/", slashRedirect);
+		router.attach("/experimentspotdesignreadspecs", ExperimentSpotDesignReadSpecResource.class);
+		router.attach("/experimentspotdesignreadspecs/", slashRedirect);
 
-        router.attach("/ius/{iusId}/{object}", IusIDResource.class);
-        
-        router.attach("/lanes", LaneResource.class);
-        router.attach("/lanes/", slashRedirect);
-        router.attach("/lanes/{laneId}", LaneIDResource.class);
-        router.attach("/lanes/{laneId}/ius", IUSIDFilter.class);
+		router.attach("/files", FileResource.class);
+		router.attach("/files/", slashRedirect);
+		router.attach("/files/{fileId}", FileIDResource.class);
 
-        router.attach("/processes", ProcessResource.class);
-        router.attach("/processes/", slashRedirect);
-        router.attach("/processes/{processId}", ProcessIDResource.class);
-        router.attach("/processes/{processId}/parents", new ProcessIdProcessResource(getContext()));
-        // router.attach("/processes/{ID}/parents", Resource.class);
-        // router.attach("/processes/{ID}/parents/{ID}", Resource.class);
-        // router.attach("/processes/{ID}/children", Resource.class);
-        // router.attach("/processes/{ID}/children/{ID}", Resource.class);
-        //
-        router.attach("/samples", SampleResource.class);
-        router.attach("/samples/", slashRedirect);
-        router.attach("/samples/{sampleId}", SampleIDResource.class);
-        router.attach("/samples/{parentId}/children", SampleIDFilter.class);
-        router.attach("/samples/{childId}/parents", SampleIDFilter.class);
-        router.attach("/samples/{sampleId}/ius", IUSIDFilter.class);
-        router.attach("/samples/root", RootSampleResource.class);
-        router.attach("/samples/root/", slashRedirect);
-        // router.attach("/samples/{ID}/processes", Resource.class);
-        // router.attach("/samples/{ID}/processes/{ID}", Resource.class);
-        //
-        router.attach("/sequencerruns", SequencerRunResource.class);
-        router.attach("/sequencerruns/", slashRedirect);
-        router.attach("/sequencerruns/{sequencerRunId}", SequencerRunIDResource.class);
-        router.attach("/sequencerruns/{sequencerRunId}/lanes", LaneIDFilter.class);
-        // router.attach("/sequencer_runs/{ID}/lanes", Resource.class);
-        // router.attach("/sequencer_runs/{ID}/lanes/{ID}", Resource.class);
-        // router.attach("/sequencer_runs/{ID}/processes/", Resource.class);
-        // router.attach("/sequencer_runs/{ID}/processes/{ID}", Resource.class);
-        //
-        router.attach("/studies", StudyResource.class);
-        router.attach("/studies/", slashRedirect);
-        router.attach("/studies/{studyId}", StudyIDResource.class);
-        router.attach("/studies/{studyId}/experiments", ExperimentIDFilter.class);
+		router.attach("/limskey", LimsKeyResource.class);
+		router.attach("/limskey/", slashRedirect);
+		router.attach("/limskey/{limsKeyId}", LimsKeyResource.class);
+		router.attach("/ius", IusResource.class);
+		router.attach("/ius/", slashRedirect);
+		router.attach("/ius/{iusId}", IusIDResource.class);
+		router.attach("/ius/{iusId}/lane", LaneIDFilter.class);
 
-        //
-        router.attach("/workflowruns", WorkflowRunResource.class);
-        router.attach("/workflowruns/", slashRedirect);
-        router.attach("/workflowruns/{workflowRunId}", WorkflowRunIDResource.class);
-        router.attach("/workflowruns/{workflowRunId}/files", new WorkflowRunIdFilesResource(getContext()));
-        router.attach("/workflowruns/{workflowRunId}/processings", new WorkflowRunIDProcessingsResource(getContext()));
-        router.attach("/workflowruns/{workflowRunId}/workflow", new WorkflowRunIDWorkflowResource(getContext()));
+		router.attach("/ius/{iusId}/{object}", IusIDResource.class);
 
-        router.attach("/workflows", WorkflowResource.class);
-        router.attach("/workflows/", slashRedirect);
-        router.attach("/workflows/{workflowId}", WorkflowIDResource.class);
-        router.attach("/workflows/{workflowId}/runs", new RunWorkflowResource(getContext()));
-        router.attach("/workflows/{workflowId}/runs/", slashRedirect);
+		router.attach("/lanes", LaneResource.class);
+		router.attach("/lanes/", slashRedirect);
+		router.attach("/lanes/{laneId}", LaneIDResource.class);
+		router.attach("/lanes/{laneId}/ius", IUSIDFilter.class);
 
-        router.attach("/workflowparams", WorkflowParamResource.class);
-        router.attach("/workflowparams/", slashRedirect);
-        router.attach("/workflowparams/{workflowParamId}", WorkflowParamIDResource.class);
-        router.attach("/workflowparamvalues", WorkflowParamValueResource.class);
-        router.attach("/workflowparamvalues/", slashRedirect);
-        router.attach("/workflowparamvalues/{workflowParamValueId}", WorkflowParamValueIDResource.class);
+		router.attach("/processes", ProcessResource.class);
+		router.attach("/processes/", slashRedirect);
+		router.attach("/processes/{processId}", ProcessIDResource.class);
+		router.attach("/processes/{processId}/parents", new ProcessIdProcessResource(getContext()));
+		// router.attach("/processes/{ID}/parents", Resource.class);
+		// router.attach("/processes/{ID}/parents/{ID}", Resource.class);
+		// router.attach("/processes/{ID}/children", Resource.class);
+		// router.attach("/processes/{ID}/children/{ID}", Resource.class);
+		//
+		router.attach("/samples", SampleResource.class);
+		router.attach("/samples/", slashRedirect);
+		router.attach("/samples/{sampleId}", SampleIDResource.class);
+		router.attach("/samples/{parentId}/children", SampleIDFilter.class);
+		router.attach("/samples/{childId}/parents", SampleIDFilter.class);
+		router.attach("/samples/{sampleId}/ius", IUSIDFilter.class);
+		router.attach("/samples/root", RootSampleResource.class);
+		router.attach("/samples/root/", slashRedirect);
+		// router.attach("/samples/{ID}/processes", Resource.class);
+		// router.attach("/samples/{ID}/processes/{ID}", Resource.class);
+		//
+		router.attach("/sequencerruns", SequencerRunResource.class);
+		router.attach("/sequencerruns/", slashRedirect);
+		router.attach("/sequencerruns/{sequencerRunId}", SequencerRunIDResource.class);
+		router.attach("/sequencerruns/{sequencerRunId}/lanes", LaneIDFilter.class);
+		// router.attach("/sequencer_runs/{ID}/lanes", Resource.class);
+		// router.attach("/sequencer_runs/{ID}/lanes/{ID}", Resource.class);
+		// router.attach("/sequencer_runs/{ID}/processes/", Resource.class);
+		// router.attach("/sequencer_runs/{ID}/processes/{ID}", Resource.class);
+		//
+		router.attach("/studies", StudyResource.class);
+		router.attach("/studies/", slashRedirect);
+		router.attach("/studies/{studyId}", StudyIDResource.class);
+		router.attach("/studies/{studyId}/experiments", ExperimentIDFilter.class);
 
-        /*
-         * Reports
-         */
-        router.attach("/reports/file-provenance", new FileProvenanceResource(getContext()));
-        router.attach("/reports/file-provenance/generate", new TriggerFileProvenanceResource(getContext()));
+		//
+		router.attach("/workflowruns", WorkflowRunResource.class);
+		router.attach("/workflowruns/", slashRedirect);
+		router.attach("/workflowruns/{workflowRunId}", WorkflowRunIDResource.class);
+		router.attach("/workflowruns/{workflowRunId}/files", new WorkflowRunIdFilesResource(getContext()));
+		router.attach("/workflowruns/{workflowRunId}/processings", new WorkflowRunIDProcessingsResource(getContext()));
+		router.attach("/workflowruns/{workflowRunId}/workflow", new WorkflowRunIDWorkflowResource(getContext()));
 
-        router.attach("/reports/analysis-provenance", AnalysisProvenanceResource.class);
-        router.attach("/reports/sample-provenance", SampleProvenanceResource.class);
-        router.attach("/reports/sample-provenance/{operation}", SampleProvenanceResource.class);
-        router.attach("/reports/lane-provenance", LaneProvenanceResource.class);
-        router.attach("/reports/lane-provenance/{operation}", LaneProvenanceResource.class);
+		router.attach("/workflows", WorkflowResource.class);
+		router.attach("/workflows/", slashRedirect);
+		router.attach("/workflows/{workflowId}", WorkflowIDResource.class);
+		router.attach("/workflows/{workflowId}/runs", new RunWorkflowResource(getContext()));
+		router.attach("/workflows/{workflowId}/runs/", slashRedirect);
 
-        // the following collides with the non-variable paths.
-        // router.attach("/reports/studies/{studyId}", new CycleCheckResource(getContext()));
-        router.attach("/reports/workflows/{workflowId}", new WorkflowReportResource(getContext()));
+		router.attach("/workflowparams", WorkflowParamResource.class);
+		router.attach("/workflowparams/", slashRedirect);
+		router.attach("/workflowparams/{workflowParamId}", WorkflowParamIDResource.class);
+		router.attach("/workflowparamvalues", WorkflowParamValueResource.class);
+		router.attach("/workflowparamvalues/", slashRedirect);
+		router.attach("/workflowparamvalues/{workflowParamValueId}", WorkflowParamValueIDResource.class);
 
-        WorkflowRunReportResource wrrr = new WorkflowRunReportResource(getContext());
-        router.attach("/reports/workflowruns/{workflowRunId}", wrrr);
-        router.attach("/reports/workflowruns", wrrr);
-        router.attach("/reports/workflows/{workflowId}/runs", wrrr);
-        router.attach("/reports/workflowruns/", slashRedirect);
-        router.attach("/reports/workflows/{workflowId}/runs/", slashRedirect);
-        router.attach("/reports/workflowruns/{workflowRunId}/stderr", wrrr);
-        router.attach("/reports/workflowruns/{workflowRunId}/stdout", wrrr);
-        router.attach("/reports/workflowruns/{workflowRunId}/stderr/", slashRedirect);
-        router.attach("/reports/workflowruns/{workflowRunId}/stdout/", slashRedirect);
+		/*
+		 * Reports
+		 */
+		router.attach("/reports/file-provenance", new FileProvenanceResource(getContext()));
+		router.attach("/reports/file-provenance/generate", new TriggerFileProvenanceResource(getContext()));
 
-        // A report giving runtime info for workflows
-        router.attach("/reports/workflowruntimes", new WorkflowRuntimeResource(getContext()));
+		router.attach("/reports/analysis-provenance", AnalysisProvenanceResource.class);
+		router.attach("/reports/sample-provenance", SampleProvenanceResource.class);
+		router.attach("/reports/sample-provenance/{operation}", SampleProvenanceResource.class);
+		router.attach("/reports/lane-provenance", LaneProvenanceResource.class);
+		router.attach("/reports/lane-provenance/{operation}", LaneProvenanceResource.class);
 
-        // A report giving workflow runs that are relevant for a group of files
-        router.attach("/reports/fileworkflowruns", FileChildWorkflowRunsResource.class);
-        router.attach("/reports/fileworkflowruns/", slashRedirect);
-        router.attach("/reports/fileworkflowruns/limit", FileChildLimitedWorkflowRunsResource.class);
-        router.attach("/reports/fileworkflowruns/limit/", slashRedirect);
+		// the following collides with the non-variable paths.
+		// router.attach("/reports/studies/{studyId}", new
+		// CycleCheckResource(getContext()));
+		router.attach("/reports/workflows/{workflowId}", new WorkflowReportResource(getContext()));
 
-        // STATIC COMPONENTS
+		WorkflowRunReportResource wrrr = new WorkflowRunReportResource(getContext());
+		router.attach("/reports/workflowruns/{workflowRunId}", wrrr);
+		router.attach("/reports/workflowruns", wrrr);
+		router.attach("/reports/workflows/{workflowId}/runs", wrrr);
+		router.attach("/reports/workflowruns/", slashRedirect);
+		router.attach("/reports/workflows/{workflowId}/runs/", slashRedirect);
+		router.attach("/reports/workflowruns/{workflowRunId}/stderr", wrrr);
+		router.attach("/reports/workflowruns/{workflowRunId}/stdout", wrrr);
+		router.attach("/reports/workflowruns/{workflowRunId}/stderr/", slashRedirect);
+		router.attach("/reports/workflowruns/{workflowRunId}/stdout/", slashRedirect);
 
-        router.attach("/x/report/filelinkreport", FileLinkReportResource.class);
-        router.attach("/x/report/filelinkreport/{swas}", FileLinkReportResource.class);
-        router.attach("/x/report/reversehierarchy/{swa}", FileReverseHierarchyDisplayResource.class);
+		// A report giving runtime info for workflows
+		router.attach("/reports/workflowruntimes", new WorkflowRuntimeResource(getContext()));
 
-        // Directory directory = new Directory(getContext(), "war:///WEB-INF/html");
-        // router.attachDefault(directory);
-        // router.attach("/" + version + "/static", directory);
+		// A report giving workflow runs that are relevant for a group of files
+		router.attach("/reports/fileworkflowruns", FileChildWorkflowRunsResource.class);
+		router.attach("/reports/fileworkflowruns/", slashRedirect);
+		router.attach("/reports/fileworkflowruns/limit", FileChildLimitedWorkflowRunsResource.class);
+		router.attach("/reports/fileworkflowruns/limit/", slashRedirect);
 
-        router.attach("/processingstructure", new ProcessingStructureResource(getContext()));
-        router.attach("/sample/parents", new SampleHierarchyResource(getContext()));
-        guard.setNext(router);
-        return guard;
+		// STATIC COMPONENTS
 
-    }
+		router.attach("/x/report/filelinkreport", FileLinkReportResource.class);
+		router.attach("/x/report/filelinkreport/{swas}", FileLinkReportResource.class);
+		router.attach("/x/report/reversehierarchy/{swa}", FileReverseHierarchyDisplayResource.class);
 
-    private ChallengeAuthenticator getGuard() {
-        // FIXME: double slash is an artifact of the groove proxy server
-        // get the ROOT URL for various uses
-        // String rootURL = "";
-        // if (EnvUtil.getProperty("urlhack") != null) { rootURL = EnvUtil.getProperty("urlhack"); }
-        // Guard the restlet with BASIC authentication.
-        ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "SeqWare metadata Web service");
-        // Instantiates a Verifier of identifier/secret couples based on a
-        // simple Map.
-        SeqWareVerifier verifier = new SeqWareVerifier();
-        guard.setVerifier(verifier);
-        return guard;
-    }
+		// Directory directory = new Directory(getContext(), "war:///WEB-INF/html");
+		// router.attachDefault(directory);
+		// router.attach("/" + version + "/static", directory);
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public ApplicationInfo getApplicationInfo(Request request, Response response) {
-        ApplicationInfo result = super.getApplicationInfo(request, response);
+		router.attach("/processingstructure", new ProcessingStructureResource(getContext()));
+		router.attach("/sample/parents", new SampleHierarchyResource(getContext()));
+		guard.setNext(router);
+		Filter prometheusFilter = new Filter() {
 
-        DocumentationInfo docInfo = new DocumentationInfo("SeqWare Web Service Application");
-        docInfo.setTitle("First resource sample application.");
-        result.setDocumentation(docInfo);
+			@Override
+			protected int doHandle(Request request, Response response) {
+				long startTime = System.nanoTime();
+				PROMETHEUS_ENDPOINT.set("unknown");
+				try {
+					return super.doHandle(request, response);
+				} finally {
+					REQUEST_TIME.observe(startTime, PROMETHEUS_ENDPOINT.get());
+				}
+			}
 
-        return result;
-    }
+		};
+		prometheusFilter.setNext(guard);
+		return prometheusFilter;
 
-    /**
-     * http://restlet-discuss.1400322.n2.nabble.com/Proper-handling-of-at-the-end-of-the-requested-URI-td5819896.html
-     */
-    protected static class OptionalSlashRedirect extends Restlet {
+	}
 
-        public OptionalSlashRedirect(Context context) {
-            super(context);
-        }
+	private ChallengeAuthenticator getGuard() {
+		// FIXME: double slash is an artifact of the groove proxy server
+		// get the ROOT URL for various uses
+		// String rootURL = "";
+		// if (EnvUtil.getProperty("urlhack") != null) { rootURL =
+		// EnvUtil.getProperty("urlhack"); }
+		// Guard the restlet with BASIC authentication.
+		ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC,
+				"SeqWare metadata Web service");
+		// Instantiates a Verifier of identifier/secret couples based on a
+		// simple Map.
+		SeqWareVerifier verifier = new SeqWareVerifier();
+		guard.setVerifier(verifier);
+		return guard;
+	}
 
-        public OptionalSlashRedirect() {
-        }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @return
+	 */
+	@Override
+	public ApplicationInfo getApplicationInfo(Request request, Response response) {
+		ApplicationInfo result = super.getApplicationInfo(request, response);
 
-        @Override
-        public void handle(Request request, Response response) {
-            super.handle(request, response);
+		DocumentationInfo docInfo = new DocumentationInfo("SeqWare Web Service Application");
+		docInfo.setTitle("First resource sample application.");
+		result.setDocumentation(docInfo);
 
-            Method m = request.getMethod();
-            if (m.equals(Method.GET) || m.equals(Method.HEAD)) {
+		return result;
+	}
 
-                Reference ref = request.getOriginalRef().getTargetRef();
-                String path = ref.getPath();
-                if (path.endsWith("/")) {
-                    path = path.substring(0, path.length() - 1);
-                } else {
-                    path = path + "/";
-                }
-                ref.setPath(path);
+	/**
+	 * http://restlet-discuss.1400322.n2.nabble.com/Proper-handling-of-at-the-end-of-the-requested-URI-td5819896.html
+	 */
+	protected static class OptionalSlashRedirect extends Restlet {
 
-                response.redirectPermanent(ref);
+		public OptionalSlashRedirect(Context context) {
+			super(context);
+		}
 
-            } else {
-                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            }
-        }
-    }
+		public OptionalSlashRedirect() {
+		}
+
+		@Override
+		public void handle(Request request, Response response) {
+			super.handle(request, response);
+
+			Method m = request.getMethod();
+			if (m.equals(Method.GET) || m.equals(Method.HEAD)) {
+
+				Reference ref = request.getOriginalRef().getTargetRef();
+				String path = ref.getPath();
+				if (path.endsWith("/")) {
+					path = path.substring(0, path.length() - 1);
+				} else {
+					path = path + "/";
+				}
+				ref.setPath(path);
+
+				response.redirectPermanent(ref);
+
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			}
+		}
+	}
 }

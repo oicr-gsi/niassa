@@ -53,6 +53,19 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <!-- Prometheus monitoring servlet -->
+    <servlet>
+      <servlet-name>metrics</servlet-name>
+      <servlet-class>
+        io.prometheus.client.exporter.MetricsServlet
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>metrics</servlet-name>
+      <url-pattern>/metrics</url-pattern>
+    </servlet-mapping>
+   
     <!-- Catch all requests -->
     <servlet-mapping>  
         <servlet-name>RestletServlet</servlet-name>  
@@ -81,4 +94,4 @@
         </user-data-constraint>-->
     </security-constraint>
         
-</web-app>  
+</web-app>
