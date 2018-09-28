@@ -25,6 +25,8 @@ import java.util.Map;
 import net.sourceforge.seqware.common.business.RegistrationService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
+import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
+
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.wadl.WadlServerResource;
@@ -76,6 +78,7 @@ public class BasicResource extends WadlServerResource {
     @Override
     protected void doInit() throws ResourceException {
         super.doInit();
+    	SeqWareWebServiceApplication.PROMETHEUS_ENDPOINT.set(this.getClass().getName());
         Form form = getRequest().getResourceRef().getQueryAsForm();
         queryValues = form.getValuesMap();
         if (queryValues == null) {

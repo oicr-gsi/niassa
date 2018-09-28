@@ -170,6 +170,23 @@
 
     <dependencies>
         <dependency>
+           <groupId>io.prometheus</groupId>
+           <artifactId>simpleclient</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.prometheus</groupId>
+          <artifactId>simpleclient_hotspot</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.prometheus</groupId>
+          <artifactId>simpleclient_hibernate</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.prometheus</groupId>
+          <artifactId>simpleclient_servlet</artifactId>
+          <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.restlet.jee</groupId>
             <artifactId>org.restlet.ext.jackson</artifactId>
             <scope>runtime</scope>
