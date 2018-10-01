@@ -1,5 +1,21 @@
 package net.sourceforge.seqware.queryengine.webservice.controller;
 
+import org.restlet.Component;
+import org.restlet.Context;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.Restlet;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Method;
+import org.restlet.data.Protocol;
+import org.restlet.data.Reference;
+import org.restlet.data.Status;
+import org.restlet.ext.wadl.ApplicationInfo;
+import org.restlet.ext.wadl.DocumentationInfo;
+import org.restlet.ext.wadl.WadlApplication;
+import org.restlet.routing.Router;
+import org.restlet.security.ChallengeAuthenticator;
+
 import net.sf.beanlib.hibernate.UnEnhancer;
 import net.sourceforge.seqware.queryengine.webservice.security.SeqWareVerifier;
 import net.sourceforge.seqware.webservice.resources.SeqwareAccessionIDResource;
@@ -56,28 +72,9 @@ import net.sourceforge.seqware.webservice.resources.tables.StudyIDResource;
 import net.sourceforge.seqware.webservice.resources.tables.StudyResource;
 import net.sourceforge.seqware.webservice.resources.tables.StudyTypeResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamValueIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamValueResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunIDResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunResource;
-import org.restlet.Component;
-import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
-import org.restlet.data.Reference;
-import org.restlet.data.Status;
-import org.restlet.ext.wadl.ApplicationInfo;
-import org.restlet.ext.wadl.DocumentationInfo;
-import org.restlet.ext.wadl.WadlApplication;
-import org.restlet.routing.Router;
-import org.restlet.security.ChallengeAuthenticator;
 
 /**
  * <p>
@@ -225,13 +222,6 @@ public class SeqWareWebServiceApplication extends WadlApplication {
         router.attach("/workflows/{workflowId}", WorkflowIDResource.class);
         router.attach("/workflows/{workflowId}/runs", new RunWorkflowResource(getContext()));
         router.attach("/workflows/{workflowId}/runs/", slashRedirect);
-
-        router.attach("/workflowparams", WorkflowParamResource.class);
-        router.attach("/workflowparams/", slashRedirect);
-        router.attach("/workflowparams/{workflowParamId}", WorkflowParamIDResource.class);
-        router.attach("/workflowparamvalues", WorkflowParamValueResource.class);
-        router.attach("/workflowparamvalues/", slashRedirect);
-        router.attach("/workflowparamvalues/{workflowParamValueId}", WorkflowParamValueIDResource.class);
 
         /*
          * Reports

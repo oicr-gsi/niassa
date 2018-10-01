@@ -2,16 +2,16 @@ package net.sourceforge.seqware.common.business.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.SortedSet;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.dao.WorkflowDAO;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -137,12 +137,6 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Override
     public Workflow findByIDWithParams(Integer wfID) {
         Workflow workflow = findByID(wfID);
-        if (workflow != null) {
-            SortedSet<WorkflowParam> params = workflow.getWorkflowParams();
-            for (WorkflowParam param : params) {
-                param.getWorkflowParamId();
-            }
-        }
         return workflow;
     }
 

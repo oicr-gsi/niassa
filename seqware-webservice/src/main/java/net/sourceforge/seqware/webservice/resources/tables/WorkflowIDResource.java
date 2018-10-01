@@ -16,18 +16,8 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
-import net.sf.beanlib.CollectionPropertyName;
-import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
-import net.sourceforge.seqware.common.business.RegistrationService;
-import net.sourceforge.seqware.common.business.WorkflowService;
-import net.sourceforge.seqware.common.factory.BeanFactory;
-import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
+import java.io.IOException;
+
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -35,9 +25,17 @@ import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import net.sf.beanlib.CollectionPropertyName;
+import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
+import net.sourceforge.seqware.common.business.RegistrationService;
+import net.sourceforge.seqware.common.business.WorkflowService;
+import net.sourceforge.seqware.common.factory.BeanFactory;
+import net.sourceforge.seqware.common.model.Registration;
+import net.sourceforge.seqware.common.model.Workflow;
+import net.sourceforge.seqware.common.util.Log;
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
 
 /**
  * <p>
@@ -83,20 +81,6 @@ public class WorkflowIDResource extends DatabaseIDResource {
         CollectionPropertyName<Workflow>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(
                 Workflow.class, new String[] { "workflowAttributes" });
         Workflow dto = copier.hibernate2dto(Workflow.class, workflow, new Class<?>[] {}, createCollectionPropertyNames);
-
-        if (fields.contains("params")) {
-            SortedSet<WorkflowParam> wps = workflow.getWorkflowParams();
-            if (wps != null) {
-                SortedSet<WorkflowParam> copiedParams = new TreeSet<>();
-                for (WorkflowParam param : workflow.getWorkflowParams()) {
-                    copiedParams.add(copier.hibernate2dto(WorkflowParam.class, param));
-                }
-                dto.setWorkflowParams(copiedParams);
-            } else {
-                Log.info("Could not be found: workflow params");
-            }
-        }
-
         Document line = XmlTools.marshalToDocument(jaxbTool, dto, Workflow.class);
         getResponse().setEntity(XmlTools.getRepresentation(line));
     }
