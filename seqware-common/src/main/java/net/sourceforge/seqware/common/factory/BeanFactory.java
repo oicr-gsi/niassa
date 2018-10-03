@@ -1,17 +1,22 @@
 package net.sourceforge.seqware.common.factory;
 
+import org.hibernate.SessionFactory;
+
 import net.sourceforge.seqware.common.ContextImpl;
+import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
 import net.sourceforge.seqware.common.business.ExperimentLibraryDesignService;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignReadSpecService;
 import net.sourceforge.seqware.common.business.ExperimentSpotDesignService;
 import net.sourceforge.seqware.common.business.FileService;
 import net.sourceforge.seqware.common.business.IUSService;
+import net.sourceforge.seqware.common.business.LaneProvenanceService;
 import net.sourceforge.seqware.common.business.LaneService;
 import net.sourceforge.seqware.common.business.LibrarySelectionService;
 import net.sourceforge.seqware.common.business.LibraryService;
 import net.sourceforge.seqware.common.business.LibrarySourceService;
 import net.sourceforge.seqware.common.business.LibraryStrategyService;
+import net.sourceforge.seqware.common.business.LimsKeyService;
 import net.sourceforge.seqware.common.business.OrganismService;
 import net.sourceforge.seqware.common.business.PlatformService;
 import net.sourceforge.seqware.common.business.ProcessingExperimentsService;
@@ -23,21 +28,15 @@ import net.sourceforge.seqware.common.business.ProcessingSequencerRunsService;
 import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.business.ProcessingStudiesService;
 import net.sourceforge.seqware.common.business.RegistrationService;
+import net.sourceforge.seqware.common.business.SampleProvenanceService;
 import net.sourceforge.seqware.common.business.SampleReportService;
 import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.business.SequencerRunService;
 import net.sourceforge.seqware.common.business.StudyService;
 import net.sourceforge.seqware.common.business.StudyTypeService;
 import net.sourceforge.seqware.common.business.ValidationReportService;
-import net.sourceforge.seqware.common.business.WorkflowParamService;
-import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
-import org.hibernate.SessionFactory;
-import net.sourceforge.seqware.common.business.AnalysisProvenanceService;
-import net.sourceforge.seqware.common.business.LaneProvenanceService;
-import net.sourceforge.seqware.common.business.LimsKeyService;
-import net.sourceforge.seqware.common.business.SampleProvenanceService;
 
 /**
  * <p>
@@ -259,30 +258,6 @@ public abstract class BeanFactory {
      */
     public static ProcessingStudiesService getProcessingStudiesServiceBean() {
         return ContextImpl.getInstance().getProcessingStudiesService();
-    }
-
-    /**
-     * <p>
-     * getWorkflowParamServiceBean.
-     * </p>
-     *
-     * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
-     */
-    public static WorkflowParamService getWorkflowParamServiceBean() {
-        return ContextImpl.getInstance().getWorkflowParamService();
-
-    }
-
-    /**
-     * <p>
-     * getWorkflowParamValueServiceBean.
-     * </p>
-     *
-     * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
-     */
-    public static WorkflowParamValueService getWorkflowParamValueServiceBean() {
-        return ContextImpl.getInstance().getWorkflowParamValueService();
-
     }
 
     /**

@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.log4j.Logger;
@@ -56,7 +56,6 @@ import net.sourceforge.seqware.common.model.LimsKey;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -141,21 +140,20 @@ public class MetadataWSTest {
         String workflow_id = result.getAttribute("sw_accession");
         Workflow workflow = instance.getWorkflow(Integer.valueOf(workflow_id));
         Assert.assertTrue("workflow retrieved is invalid", workflow.getWorkflowId() == result.getReturnValue());
-        SortedSet<WorkflowParam> workflowParams = instance.getWorkflowParams(workflow_id);
-        Assert.assertTrue("invalid number of workflow params retrieved", workflowParams.size() == 33);
+        Assert.assertTrue("invalid number of workflow params retrieved", workflow.getParameterDefaults().size() == 33);
         // check out the values of some long values
-        for (WorkflowParam param : workflowParams) {
+        for (Entry<String, String> param : workflow.getParameterDefaults().entrySet()) {
             switch (param.getKey()) {
             case "bam_inputs":
                 Assert.assertTrue(
                         "bam_inputs invalid",
-                        param.getDefaultValue()
+                        param.getValue()
                                 .equals("${workflow_bundle_dir}/GATKRecalibrationAndVariantCalling/1.x.x/data/test/PCSI0022P.val.bam,${workflow_bundle_dir}/GATKRecalibrationAndVariantCalling/1.x.x/data/test/PCSI0022R.val.bam,${workflow_bundle_dir}/GATKRecalibrationAndVariantCalling/1.x.x/data/test/PCSI0022X.val.bam,${workflow_bundle_dir}/GATKRecalibrationAndVariantCalling/1.x.x/data/test/PCSI0022C.val.bam"));
                 break;
             case "chr_sizes":
                 Assert.assertTrue(
                         "chr_sizes invalid",
-                        param.getDefaultValue()
+                        param.getValue()
                                 .equals("chr1:249250621,chr2:243199373,chr3:198022430,chr4:191154276,chr5:180915260,chr6:171115067,chr7:159138663,chr8:146364022,chr9:141213431,chr10:135534747,chr11:135006516,chr12:133851895,chr13:115169878,chr14:107349540,chr15:102531392,chr16:90354753,chr17:81195210,chr18:78077248,chr19:59128983,chr20:63025520,chr21:48129895,chr22:51304566,chrX:155270560,chrY:59373566,chrM:16571"));
                 break;
             }
@@ -196,17 +194,16 @@ public class MetadataWSTest {
         String workflow_id = result.getAttribute("sw_accession");
         Workflow workflow = instance.getWorkflow(Integer.valueOf(workflow_id));
         Assert.assertTrue("workflow retrieved is invalid", workflow.getWorkflowId() == result.getReturnValue());
-        SortedSet<WorkflowParam> workflowParams = instance.getWorkflowParams(workflow_id);
-        Assert.assertTrue("invalid number of workflow params retrieved, found " + workflowParams.size(), workflowParams.size() == 34);
+        Assert.assertTrue("invalid number of workflow params retrieved, found " + workflow.getParameterDefaults().size(), workflow.getParameterDefaults().size() == 34);
         // check out the values of some suspicious values
-        for (WorkflowParam param : workflowParams) {
+        for (Entry<String, String> param : workflow.getParameterDefaults().entrySet()) {
             switch (param.getKey()) {
             case "colorspace":
-                Assert.assertTrue("colorspace invalid", param.getDefaultValue().equals("0"));
+                Assert.assertTrue("colorspace invalid", param.getValue().equals("0"));
                 break;
             case "novoalign_r1_adapter_trim":
                 Assert.assertTrue("novoalign_r1_adapter_trim invalid",
-                        param.getDefaultValue().equals("-a AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCG"));
+                        param.getValue().equals("-a AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCG"));
                 break;
             }
         }

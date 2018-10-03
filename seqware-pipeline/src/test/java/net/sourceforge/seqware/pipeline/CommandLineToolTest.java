@@ -178,19 +178,4 @@ public class CommandLineToolTest {
         assertTrue(true);
 
     }
-
-    /**
-     * <p>
-     * listworkflowparams.
-     * </p>
-     */
-    @Test
-    public void listworkflowparams() {
-        PluginRunner runner = new PluginRunner();
-        String[] args = new String[] { "-p", "net.sourceforge.seqware.pipeline.plugins.BundleManager", "--", "--list-workflow-params",
-                "--workflow-accession", "62692" };
-        runner.run(args);
-        assertTrue(true);
-    }
-
 }

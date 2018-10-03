@@ -17,8 +17,6 @@
 package net.sourceforge.seqware.common.metadata;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -45,7 +43,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.restlet.Client;
 import org.restlet.Context;
@@ -104,8 +101,6 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
-import net.sourceforge.seqware.common.model.WorkflowParam;
-import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.model.lists.AnalysisProvenanceDtoList;
@@ -186,7 +181,7 @@ public class MetadataWS implements Metadata {
 				storeProvisionDir, provisionDir, templateFile, storeArchiveZip, archiveZip, workflowClass, workflowType,
 				workflowEngine, seqwareVersion);
 
-		HashMap<String, Map<String, String>> hm = convertIniToMap(configFile, provisionDir);
+		workflow.setParameterDefaults(MapTools.readProvisionedConfig(configFile, provisionDir));
 
 		Log.info("Posting workflow");
 		try {
@@ -200,42 +195,7 @@ public class MetadataWS implements Metadata {
 			return ret;
 		}
 
-		// foreach workflow param add an entry in the workflow_param table
-		int count = 0;
-		for (String key : hm.keySet()) {
-			count++;
-			Log.info("Adding WorkflowParam: " + key);
-			ReturnValue rv = addWorkflowParam(hm, key, workflow);
-			if (rv.getReturnValue() != ReturnValue.SUCCESS) {
-				Log.error("Problem adding WorkflowParam");
-				return rv;
-			}
-		}
-		Log.info(count + " WorkflowParams should have been added");
-		// add default params in workflow_param table
-
-		// Log.info("Setting returned URI to " +
-		// workflowResource.getLocationRef().getPath());
-		// ret.setUrl(workflowResource.getLocationRef().getPath());
 		return ret;
-	}
-
-	protected static HashMap<String, Map<String, String>> convertIniToMap(String configFile, String provisionDir) {
-		// open the ini file and parse each item
-		// FIXME: this assumes there is one ini file which is generally fine for
-		// bundled workflows but we could make this more flexible
-		HashMap<String, Map<String, String>> hm = new HashMap<>();
-		// need to be careful, may contain un-expanded value
-		if (configFile != null) { // SEQWARE-1692 : there is no config file for a "workflow" saved via metadata
-			if (configFile.contains("${workflow_bundle_dir}")) {
-				String newPath = configFile;
-				newPath = newPath.replaceAll("\\$\\{workflow_bundle_dir\\}", provisionDir);
-				MapTools.ini2RichMap(newPath, hm);
-			} else {
-				MapTools.ini2RichMap(configFile, hm);
-			}
-		}
-		return hm;
 	}
 
 	public static Workflow convertParamsToWorkflow(String baseCommand, String name, String description, String version1,
@@ -930,92 +890,6 @@ public class MetadataWS implements Metadata {
 		ll.updateProcessing("/" + p.getSwAccession(), p);
 	}
 
-	protected ReturnValue addWorkflowParam(HashMap<String, Map<String, String>> hm, String key, Workflow workflow) {
-
-		Map<String, String> details = hm.get(key);
-		WorkflowParam wp = convertMapToWorkflowParam(details, workflow);
-
-		Log.info("Posting workflow param");
-		try {
-			ll.addWorkflowParam(wp);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			return new ReturnValue(ReturnValue.FILENOTREADABLE);
-		} catch (JAXBException ex) {
-			ex.printStackTrace();
-			return new ReturnValue(ReturnValue.FAILURE);
-		} catch (ResourceException ex) {
-			ex.printStackTrace();
-			return new ReturnValue(ReturnValue.FAILURE);
-		}
-		// looks like we need to get back a workflow param object back from the database
-		// with a proper accession,
-		// otherwise we will duplicate values. This is kinda clunky.
-		SortedSet<WorkflowParam> workflowParams = this.getWorkflowParams(workflow.getSwAccession().toString());
-		for (WorkflowParam param : workflowParams) {
-			if (param.getKey().equals(key)) {
-				wp = param;
-				// and we need to set back a real workflow, yikes!
-				wp.setWorkflow(workflow);
-				break;
-			}
-		}
-
-		Log.info("Done posting workflow param");
-		// TODO: need to add support for pulldowns!
-		// "pulldown", in which case we need to populate the pulldown table
-		if ("pulldown".equals(details.get("type")) && details.get("pulldown_items") != null) {
-
-			String[] pulldowns = details.get("pulldown_items").split(";");
-			for (String pulldown : pulldowns) {
-				String[] kv = pulldown.split("\\|");
-				if (kv.length == 2) {
-					ReturnValue rv = addWorkflowParamValue(wp, kv);
-					if (rv.getReturnValue() != ReturnValue.SUCCESS) {
-						Log.error("Problem adding WorkflowParamValue");
-						return new ReturnValue(ReturnValue.FAILURE);
-					}
-				}
-			}
-		}
-		return new ReturnValue(ReturnValue.SUCCESS);
-	}
-
-	protected static WorkflowParam convertMapToWorkflowParam(Map<String, String> details, Workflow workflow) {
-		boolean display = false;
-		if ("T".equals(details.get("display"))) {
-			display = true;
-		}
-		WorkflowParam wp = new WorkflowParam();
-		wp.setWorkflow(workflow);
-		wp.setType(format(details.get("type"), "text"));
-		wp.setKey(format(details.get("key"), null));
-		wp.setDisplay(display);
-		wp.setDisplayName(format(details.get("display_name"), details.get("key")));
-		wp.setFileMetaType(format(details.get("file_meta_type"), null));
-		wp.setDefaultValue(format(details.get("default_value"), null));
-		return wp;
-	}
-
-	private ReturnValue addWorkflowParamValue(WorkflowParam wp, String[] kv) {
-
-		WorkflowParamValue wpv = new WorkflowParamValue();
-		wpv.setWorkflowParam(wp);
-		wpv.setDisplayName(format(kv[0], kv[0]));
-		wpv.setValue(format(kv[1], kv[1]));
-
-		try {
-			ll.addWorkflowParamValue(wpv);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new ReturnValue(ReturnValue.FAILURE);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-			return new ReturnValue(ReturnValue.FILENOTREADABLE);
-		}
-		return new ReturnValue(ReturnValue.SUCCESS);
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1572,19 +1446,6 @@ public class MetadataWS implements Metadata {
 		}
 	}
 
-	private static String format(String variable, String defaultStr) {
-
-		if ((variable == null || "".equals(variable)) && (defaultStr != null && !"".equals(defaultStr))) {
-			String newDefaultStr = defaultStr.replaceAll("'", "");
-			return newDefaultStr;
-		} else if ((variable == null || "".equals(variable)) && (defaultStr == null || "".equals(defaultStr))) {
-			return null;
-		} else {
-			String newVariable = variable.replaceAll("'", "");
-			return newVariable;
-		}
-	}
-
 	private String[] convertIDs(int[] ids, String prefix) {
 		String[] stringIds = new String[ids.length];
 		for (int i = 0; i < ids.length; i++) {
@@ -1658,79 +1519,6 @@ public class MetadataWS implements Metadata {
 			ex.printStackTrace();
 		}
 		return (sb.toString());
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String listInstalledWorkflowParams(String workflowAccession) {
-
-		StringBuilder sb = new StringBuilder();
-		try {
-			Workflow workflow = ll.findWorkflowParams(workflowAccession);
-			if (workflow.getWorkflowParams() == null) {
-				return sb.toString();
-			}
-			for (WorkflowParam wp : workflow.getWorkflowParams()) {
-				sb.append("#key=").append(wp.getKey()).append(":type=").append(wp.getType()).append(":display=");
-				if (wp.getDisplay()) {
-					sb.append("T");
-				} else {
-					sb.append("F");
-				}
-				if (wp.getDisplayName() != null && wp.getDisplayName().length() > 0) {
-					sb.append(":display_name=").append(wp.getDisplayName());
-				}
-				if (wp.getFileMetaType() != null && wp.getFileMetaType().length() > 0) {
-					sb.append(":file_meta_type=").append(wp.getFileMetaType());
-				}
-				SortedSet<WorkflowParamValue> wpvalues = wp.getValues();
-				if (wpvalues != null && wpvalues.size() > 0) {
-					sb.append(":pulldown_items=");
-					boolean first = true;
-					for (WorkflowParamValue wpv : wpvalues) {
-						if (first) {
-							first = false;
-							sb.append(wpv.getDisplayName()).append("|").append(wpv.getValue());
-						} else {
-							sb.append(";").append(wpv.getDisplayName()).append("|").append(wpv.getValue());
-						}
-					}
-				}
-				sb.append("\n");
-				if (wp.getDefaultValue() == null) {
-					sb.append(wp.getKey()).append("=" + "\n");
-				} else {
-					sb.append(wp.getKey()).append("=").append(wp.getDefaultValue()).append("\n");
-				}
-			}
-
-		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
-		}
-
-		return (sb.toString());
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param workflowAccession
-	 */
-	@Override
-	public SortedSet<WorkflowParam> getWorkflowParams(String workflowAccession) {
-		SortedSet<WorkflowParam> params = null;
-		try {
-			Workflow workflow = ll.findWorkflowParams(workflowAccession);
-			params = workflow.getWorkflowParams();
-			testNull(params, SortedSet.class, workflowAccession);
-		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
-		}
-		return params;
 
 	}
 
@@ -3175,13 +2963,6 @@ public class MetadataWS implements Metadata {
 			return null;
 		}
 
-		private Workflow findWorkflowParams(String workflowAccession) throws IOException, JAXBException {
-			JaxbObject<Workflow> jaxb = new JaxbObject<>();
-			Workflow list = (Workflow) findObject("/workflows", "/" + workflowAccession + "?show=params", jaxb,
-					new Workflow(), Workflow.class);
-			return list;
-		}
-
 		private List<ExperimentLibraryDesign> findExperimentLibraryDesigns() throws IOException, JAXBException {
 			JaxbObject<ExperimentLibraryDesignList> jaxb = new JaxbObject<>();
 			ExperimentLibraryDesignList list = (ExperimentLibraryDesignList) findObject("/experimentlibrarydesigns", "",
@@ -3378,36 +3159,6 @@ public class MetadataWS implements Metadata {
 			return (File) findObject("/files", searchString, jaxb, study, File.class);
 		}
 
-		private Platform findPlatform(String searchString) throws IOException, JAXBException {
-			Platform p = new Platform();
-			JaxbObject<Platform> jaxb = new JaxbObject<>();
-			return (Platform) findObject("/platforms", searchString, jaxb, p, Platform.class);
-		}
-
-		private StudyType findStudyType(String searchString) throws IOException, JAXBException {
-			StudyType st = new StudyType();
-			JaxbObject<StudyType> jaxb = new JaxbObject<>();
-			return (StudyType) findObject("/studytypes", searchString, jaxb, st, StudyType.class);
-		}
-
-		private LibraryStrategy findLibraryStrategy(String searchString) throws IOException, JAXBException {
-			LibraryStrategy ls = new LibraryStrategy();
-			JaxbObject<LibraryStrategy> jaxb = new JaxbObject<>();
-			return (LibraryStrategy) findObject("/librarystrategies", searchString, jaxb, ls, LibraryStrategy.class);
-		}
-
-		private LibrarySelection findLibrarySelection(String searchString) throws IOException, JAXBException {
-			LibrarySelection ls = new LibrarySelection();
-			JaxbObject<LibrarySelection> jaxb = new JaxbObject<>();
-			return (LibrarySelection) findObject("/libraryselections", searchString, jaxb, ls, LibrarySelection.class);
-		}
-
-		private LibrarySource findLibrarySource(String searchString) throws IOException, JAXBException {
-			LibrarySource ls = new LibrarySource();
-			JaxbObject<LibrarySource> jaxb = new JaxbObject<>();
-			return (LibrarySource) findObject("/librarysource", searchString, jaxb, ls, LibrarySource.class);
-		}
-
 		public <K, V> void addQueryParams(ClientResource res, Map<?, ? extends Collection<?>> params) {
 			if (res != null && params != null) {
 				for (Map.Entry<?, ? extends Collection<?>> e : params.entrySet()) {
@@ -3416,35 +3167,6 @@ public class MetadataWS implements Metadata {
 						res.addQueryParameter(name, v.toString());
 					}
 				}
-			}
-		}
-
-		private void writeTo(String url, Writer out) {
-			writeTo(url, null, out);
-		}
-
-		private void writeTo(String url, Map<?, ? extends List<?>> params, Writer out) {
-			ClientResource cResource = resource.getChild(version + url);
-			addQueryParams(cResource, params);
-			Representation result = null;
-			try {
-				result = cResource.get();
-				Reader in = result.getReader();
-				try {
-					IOUtils.copy(in, out);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
-				try {
-					result.exhaust();
-				} catch (IOException e) {
-				}
-				result.release();
-				resource.release();
 			}
 		}
 
@@ -3720,19 +3442,6 @@ public class MetadataWS implements Metadata {
 		private Workflow addWorkflow(Workflow workflow) throws IOException, JAXBException, ResourceException {
 			JaxbObject<Workflow> jaxb = new JaxbObject<>();
 			return (Workflow) addObject("/workflows", "", jaxb, workflow, Workflow.class);
-		}
-
-		private WorkflowParam addWorkflowParam(WorkflowParam workflowParam)
-				throws IOException, JAXBException, ResourceException {
-			JaxbObject<WorkflowParam> jaxb = new JaxbObject<>();
-			return (WorkflowParam) addObject("/workflowparams", "", jaxb, workflowParam, WorkflowParam.class);
-		}
-
-		private WorkflowParamValue addWorkflowParamValue(WorkflowParamValue workflowParamVal)
-				throws IOException, JAXBException, ResourceException {
-			JaxbObject<WorkflowParamValue> jaxb = new JaxbObject<>();
-			return (WorkflowParamValue) addObject("/workflowparamvalues", "", jaxb, workflowParamVal,
-					WorkflowParamValue.class);
 		}
 
 		private SequencerRun addSequencerRun(SequencerRun sequencerRun)

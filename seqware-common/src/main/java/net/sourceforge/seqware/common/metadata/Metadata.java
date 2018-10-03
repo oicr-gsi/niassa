@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import ca.on.oicr.gsi.provenance.FileProvenanceFilter;
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
@@ -43,7 +42,6 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -701,17 +699,6 @@ public interface Metadata {
 
     /**
      * <p>
-     * listInstalledWorkflowParams.
-     * </p>
-     *
-     * @param workflowAccession
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
-     */
-    String listInstalledWorkflowParams(String workflowAccession);
-
-    /**
-     * <p>
      * getWorkflowAccession.
      * </p>
      *
@@ -1135,17 +1122,6 @@ public interface Metadata {
      * @return a {@link net.sourceforge.seqware.common.model.File} object.
      */
     net.sourceforge.seqware.common.model.File getFile(int swAccession);
-
-    /**
-     * <p>
-     * getWorkflowParams.
-     * </p>
-     *
-     * @param swAccession
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.util.SortedSet} object.
-     */
-    SortedSet<WorkflowParam> getWorkflowParams(String swAccession);
 
     /**
      * <p>

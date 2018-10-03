@@ -2648,6 +2648,16 @@ CREATE TABLE workflow (
 
 ALTER TABLE public.workflow OWNER TO seqware;
 
+CREATE TABLE workflow_param_defaults (
+    workflow_id integer NOT NULL,
+    key text NOT NULL,
+    value text NOT NULL
+);
+
+
+ALTER TABLE public.workflow_param_defaults OWNER TO seqware;
+
+
 --
 -- Name: workflow_attribute_id_seq; Type: SEQUENCE; Schema: public; Owner: seqware
 --
@@ -2676,80 +2686,6 @@ CREATE TABLE workflow_attribute (
 
 
 ALTER TABLE public.workflow_attribute OWNER TO seqware;
-
---
--- Name: workflow_param; Type: TABLE; Schema: public; Owner: seqware; Tablespace: 
---
-
-CREATE TABLE workflow_param (
-    workflow_param_id integer NOT NULL,
-    workflow_id integer NOT NULL,
-    type text NOT NULL,
-    key text NOT NULL,
-    display boolean,
-    display_name text NOT NULL,
-    file_meta_type text,
-    default_value text
-);
-
-
-ALTER TABLE public.workflow_param OWNER TO seqware;
-
---
--- Name: workflow_param_value; Type: TABLE; Schema: public; Owner: seqware; Tablespace: 
---
-
-CREATE TABLE workflow_param_value (
-    workflow_param_value_id integer NOT NULL,
-    workflow_param_id integer NOT NULL,
-    display_name text NOT NULL,
-    value text
-);
-
-
-ALTER TABLE public.workflow_param_value OWNER TO seqware;
-
---
--- Name: workflow_param_value_workflow_param_value_id_seq; Type: SEQUENCE; Schema: public; Owner: seqware
---
-
-CREATE SEQUENCE workflow_param_value_workflow_param_value_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.workflow_param_value_workflow_param_value_id_seq OWNER TO seqware;
-
---
--- Name: workflow_param_value_workflow_param_value_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: seqware
---
-
-ALTER SEQUENCE workflow_param_value_workflow_param_value_id_seq OWNED BY workflow_param_value.workflow_param_value_id;
-
-
---
--- Name: workflow_param_workflow_param_id_seq; Type: SEQUENCE; Schema: public; Owner: seqware
---
-
-CREATE SEQUENCE workflow_param_workflow_param_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.workflow_param_workflow_param_id_seq OWNER TO seqware;
-
---
--- Name: workflow_param_workflow_param_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: seqware
---
-
-ALTER SEQUENCE workflow_param_workflow_param_id_seq OWNED BY workflow_param.workflow_param_id;
-
 
 --
 -- Name: workflow_run; Type: TABLE; Schema: public; Owner: seqware; Tablespace: 
@@ -3209,21 +3145,6 @@ ALTER TABLE version ALTER COLUMN version_id SET DEFAULT nextval('version_version
 
 ALTER TABLE workflow ALTER COLUMN workflow_id SET DEFAULT nextval('workflow_workflow_id_seq'::regclass);
 
-
---
--- Name: workflow_param_id; Type: DEFAULT; Schema: public; Owner: seqware
---
-
-ALTER TABLE workflow_param ALTER COLUMN workflow_param_id SET DEFAULT nextval('workflow_param_workflow_param_id_seq'::regclass);
-
-
---
--- Name: workflow_param_value_id; Type: DEFAULT; Schema: public; Owner: seqware
---
-
-ALTER TABLE workflow_param_value ALTER COLUMN workflow_param_value_id SET DEFAULT nextval('workflow_param_value_workflow_param_value_id_seq'::regclass);
-
-
 --
 -- Name: workflow_run_id; Type: DEFAULT; Schema: public; Owner: seqware
 --
@@ -3452,22 +3373,6 @@ ALTER TABLE ONLY ius_workflow_runs
 
 ALTER TABLE ONLY lane_workflow_runs
     ADD CONSTRAINT pk_lane_workflow_runs PRIMARY KEY (lane_workflow_runs_id);
-
-
---
--- Name: pk_workflow_param; Type: CONSTRAINT; Schema: public; Owner: seqware; Tablespace: 
---
-
-ALTER TABLE ONLY workflow_param
-    ADD CONSTRAINT pk_workflow_param PRIMARY KEY (workflow_param_id);
-
-
---
--- Name: pk_workflow_param_value; Type: CONSTRAINT; Schema: public; Owner: seqware; Tablespace: 
---
-
-ALTER TABLE ONLY workflow_param_value
-    ADD CONSTRAINT pk_workflow_param_value PRIMARY KEY (workflow_param_value_id);
 
 
 --
@@ -4303,22 +4208,6 @@ ALTER TABLE ONLY share_workflow_run
 
 ALTER TABLE ONLY share_workflow_run
     ADD CONSTRAINT fk_share_workflow_run_workflow_run_id FOREIGN KEY (workflow_run_id) REFERENCES workflow_run(workflow_run_id);
-
-
---
--- Name: fk_workflow_param_value_workflow_param_id; Type: FK CONSTRAINT; Schema: public; Owner: seqware
---
-
-ALTER TABLE ONLY workflow_param_value
-    ADD CONSTRAINT fk_workflow_param_value_workflow_param_id FOREIGN KEY (workflow_param_id) REFERENCES workflow_param(workflow_param_id);
-
-
---
--- Name: fk_workflow_param_workflow_id; Type: FK CONSTRAINT; Schema: public; Owner: seqware
---
-
-ALTER TABLE ONLY workflow_param
-    ADD CONSTRAINT fk_workflow_param_workflow_id FOREIGN KEY (workflow_id) REFERENCES workflow(workflow_id);
 
 
 --
