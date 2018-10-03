@@ -16,14 +16,17 @@
  */
 package net.sourceforge.seqware.webservice.resources;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.joda.time.DateTime;
+
 import org.restlet.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.w3c.dom.Document;
+
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 
 /**
  *
@@ -35,7 +38,7 @@ public abstract class CachedDocumentManualUpdate {
         GET, INVALIDATE, REFRESH
     }
     private volatile Document cachedDocument = null;
-    private volatile DateTime lastModified = null;
+    private volatile Instant lastModified = null;
     private volatile Boolean cacheIsValid = false;
     private final ReentrantReadWriteLock CACHED_DATA_LOCK = new ReentrantReadWriteLock();
     private final ReentrantLock REFRESH_LOCK = new ReentrantLock();
@@ -104,7 +107,7 @@ public abstract class CachedDocumentManualUpdate {
             try {
                 //okay if cache is invalid, "cached document" only needs to be valid at invocation
                 Representation r = XmlTools.getRepresentation(cachedDocument);
-                r.setModificationDate(lastModified.toDate());
+                r.setModificationDate(Date.from(lastModified));
                 response.setEntity(r);
             } finally {
                 CACHED_DATA_LOCK.readLock().unlock();
@@ -142,7 +145,7 @@ public abstract class CachedDocumentManualUpdate {
         cacheIsValid = true;
 
         //used for the http header "last-modified"
-        lastModified = DateTime.now();
+        lastModified = Instant.now();
 
         cachedDocument = calculateDocument();
     }

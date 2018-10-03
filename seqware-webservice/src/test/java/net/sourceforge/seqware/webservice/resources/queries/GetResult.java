@@ -16,7 +16,8 @@
  */
 package net.sourceforge.seqware.webservice.resources.queries;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+
 import org.restlet.data.Status;
 
 /**
@@ -27,11 +28,11 @@ public class GetResult<T> {
 
     private final T data;
     private final Status status;
-    private final DateTime requestDate;
-    private final DateTime responseDate;
-    private final DateTime dataLastModificationDate;
+    private final ZonedDateTime requestDate;
+    private final ZonedDateTime responseDate;
+    private final ZonedDateTime dataLastModificationDate;
 
-    public GetResult(T data, Status status, DateTime requestDate, DateTime responseDate, DateTime modificationDate) {
+    public GetResult(T data, Status status, ZonedDateTime requestDate, ZonedDateTime responseDate, ZonedDateTime modificationDate) {
         this.data = data;
         this.status = status;
         this.requestDate = requestDate;
@@ -47,15 +48,15 @@ public class GetResult<T> {
         return status;
     }
 
-    public DateTime getRequestDate() {
+    public ZonedDateTime getRequestDate() {
         return requestDate;
     }
 
-    public DateTime getResponseDate() {
+    public ZonedDateTime getResponseDate() {
         return responseDate;
     }
 
-    public DateTime getDataLastModificationDate() {
+    public ZonedDateTime getDataLastModificationDate() {
         return dataLastModificationDate;
     }
 
