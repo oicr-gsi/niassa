@@ -173,7 +173,7 @@ public class GenericMetadataSaverTest extends PluginTest {
 			String s = getOut();
 			checkExpectedFailure();
 		} catch (ExitException e) {
-			assertEquals(e.getExitCode(), ReturnValue.FILENOTREADABLE);
+			assertEquals(ReturnValue.FILENOTREADABLE, e.getExitCode());
 			return;
 		}
 		assertTrue(false);
@@ -198,7 +198,7 @@ public class GenericMetadataSaverTest extends PluginTest {
 			Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
 			Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
 		} catch (ExitException e) {
-			assertEquals(e.getExitCode(), ReturnValue.SUCCESS);
+			assertEquals(ReturnValue.SUCCESS, e.getExitCode());
 			return;
 		}
 		assertTrue(false);
@@ -225,7 +225,7 @@ public class GenericMetadataSaverTest extends PluginTest {
 			Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
 			Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
 		} catch (ExitException e) {
-			assertEquals(e.getExitCode(), ReturnValue.SUCCESS);
+			assertEquals(ReturnValue.SUCCESS, e.getExitCode());
 			return;
 		}
 		assertTrue(false);

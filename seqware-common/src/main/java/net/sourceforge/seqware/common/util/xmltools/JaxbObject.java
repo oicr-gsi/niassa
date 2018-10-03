@@ -68,8 +68,6 @@ import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
-import net.sourceforge.seqware.common.model.WorkflowParamValue;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
 import net.sourceforge.seqware.common.model.adapters.IntegerSet;
@@ -98,8 +96,6 @@ import net.sourceforge.seqware.common.model.lists.SequencerRunList;
 import net.sourceforge.seqware.common.model.lists.StudyList;
 import net.sourceforge.seqware.common.model.lists.StudyTypeList;
 import net.sourceforge.seqware.common.model.lists.WorkflowList;
-import net.sourceforge.seqware.common.model.lists.WorkflowParamList;
-import net.sourceforge.seqware.common.model.lists.WorkflowParamValueList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
@@ -113,187 +109,210 @@ import net.sourceforge.seqware.common.model.types.MapOfSetEntryType;
  */
 public class JaxbObject<T> {
 
-    private static JAXBContext context = null;
+	private static JAXBContext context = null;
 
-    /**
-     * JAXB has a memory leak when it comes to making new JAXBContext instances, so one JAXBContext is created for the entire lifetime of
-     * the program and initialized with all of the classes that we marshal and unmarshal at the moment, as per the instructions at *
-     * http://whileonefork.blogspot.com/2010/09/leaking-of-jaxb.html and * http://jaxb.java.net/guide/Performance_and_thread_safety.html .
-     * In order to marshall or unmarshall new objects, they must be added to the context creation in this constructor.
-     */
-    public JaxbObject() {
-        try {
-            if (context == null) {
-                context = JAXBContext.newInstance(
-                        AnalysisProvenanceDto.class,
-                        AnalysisProvenanceDtoList.class,
-                        Experiment.class,
-                        ExperimentAttribute.class,
-                        ExperimentLibraryDesign.class, // ExperimentLink.class,
-                        ExperimentSpotDesign.class,
-                        ExperimentSpotDesignReadSpec.class,
-                        File.class,
-                        FileType.class,
-                        IUS.class,
-                        IUSAttribute.class,
-                        Lane.class,
-                        LaneAttribute.class,
-                        LaneProvenanceDto.class,
-                        LaneProvenanceDtoList.class,
-                        LibrarySelection.class,
-                        LibrarySource.class,
-                        LibraryStrategy.class,
-                        IusLimsKeyDto.class,
-                        LimsKey.class,
-                        LimsKeyDto.class,
-                        LimsKeyList.class,
-                        MapOfSetAdapter.class,
-                        MapOfSetEntryType.class,
-                        Organism.class,
-                        Platform.class,
-                        Processing.class,
-                        ProcessingAttribute.class,
-                        // ProcessingExperiments.class, ProcessingIus.class,
-                        // ProcessingLanes.class, ProcessingRelationship.class, ProcessingSamples.class,
-                        // ProcessingSequencerRuns.class, ProcessingStudies.class,
-                        Registration.class,
-                        Sample.class,
-                        SampleAttribute.class,
-                        SampleProvenanceDto.class,
-                        SampleProvenanceDtoList.class,
-                        SequencerRun.class,
-                        // ShareExperiment.class, ShareFile.class, ShareLane.class,
-                        // ShareProcessing.class, ShareSample.class, ShareStudy.class, ShareWorkflowRun.class,
-                        Study.class, StudyAttribute.class, StudyType.class, Workflow.class, WorkflowParam.class,
-                        WorkflowParamValue.class, WorkflowRun.class, WorkflowRunParam.class, ExperimentList.class,
-                        ExperimentLibraryDesignList.class, ExperimentSpotDesignList.class, ExperimentSpotDesignReadSpecList.class,
-                        FileList.class, IUSList.class, LaneList.class, LibrarySelectionList.class, LibrarySourceList.class,
-                        LibraryStrategyList.class, OrganismList.class, PlatformList.class, ProcessingList.class, ReturnValueList.class,
-                        SampleList.class, SequencerRunList.class, StudyList.class, StudyTypeList.class, WorkflowList.class,
-                        WorkflowRunList.class, WorkflowRunList2.class, WorkflowParamList.class, WorkflowParamValueList.class,
-                        ArrayList.class, IntegerList.class, IntegerSet.class);
-            }
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * JAXB has a memory leak when it comes to making new JAXBContext instances, so
+	 * one JAXBContext is created for the entire lifetime of the program and
+	 * initialized with all of the classes that we marshal and unmarshal at the
+	 * moment, as per the instructions at *
+	 * http://whileonefork.blogspot.com/2010/09/leaking-of-jaxb.html and *
+	 * http://jaxb.java.net/guide/Performance_and_thread_safety.html . In order to
+	 * marshall or unmarshall new objects, they must be added to the context
+	 * creation in this constructor.
+	 */
+	public JaxbObject() {
+		try {
+			if (context == null) {
+				context = JAXBContext.newInstance(AnalysisProvenanceDto.class, //
+						AnalysisProvenanceDtoList.class, //
+						Experiment.class, //
+						ExperimentAttribute.class, //
+						ExperimentLibraryDesign.class, //
+						ExperimentSpotDesign.class, //
+						ExperimentSpotDesignReadSpec.class, //
+						File.class, //
+						FileType.class, //
+						IUS.class, //
+						IUSAttribute.class, //
+						Lane.class, //
+						LaneAttribute.class, //
+						LaneProvenanceDto.class, //
+						LaneProvenanceDtoList.class, //
+						LibrarySelection.class, //
+						LibrarySource.class, //
+						LibraryStrategy.class, //
+						IusLimsKeyDto.class, //
+						LimsKey.class, //
+						LimsKeyDto.class, //
+						LimsKeyList.class, //
+						MapOfSetAdapter.class, //
+						MapOfSetEntryType.class, //
+						Organism.class, //
+						Platform.class, //
+						Processing.class, //
+						ProcessingAttribute.class, //
+						Registration.class, //
+						Sample.class, //
+						SampleAttribute.class, //
+						SampleProvenanceDto.class, //
+						SampleProvenanceDtoList.class, //
+						SequencerRun.class, //
+						Study.class, //
+						StudyAttribute.class, //
+						StudyType.class, //
+						Workflow.class, //
+						WorkflowRun.class, //
+						WorkflowRunParam.class, //
+						ExperimentList.class, //
+						ExperimentLibraryDesignList.class, //
+						ExperimentSpotDesignList.class, //
+						ExperimentSpotDesignReadSpecList.class, //
+						FileList.class, //
+						IUSList.class, //
+						LaneList.class, //
+						LibrarySelectionList.class, //
+						LibrarySourceList.class, //
+						LibraryStrategyList.class, //
+						OrganismList.class, //
+						PlatformList.class, //
+						ProcessingList.class, //
+						ReturnValueList.class, //
+						SampleList.class, //
+						SequencerRunList.class, //
+						StudyList.class, //
+						StudyTypeList.class, //
+						WorkflowList.class, //
+						WorkflowRunList.class, //
+						WorkflowRunList2.class, //
+						ArrayList.class, //
+						IntegerList.class, //
+						IntegerSet.class);
+			}
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	}
 
-    /**
-     * Turn an object into XML using JAXB and provide the result in a StreamResult.
-     * 
-     * @param t
-     *            The object to XMLize.
-     * @return the XML. The StreamResult was created with a StringWriter, which can be used to retrieve the XML.
-     * @throws javax.xml.bind.JAXBException
-     *             if any.
-     */
-    public Document marshalToDocument(T t, Class<T> type) throws JAXBException {
-        Document doc = null;
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            doc = db.newDocument();
+	/**
+	 * Turn an object into XML using JAXB and provide the result in a StreamResult.
+	 * 
+	 * @param t
+	 *            The object to XMLize.
+	 * @return the XML. The StreamResult was created with a StringWriter, which can
+	 *         be used to retrieve the XML.
+	 * @throws javax.xml.bind.JAXBException
+	 *             if any.
+	 */
+	public Document marshalToDocument(T t, Class<T> type) throws JAXBException {
+		Document doc = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			doc = db.newDocument();
 
-            T object = t;
+			T object = t;
 
-            // get the XML
-            // JAXBContext context = JAXBContext.newInstance(object.getClass());
-            Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), doc);
+			// get the XML
+			// JAXBContext context = JAXBContext.newInstance(object.getClass());
+			Marshaller m = context.createMarshaller();
+			m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), doc);
 
-            // try {
-            // XmlTools.getDocument(output);
-            // } catch (Exception ex) {
-            // Log.info("Exception while marshaling: " + ex.getMessage() + ". Trying again.");
-            // output = marshal(t);
-            // }
+			// try {
+			// XmlTools.getDocument(output);
+			// } catch (Exception ex) {
+			// Log.info("Exception while marshaling: " + ex.getMessage() + ". Trying
+			// again.");
+			// output = marshal(t);
+			// }
 
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(JaxbObject.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JAXBException jbe) {
-            jbe.printStackTrace();
-            throw jbe;
-        }
-        return doc;
-    }
+		} catch (ParserConfigurationException ex) {
+			Logger.getLogger(JaxbObject.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+			throw jbe;
+		}
+		return doc;
+	}
 
-    /**
-     * Turn an object into XML using JAXB and provide the result in a StreamResult.
-     * 
-     * @param t
-     *            The object to XMLize.
-     * @return the XML. The StreamResult was created with a StringWriter, which can be used to retrieve the XML.
-     * @throws javax.xml.bind.JAXBException
-     *             if any.
-     */
-    public String marshal(T t, Class<T> type) throws JAXBException {
-        String output = null;
-        try {
-            StreamResult result = new StreamResult(new StringWriter());
-            T object = t;
+	/**
+	 * Turn an object into XML using JAXB and provide the result in a StreamResult.
+	 * 
+	 * @param t
+	 *            The object to XMLize.
+	 * @return the XML. The StreamResult was created with a StringWriter, which can
+	 *         be used to retrieve the XML.
+	 * @throws javax.xml.bind.JAXBException
+	 *             if any.
+	 */
+	public String marshal(T t, Class<T> type) throws JAXBException {
+		String output = null;
+		try {
+			StreamResult result = new StreamResult(new StringWriter());
+			T object = t;
 
-            // get the XML
-            Marshaller m = context.createMarshaller();
-            m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), result);
+			// get the XML
+			Marshaller m = context.createMarshaller();
+			m.marshal(new JAXBElement<T>(new QName(object.getClass().getSimpleName()), type, object), result);
 
-            // convert to String
-            StringWriter writer = (StringWriter) result.getWriter();
-            StringBuffer buffer = writer.getBuffer();
-            output = buffer.toString();
-        } catch (JAXBException jbe) {
-            jbe.printStackTrace();
-            throw jbe;
-        }
-        return output;
-    }
+			// convert to String
+			StringWriter writer = (StringWriter) result.getWriter();
+			StringBuffer buffer = writer.getBuffer();
+			output = buffer.toString();
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+			throw jbe;
+		}
+		return output;
+	}
 
-    /**
-     * Turn an XML stream into an object, if possible.
-     * 
-     * @param expectedType
-     *            a T object.
-     * @param reader
-     *            a {@link java.io.Reader} object.
-     * @return a T object.
-     * @throws javax.xml.bind.JAXBException
-     *             if any.
-     */
-    public T unMarshal(Class<T> expectedType, Reader reader) throws JAXBException {
-        T object = null;
-        try {
-            Unmarshaller m = context.createUnmarshaller();
-            JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
-            object = o.getValue();
-        } catch (JAXBException jbe) {
-            jbe.printStackTrace();
-            throw jbe;
-        }
-        return object;
-    }
+	/**
+	 * Turn an XML stream into an object, if possible.
+	 * 
+	 * @param expectedType
+	 *            a T object.
+	 * @param reader
+	 *            a {@link java.io.Reader} object.
+	 * @return a T object.
+	 * @throws javax.xml.bind.JAXBException
+	 *             if any.
+	 */
+	public T unMarshal(Class<T> expectedType, Reader reader) throws JAXBException {
+		T object = null;
+		try {
+			Unmarshaller m = context.createUnmarshaller();
+			JAXBElement<T> o = m.unmarshal(new StreamSource(reader), expectedType);
+			object = o.getValue();
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+			throw jbe;
+		}
+		return object;
+	}
 
-    /**
-     * Turn an XML stream into an object, if possible.
-     * 
-     * @param expectedType
-     *            a T object.
-     * @param d
-     *            a {@link org.w3c.dom.Document} object.
-     * @return a T object.
-     * @throws javax.xml.bind.JAXBException
-     *             if any.
-     */
-    public T unMarshal(Document d, Class<T> expectedType) throws JAXBException {
-        T object = null;
-        try {
-            // JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
-            Unmarshaller m = context.createUnmarshaller();
-            JAXBElement<T> o = m.unmarshal(d, expectedType);
-            object = o.getValue();
-        } catch (JAXBException jbe) {
-            jbe.printStackTrace();
-            throw jbe;
-        }
-        return object;
-    }
+	/**
+	 * Turn an XML stream into an object, if possible.
+	 * 
+	 * @param expectedType
+	 *            a T object.
+	 * @param d
+	 *            a {@link org.w3c.dom.Document} object.
+	 * @return a T object.
+	 * @throws javax.xml.bind.JAXBException
+	 *             if any.
+	 */
+	public T unMarshal(Document d, Class<T> expectedType) throws JAXBException {
+		T object = null;
+		try {
+			// JAXBContext context = JAXBContext.newInstance(expectedType.getClass());
+			Unmarshaller m = context.createUnmarshaller();
+			JAXBElement<T> o = m.unmarshal(d, expectedType);
+			object = o.getValue();
+		} catch (JAXBException jbe) {
+			jbe.printStackTrace();
+			throw jbe;
+		}
+		return object;
+	}
 }

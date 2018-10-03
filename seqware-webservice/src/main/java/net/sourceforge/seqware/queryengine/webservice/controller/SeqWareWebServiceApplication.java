@@ -76,10 +76,6 @@ import net.sourceforge.seqware.webservice.resources.tables.StudyIDResource;
 import net.sourceforge.seqware.webservice.resources.tables.StudyResource;
 import net.sourceforge.seqware.webservice.resources.tables.StudyTypeResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamValueIDResource;
-import net.sourceforge.seqware.webservice.resources.tables.WorkflowParamValueResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunIDResource;
 import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunResource;
@@ -242,13 +238,6 @@ public class SeqWareWebServiceApplication extends WadlApplication {
 		router.attach("/workflows/{workflowId}/runs", new RunWorkflowResource(getContext()));
 		router.attach("/workflows/{workflowId}/runs/", slashRedirect);
 
-		router.attach("/workflowparams", WorkflowParamResource.class);
-		router.attach("/workflowparams/", slashRedirect);
-		router.attach("/workflowparams/{workflowParamId}", WorkflowParamIDResource.class);
-		router.attach("/workflowparamvalues", WorkflowParamValueResource.class);
-		router.attach("/workflowparamvalues/", slashRedirect);
-		router.attach("/workflowparamvalues/{workflowParamValueId}", WorkflowParamValueIDResource.class);
-
 		/*
 		 * Reports
 		 */
@@ -309,6 +298,7 @@ public class SeqWareWebServiceApplication extends WadlApplication {
 					return super.doHandle(request, response);
 				} finally {
 					REQUEST_TIME.observe(startTime, PROMETHEUS_ENDPOINT.get());
+					PROMETHEUS_ENDPOINT.remove();
 				}
 			}
 

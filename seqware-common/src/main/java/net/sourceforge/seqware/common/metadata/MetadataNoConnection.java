@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,6 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -388,13 +385,6 @@ public class MetadataNoConnection implements Metadata {
 
     /** {@inheritDoc} */
     @Override
-    public String listInstalledWorkflowParams(String workflowAccession) {
-        logger.info("No metadata connection");
-        return "";
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public int getWorkflowAccession(String name, String version) {
         logger.info("No metadata connection");
         return 1;
@@ -510,13 +500,6 @@ public class MetadataNoConnection implements Metadata {
     @Override
     public net.sourceforge.seqware.common.model.File getFile(int swAccession) {
         return new net.sourceforge.seqware.common.model.File();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public SortedSet<WorkflowParam> getWorkflowParams(String swAccession) {
-        logger.info("No metadata connection");
-        return new TreeSet<>();
     }
 
     /** {@inheritDoc} */
