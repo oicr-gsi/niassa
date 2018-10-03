@@ -25,7 +25,7 @@ Core modules:
 * seqware-common : core functions, including DAOs. Most other projects depend on this one.
 * seqware-meta-db : SQL and other things for the [MetaDB]()
 * seqware-pipeline : workflow engines and workflow API code
-* seqware-webservice : RESTful API endpoints for Pipeline and MetaDB functions
+* [seqware-webservice](seqware-webservice) : RESTful API endpoints for Pipeline and MetaDB functions
 * seqware-distribution : builds all other modules into the single seqware-distribution JAR
 
 Other modules:
@@ -41,10 +41,6 @@ See [Niassa Build Guide](https://oicr-gsi.github.io/niassa-docs/current/installa
 ## Installing
 
 See [Niassa Installation Guide](https://oicr-gsi.github.io/niassa-docs/current/installation).
-
-### Coding Standards
-
-Please refer to Niassa's [Coding Standards](https://seqware.github.io/docs/100-coding-standards/). 
 
 ## Contributors
 
@@ -65,4 +61,11 @@ GNU General Public License for more details.
 You should have received a copy of the [GNU General Public License](LICENSE.txt)
 along with Niassa.  If not, see <http://www.gnu.org/licenses/>.
 
+## Contact
+
+Niassa is built and maintained by the 
+[Genome Sequence Informatics](https://gsi.oicr.on.ca) group at
+[Ontario Institute for Cancer Research](https://oicr.on.ca). Get in touch by
+submitting a question or issue to our 
+[Github issue tracker](https://github.com/oicr-gsi/niassa/issues).
 
