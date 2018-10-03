@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreatorWrapper;
 import net.sourceforge.seqware.common.util.testtools.JndiDatasourceCreator;
 import org.junit.AfterClass;
@@ -61,7 +62,8 @@ public class WSResourceTestSuite {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        BasicTestDatabaseCreatorWrapper.resetDatabaseWithUsers();
+        BasicTestDatabaseCreator dbCreator = BasicTestDatabaseCreator.getFromSystemProperties();
+        dbCreator.resetDatabaseWithUsers();
         JndiDatasourceCreator.create();
     }
 
