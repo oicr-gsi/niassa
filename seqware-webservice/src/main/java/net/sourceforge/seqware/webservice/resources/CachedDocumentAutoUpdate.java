@@ -16,12 +16,15 @@
  */
 package net.sourceforge.seqware.webservice.resources;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import org.joda.time.DateTime;
+
 import org.restlet.Response;
 import org.restlet.representation.Representation;
 import org.w3c.dom.Document;
+
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 
 /**
  *
@@ -30,7 +33,7 @@ import org.w3c.dom.Document;
 public abstract class CachedDocumentAutoUpdate {
 
     private volatile Document cachedDocument = null;
-    private volatile DateTime lastModified = null;
+    private volatile Instant lastModified = null;
     private final ReentrantReadWriteLock cachedDataLock = new ReentrantReadWriteLock();
 
     /**
@@ -52,7 +55,7 @@ public abstract class CachedDocumentAutoUpdate {
             try {
                 updateCachedData();
                 Representation r = XmlTools.getRepresentation(cachedDocument);
-                r.setModificationDate(lastModified.toDate());
+                r.setModificationDate(Date.from(lastModified));
                 response.setEntity(r);
             } finally {
                 cachedDataLock.writeLock().unlock();
@@ -66,7 +69,7 @@ public abstract class CachedDocumentAutoUpdate {
 
             try {
                 Representation r = XmlTools.getRepresentation(cachedDocument);
-                r.setModificationDate(lastModified.toDate());
+                r.setModificationDate(Date.from(lastModified));
                 response.setEntity(r);
             } finally {
                 cachedDataLock.readLock().unlock();
@@ -76,7 +79,7 @@ public abstract class CachedDocumentAutoUpdate {
 
     private void updateCachedData() {
         //used for the http header "last-modified"
-        lastModified = DateTime.now();
+        lastModified = Instant.now();
 
         cachedDocument = calculateDocument();
     }

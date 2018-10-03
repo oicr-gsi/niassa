@@ -17,16 +17,20 @@
 package net.sourceforge.seqware.webservice.resources.queries;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Callable;
-import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
-import net.sourceforge.seqware.common.util.xmltools.XmlTools;
-import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
-import org.joda.time.DateTime;
+
 import org.junit.Assert;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
+import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 
 /**
  *
@@ -50,19 +54,19 @@ public class Get<T> implements Callable<GetResult<T>> {
 	public GetResult<T> call() throws Exception {
 		GetResult<T> result = null;
 		try {
-			DateTime requestDate = DateTime.now().withMillisOfSecond(0);
+			ZonedDateTime requestDate = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
 			ClientResource c = ClientResourceInstance.getChild(url);
 			Representation rep = c.get();
 
-			DateTime responseDate = null;
+			ZonedDateTime responseDate = null;
 			if (c.getResponse().getDate() != null) {
-				responseDate = new DateTime(c.getResponse().getDate());
+				responseDate = ZonedDateTime.ofInstant(c.getResponse().getDate().toInstant(), ZoneId.of("Z"));
 			}
 
-			DateTime lastModified = null;
+			ZonedDateTime lastModified = null;
 			if (rep.getModificationDate() != null) {
-				lastModified = new DateTime(rep.getModificationDate());
+				lastModified = ZonedDateTime.ofInstant(rep.getModificationDate().toInstant(), ZoneId.of("Z"));
 			}
 			try {
 				T data = null;
