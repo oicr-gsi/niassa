@@ -16,6 +16,7 @@
  */
 package net.sourceforge.seqware.common.dto.builders;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,8 +25,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.springframework.beans.BeanUtils;
 
 import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
@@ -304,13 +303,13 @@ public class AnalysisProvenanceDtoBuilder {
     }
 
     
-    public DateTime getLastModified() {
+    public Instant getLastModified() {
         if (processing == null) {
             return null;
         } else if (processing.getUpdateTimestamp() != null) {
-            return new DateTime(processing.getUpdateTimestamp()).toDateTime(DateTimeZone.UTC);
+            return processing.getUpdateTimestamp().toInstant();
         } else if (processing.getCreateTimestamp() != null) {
-            return new DateTime(processing.getCreateTimestamp()).toDateTime(DateTimeZone.UTC);
+            return processing.getCreateTimestamp().toInstant();
         } else {
             return null;
         }

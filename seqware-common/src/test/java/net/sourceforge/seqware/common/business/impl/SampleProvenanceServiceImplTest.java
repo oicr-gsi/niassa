@@ -18,9 +18,9 @@ package net.sourceforge.seqware.common.business.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -93,8 +93,8 @@ public class SampleProvenanceServiceImplTest extends AbstractTestCase {
 	@Test
 	public void multipleParentSamples() {
 		final String searchKey = "TestStudy";
-		Date defaultTstmp = DateTime.parse("2016-01-01T00:00:00Z").toDate();
-		Date moreRecentlyUpdatedTstmp = DateTime.parse("2016-05-01T00:00:00Z").toDate();
+		Date defaultTstmp = Date.from(ZonedDateTime.parse("2016-01-01T00:00:00Z").toInstant());
+		Date moreRecentlyUpdatedTstmp = Date.from(ZonedDateTime.parse("2016-05-01T00:00:00Z").toInstant());
 		String expectedRootSampleName = "PARENT_2";
 
 		Study study = new Study();
