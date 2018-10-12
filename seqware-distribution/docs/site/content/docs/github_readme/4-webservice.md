@@ -1,1 +1,0 @@
-../../../../../../seqware-webservice/README.md

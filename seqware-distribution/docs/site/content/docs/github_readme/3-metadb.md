@@ -1,1 +1,0 @@
-../../../../../../seqware-meta-db/README.md
