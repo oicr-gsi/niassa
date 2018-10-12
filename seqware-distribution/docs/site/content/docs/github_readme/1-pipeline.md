@@ -1,1 +1,0 @@
-../../../../../../seqware-pipeline/README.md
