@@ -1,4 +1,4 @@
-notifications:
+dist : trusty
 language: java
 jdk:
   - oraclejdk8
@@ -9,21 +9,44 @@ cache:
 
 services:
   - docker
-
-# encryption used for documentation key, pull containers before since Docker Hub can timeout and it should not break a long build
-before_install:
-- cp .travis/toolchains.xml ~/.m2
-- echo "MAVEN_OPTS='-Xmx4g -XX:MaxPermSize=1024m'" > ~/.mavenrc
-- docker pull quay.io/seqware/seqware_test_environment:1.3
-#- docker pull seqware/documentation_builder:1.3
-#- openssl aes-256-cbc -K $encrypted_b1a0a7dd1d17_key -iv $encrypted_b1a0a7dd1d17_iv -in seqware_jenkins.id_rsa.enc -out seqware_jenkins.id_rsa -d
-
-script: 
-- docker run -h master -ti --rm -v $HOME/.m2:/home/seqware/.m2 -v $TRAVIS_BUILD_DIR:/home/seqware/gitroot/seqware quay.io/seqware/seqware_test_environment:1.3 /test-start.sh "cd /home/seqware && sudo chown -R seqware:seqware . && cd /home/seqware/gitroot/seqware && cp .travis/settings ~/.seqware  && export MAVEN_OPTS=\"-Xmx4096m -XX:MaxPermSize=1024m\" && mvn -B clean install -DskipITs=false  -Dseqware_meta_db_host=localhost -Dseqware_meta_db_port=5432 -Dseqware_meta_db_user=seqware -Dseqware_meta_db_password=seqware"
-
-after_success:
-- mvn versioneye:update
-#- docker run -v $HOME/.m2:/root/.m2 -v $TRAVIS_BUILD_DIR/seqware_jenkins.id_rsa:/root/.ssh/private_key.pem seqware/documentation_builder:1.3 sh -c 'chown -R root . &&  chown root /root/.ssh/private_key.pem && chmod -R 600 /root/.ssh/private_key.pem && eval `ssh-agent -s` && ssh-add /root/.ssh/private_key.pem && locale && export LC_ALL="en_US.UTF-8" && export LANG="en_US.UTF-8" && locale && export MAVEN_OPTS=\"-Xmx4096m -XX:MaxPermSize=1024m\" && mvn site-deploy'
-
 # sudo required for docker based testing
 sudo: required 
+
+env:
+  global:
+    - DB_NAME=test_niassa_meta_db
+    - DB_USER=postgres
+    - DB_PASSWORD=testpassword
+    - DB_HOST=127.0.0.1
+    - DB_PORT=5433
+
+
+before_install:
+- cp .travis/toolchains.xml ~/.m2
+- echo "MAVEN_OPTS='-Xms6144m -Xmx6144m'" > ~/.mavenrc
+# add db connection information to .pgpass file for PostgreSQL connections
+- echo "${DB_HOST}:${DB_PORT}:${DB_NAME}:${DB_USER}:${DB_PASSWORD}" >> ~/.pgpass
+- docker pull postgres:9-alpine
+- docker run --name metadb \
+           --env POSTGRES_PASSWORD=${DB_PASSWORD} --env POSTGRES_DB=${DB_NAME} --env POSTGRES_USER=${DB_USER} \
+            -p ${DB_PORT}:5432 \
+            -d postgres:9-alpine
+- docker ps -a
+- psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db.sql && \
+    psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_data.sql && \
+    psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_testdata.sql
+- mkdir ~/.seqware && cp .travis/settings ~/.seqware/settings
+
+script: 
+- mvn clean install -DskipITs=false \
+                    -Dlog4j.configurationFile=.travis/log4j.properties \
+                    -Dseqware_meta_db_host=${DB_HOST} \
+                    -Dseqware_meta_db_port=${DB_PORT} \
+                    -Dseqware_meta_db_name=${DB_NAME} \
+                    -Dseqware_meta_db_user=${DB_USER} \
+                    -Dseqware_meta_db_password=${DB_PASSWORD} &> maven-built-err-out
+
+after_failure:
+- tail -5000 maven-built-err-out
+
+
