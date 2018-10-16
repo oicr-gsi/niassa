@@ -26,6 +26,9 @@ before_install:
 - echo "MAVEN_OPTS='-Xms6144m -Xmx6144m'" > ~/.mavenrc
 - mkdir ~/.seqware && cp .travis/settings ~/.seqware/settings
 
+install:
+- mvn clean install -DskipTests
+
 before_script:
 - docker pull postgres:9-alpine
 - docker run --name metadb --env POSTGRES_PASSWORD=${DB_PASSWORD} --env POSTGRES_DB=${DB_NAME} --env POSTGRES_USER=${DB_USER} -p ${DB_PORT}:5432 -d postgres:9-alpine
