@@ -27,24 +27,13 @@ before_install:
 # add db connection information to .pgpass file for PostgreSQL connections
 - echo "${DB_HOST}:${DB_PORT}:${DB_NAME}:${DB_USER}:${DB_PASSWORD}" >> ~/.pgpass
 - docker pull postgres:9-alpine
-- docker run --name metadb \
-           --env POSTGRES_PASSWORD=${DB_PASSWORD} --env POSTGRES_DB=${DB_NAME} --env POSTGRES_USER=${DB_USER} \
-            -p ${DB_PORT}:5432 \
-            -d postgres:9-alpine
+- docker run --name metadb --env POSTGRES_PASSWORD=${DB_PASSWORD} --env POSTGRES_DB=${DB_NAME} --env POSTGRES_USER=${DB_USER} -p ${DB_PORT}:5432 -d postgres:9-alpine
 - docker ps -a
-- psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db.sql && \
-    psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_data.sql && \
-    psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_testdata.sql
+- psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db.sql && psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_data.sql && psql  -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -f seqware-meta-db/seqware_meta_db_testdata.sql
 - mkdir ~/.seqware && cp .travis/settings ~/.seqware/settings
 
 script: 
-- mvn clean install -DskipITs=false \
-                    -Dlog4j.configurationFile=.travis/log4j.properties \
-                    -Dseqware_meta_db_host=${DB_HOST} \
-                    -Dseqware_meta_db_port=${DB_PORT} \
-                    -Dseqware_meta_db_name=${DB_NAME} \
-                    -Dseqware_meta_db_user=${DB_USER} \
-                    -Dseqware_meta_db_password=${DB_PASSWORD} &> maven-built-err-out
+- mvn clean install -DskipITs=false -Dlog4j.configurationFile=.travis/log4j.properties -Dseqware_meta_db_host=${DB_HOST} -Dseqware_meta_db_port=${DB_PORT} -Dseqware_meta_db_name=${DB_NAME} -Dseqware_meta_db_user=${DB_USER} -Dseqware_meta_db_password=${DB_PASSWORD} &> maven-built-err-out
 
 after_failure:
 - tail -5000 maven-built-err-out
