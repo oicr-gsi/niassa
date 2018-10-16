@@ -25,7 +25,7 @@ before_install:
 - cp .travis/toolchains.xml ~/.m2
 - echo "MAVEN_OPTS='-Xms6144m -Xmx6144m'" > ~/.mavenrc
 # add db connection information to .pgpass file for PostgreSQL connections
-- echo "${DB_HOST}:${DB_PORT}:${DB_NAME}:${DB_USER}:${DB_PASSWORD}" >> ~/.pgpass
+- echo "${DB_HOST}:${DB_PORT}:${DB_NAME}:${DB_USER}:${DB_PASSWORD}" >> ~/.pgpass && chmod 700 ~/.pgpass
 - docker pull postgres:9-alpine
 - docker run --name metadb --env POSTGRES_PASSWORD=${DB_PASSWORD} --env POSTGRES_DB=${DB_NAME} --env POSTGRES_USER=${DB_USER} -p ${DB_PORT}:5432 -d postgres:9-alpine
 - docker ps -a
