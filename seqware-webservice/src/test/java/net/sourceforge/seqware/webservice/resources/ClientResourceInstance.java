@@ -55,8 +55,8 @@ public class ClientResourceInstance {
             matcher.find();
             hostURL = matcher.group(1);
             webservicePrefix = matcher.group(2);
-            Log.fatal("Detected overriden hostURL as: " + hostURL);
-            Log.fatal("Detected overriden webservicePrefix as: " + webservicePrefix);
+            Log.debug("Detected overriden hostURL as: " + hostURL);
+            Log.debug("Detected overriden webservicePrefix as: " + webservicePrefix);
         }
         ClientResource clientResource = new ClientResource(hostURL);
         Client client = new Client(new Context(), Protocol.HTTP);
