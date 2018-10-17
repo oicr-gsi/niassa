@@ -28,16 +28,17 @@ before_install:
 - cp .travis/settings ~/.seqware/settings
 
 install:
-- mvn clean install -DskipTests
+- travis_wait mvn clean install -DskipTests &> maven-notests-err-out
+- tail -50 maven-notests-err-out
 
 before_script:
-- bash .travis/start-postgres.sh $(pwd) ${DB_NAME} ${DB_USER} ${DB_PASSWORD} ${DB_HOST} ${DB_PORT}
+- bash .travis/start-postgres.sh $(pwd) ${DB_NAME} ${DB_USER} ${DB_PASSWORD} ${DB_HOST} ${DB_PORT} &> postgres-start-err-out
+- tail -50 postgres-start-err-out
 
 script: 
-- mvn clean install -DskipITs=false -Dlog4j.configurationFile=.travis/log4j.properties -Dseqware_meta_db_host=${DB_HOST} -Dseqware_meta_db_port=${DB_PORT} -Dseqware_meta_db_name=${DB_NAME} -Dseqware_meta_db_user=${DB_USER} -Dseqware_meta_db_password=${DB_PASSWORD} &> maven-built-err-out
-
+- travis_wait mvn clean install -DskipITs=false -Dlog4j.configurationFile=.travis/log4j.properties -Dseqware_meta_db_host=${DB_HOST} -Dseqware_meta_db_port=${DB_PORT} -Dseqware_meta_db_name=${DB_NAME} -Dseqware_meta_db_user=${DB_USER} -Dseqware_meta_db_password=${DB_PASSWORD} &> maven-its-err-out
 
 after_failure:
-- tail -5000 maven-built-err-out
+- tail -500 maven-its-err-out| grep -E 'ERROR|FAILURE'
 - docker ps -a
 
