@@ -19,7 +19,6 @@ import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
 
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
 import net.sourceforge.seqware.pipeline.module.PluginMethod;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
@@ -311,8 +310,7 @@ public class PluginRunner {
             newReturn = methodName.step(app);
 
         } catch (Exception e) {
-            logger.error("Module caught exception during method: " + methodName + ":" + e.getMessage());
-            logger.error(ExceptionTools.stackTraceToString(e));
+            logger.error("Module caught exception during method: " + methodName + ":" + e.getMessage(),e);
             // Exit on error
             throw new ExitException(ReturnValue.RUNNERERR);
         }

@@ -93,8 +93,8 @@ public class WorkflowRunReRunner extends Plugin {
 			}
 		} catch (RuntimeException e) {
 			println("Workflow run not found");
-			e.printStackTrace();
-			ret = new ReturnValue(ReturnValue.INVALIDPARAMETERS);
+                        logger.warn("Workflow Run not found:"+workflowRunAccession,e);
+                        ret = new ReturnValue(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		}
 		String iniFileName = String.format("wr-%s.ini", workflowRunAccession);

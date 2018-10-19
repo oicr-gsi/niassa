@@ -20,6 +20,7 @@ env:
     - DB_HOST=127.0.0.1
     - DB_PORT=5433
 
+
 before_install:
 - cp .travis/toolchains.xml ~/.m2
 - echo "MAVEN_OPTS='-Xms6144m -Xmx6144m'" > ~/.mavenrc

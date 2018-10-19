@@ -37,7 +37,6 @@ import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
 import net.sourceforge.seqware.common.util.filetools.lock.LockingFileTools;
 import net.sourceforge.seqware.common.util.processtools.ProcessTools;
 import net.sourceforge.seqware.pipeline.module.Module;
@@ -309,8 +308,8 @@ public class Runner {
 
 		} catch (Exception e) {
 			printAndAppendtoStderr("Module caught exception during method: " + methodName + ":" + e.getMessage());
-			printAndAppendtoStderr(ExceptionTools.stackTraceToString(e));
-			ReturnValue ret = new ReturnValue(stdout.toString(), stderr.toString(), ReturnValue.RUNNERERR);
+                        LOGGER.error("Exception caught in Runner.evaluateReturn",e);
+                        ReturnValue ret = new ReturnValue(stdout.toString(), stderr.toString(), ReturnValue.RUNNERERR);
 
 			// Update processing table to show it failed
 			if (meta != null && processingID != 0) {
