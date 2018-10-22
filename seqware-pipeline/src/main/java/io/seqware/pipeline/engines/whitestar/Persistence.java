@@ -24,7 +24,6 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.metadata.MetadataInMemory;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.commons.io.FileUtils;
@@ -120,11 +119,6 @@ public class Persistence {
             Workflow workflow = workflowRun.getWorkflow();
             workflowRun.setWorkflow(null);
             workflow.setWorkflowRuns(null);
-            if (workflow.getWorkflowParams() != null) {
-                for (WorkflowParam param : workflow.getWorkflowParams()) {
-                    param.setWorkflow(null);
-                }
-            }
             // ugly, need to avoid circular reference before serialization
             FileUtils.write(new File(persistDir, WORKFLOW_RUN_FILENAME), gson.toJson(workflowRun),StandardCharsets.UTF_8);
             FileUtils.write(new File(persistDir, WORKFLOW_FILENAME), gson.toJson(workflow),StandardCharsets.UTF_8);
@@ -133,11 +127,6 @@ public class Persistence {
             SortedSet<WorkflowRun> set = new TreeSet<>();
             set.add(workflowRun);
             workflow.setWorkflowRuns(set);
-            if (workflow.getWorkflowParams() != null) {
-                for (WorkflowParam param : workflow.getWorkflowParams()) {
-                    param.setWorkflow(workflow);
-                }
-            }
         } catch (IOException ex) {
             logger.error("Persistence.persistState Unable to write workflowrun state",ex);
             rethrow(ex);

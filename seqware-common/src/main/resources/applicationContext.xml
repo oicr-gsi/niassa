@@ -407,28 +407,6 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <!-- WorkflowParam Service -->
-    <bean id="workflowParamService"
-          class="net.sourceforge.seqware.common.business.impl.WorkflowParamServiceImpl">
-        <property name="workflowParamDAO" ref="workflowParamDAO"/>
-    </bean>
-
-    <!-- WorkflowParam DAO -->
-    <bean id="workflowParamDAO" class="net.sourceforge.seqware.common.dao.hibernate.WorkflowParamDAOHibernate">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <!-- WorkflowParamValue Service -->
-    <bean id="workflowParamValueService"
-          class="net.sourceforge.seqware.common.business.impl.WorkflowParamValueServiceImpl">
-        <property name="workflowParamValueDAO" ref="workflowParamValueDAO"/>
-    </bean>
-
-    <!-- WorkflowParamValue DAO -->
-    <bean id="workflowParamValueDAO" class="net.sourceforge.seqware.common.dao.hibernate.WorkflowParamValueDAOHibernate">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
     <!-- AnalysisProvenance Service -->
     <bean id="analysisProvenanceService"
           class="net.sourceforge.seqware.common.business.impl.AnalysisProvenanceServiceImpl">
@@ -483,8 +461,6 @@
         <property name="processingSamplesService" ref="processingSamplesService"/>
         <property name="processingSequencerRunService" ref="processingSequencerRunsService"/>
         <property name="processingStudiesService" ref="processingStudiesService"/>
-        <property name="workflowParamService" ref="workflowParamService"/>
-        <property name="workflowParamValueService" ref="workflowParamValueService"/>
         <property name="sessionFactory" ref="sessionFactory"/>
         <property name="platformService" ref="platformService"/>
         <property name="studyTypeService" ref="studyTypeService"/>

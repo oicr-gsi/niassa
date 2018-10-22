@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.sql.DataSource;
 
@@ -62,12 +62,10 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Bool;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 
 // FIXME: Have to record processing event (event), what the workflow it was, etc.
@@ -1115,47 +1113,18 @@ public class MetadataDB implements Metadata {
             // open the ini file and parse each item
             // FIXME: this assumes there is one ini file which is generally fine for
             // bundled workflows but we could make this more flexible
-            HashMap<String, Map<String, String>> hm = new HashMap<>();
-            MapTools.ini2RichMap(configFile, hm);
-
-            // foreach workflow param add an entry in the workflow_param table
-            for (String key : hm.keySet()) {
-                Map<String, String> details = hm.get(key);
-                boolean display = Bool.parse(details.get("display"));
-                String insert = "insert into workflow_param (workflow_id, type, key, display, display_name, file_meta_type, default_value) values ( "
-                        + workflowId
-                        + ", "
-                        + formatSQL(details.get("type"), "text")
-                        + ", "
-                        + formatSQL(details.get("key"), null)
-                        + ", "
-                        + display
-                        + ", "
-                        + formatSQL(details.get("display_name"), details.get("key"))
-                        + ", "
-                        + formatSQL(details.get("file_meta_type"), null) + ", " + formatSQL(details.get("default_value"), null) + ")";
-                int workflowParamId = InsertAndReturnNewPrimaryKey(insert, "workflow_param_workflow_param_id_seq");
-
-                // at this point everything should be setup unless it's of type
-                // "pulldown", in which case we need to populate the pulldown table
-                if ("pulldown".equals(details.get("type")) && details.get("pulldown_items") != null) {
-
-                    String[] pulldowns = details.get("pulldown_items").split(";");
-                    for (String pulldown : pulldowns) {
-                        String[] kv = pulldown.split("\\|");
-                        if (kv.length == 2) {
-                            String pulldownInsert = "insert into workflow_param_value (workflow_param_id, display_name, value) values ( "
-                                    + workflowParamId + ", " + formatSQL(kv[0], kv[0]) + ", " + formatSQL(kv[1], kv[1]) + ")";
-                            int workflowParamValueId = InsertAndReturnNewPrimaryKey(pulldownInsert,
-                                    "workflow_param_value_workflow_param_value_id_seq");
-                        }
-                    }
-                }
-
+            Map<String, String> hm = new HashMap<>();
+            MapTools.ini2Map(configFile, hm);
+            for (Entry<String, String> entry : hm.entrySet()) {
+                String insert = "insert into workflow_param_defaults (workflow_id, key, value) values ( "//
+                        + workflowId//
+                        + ", "//
+                        + formatSQL(entry.getKey(), null)//
+                        + ", "//
+                        + formatSQL(entry.getValue(), null)//
+                        + ")";
+                executeUpdate(insert);
             }
-
-            // TODO: need to add support for pulldowns!
-
         } catch (SQLException e) {
             LOGGER.error("SQL Command failed: " + e.getMessage() + ":" + e.getMessage());
             return new ReturnValue(null, "Could not execute one of the SQL commands: " + sql.toString() + "\nException: " + e.getMessage(),
@@ -1284,15 +1253,6 @@ public class MetadataDB implements Metadata {
             LOGGER.error("SQL Command failed: " + sql + ":" + e.getMessage());
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    // FIXME: need to implement this for this backend type
-    public String listInstalledWorkflowParams(String workflowAccession) {
-        return null;
     }
 
     /**
@@ -1682,14 +1642,6 @@ public class MetadataDB implements Metadata {
     @Override
     public net.sourceforge.seqware.common.model.File getFile(int swAccession) {
         throw new NotImplementedException("Retrieving files must be performed through the webservice");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SortedSet<WorkflowParam> getWorkflowParams(String swAccession) {
-        throw new NotImplementedException("Retrieving workflow params must be performed through the webservice");
     }
 
     /**

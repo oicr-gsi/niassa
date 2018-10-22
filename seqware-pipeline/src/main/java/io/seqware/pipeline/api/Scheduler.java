@@ -1,8 +1,8 @@
 package io.seqware.pipeline.api;
 
+
 import io.seqware.common.model.WorkflowRunStatus;
 import net.sourceforge.seqware.common.metadata.Metadata;
-import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.module.ReturnValue;
 
 import net.sourceforge.seqware.common.util.Rethrow;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +143,8 @@ public class Scheduler {
         // keep this id handy
         int workflowRunId = 0;
         // will be handed off to the template layer
-        Map<String, String> map = new HashMap<>();
+        // load up default ini values from installed workflow
+        Map<String, String> map = new HashMap<>(this.metadata.getWorkflow(wi.getWorkflowAccession()).getParameterDefaults());
         // populate our reserved ini keys
         map.put(ReservedIniKeys.WORKFLOW_BUNDLE_DIR.getKey(), wi.getWorkflowDir());
         // int workflowAccession = 0;
@@ -157,9 +157,6 @@ public class Scheduler {
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_UNDERSCORES.getKey(), "0");
         // my new preferred variable name
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_DASHED.getKey(), "0");
-        // load up default ini values from installed workflow
-        Map<String, String> defaultIniConfig = this.loadIniConfigs(wi.getWorkflowAccession());
-        map.putAll(defaultIniConfig);
         // if we're doing metadata writeback will need to parameterize the
         // workflow correctly
         if (metadataWriteback) {
@@ -243,53 +240,6 @@ public class Scheduler {
             // my new preferred variable name
             map.put(ReservedIniKeys.PARENT_DASH_ACCESSIONS.getKey(), parentAccessionsStr.toString());
         }
-    }
-
-    /**
-     * @param workflowAccession
-     * @param bundlePath
-     * @return
-     */
-    private Map<String, String> loadIniConfigs(Integer workflowAccession) {
-        assert (workflowAccession != null);
-        // the map
-        HashMap<String, String> map = new HashMap<>();
-        logger.info("loading ini files from DB");
-        // iterate over all the generic default params
-        // these params are created when a workflow is installed
-        SortedSet<WorkflowParam> workflowParams = this.metadata.getWorkflowParams(workflowAccession.toString());
-        for (WorkflowParam param : workflowParams) {
-            // SEQWARE-1909 - for installed workflows, interpret a null default as blank
-            map.put(param.getKey(), param.getDefaultValue() == null ? "" : param.getDefaultValue());
-        }
-
-        // FIXME: this needs to be implemented otherwise portal submitted won't
-        // work!
-        // now iterate over the params specific for this workflow run
-        // this is where the SeqWare Portal will populate parameters for
-        // a scheduled workflow
-        /*
-         * workflowParams = this.metadata.getWorkflowRunParams(workflowRunAccession); for(WorkflowParam param : workflowParams) {
-         * map.put(param.getKey(), param.getValue()); }
-         */
-        // Workflow Runs that are scheduled by the web service don't populate
-        // their
-        // params into the workflow_run_params table but, instead, directly
-        // write
-        // to the ini field.
-        // FIXME: the web service should just use the same approach as the
-        // Portal
-        // and this will make it more robust to pass in the
-        // parent_processing_accession
-        // via the DB rather than ini_file field
-
-        // allow the command line options to override options in the map
-        // Parse command line options for additional configuration. Note that we
-        // do it last so it takes precedence over the INI
-        // if we always schedule, we never override here
-        // MapTools.cli2Map(params, map);
-
-        return map;
     }
 
     /**

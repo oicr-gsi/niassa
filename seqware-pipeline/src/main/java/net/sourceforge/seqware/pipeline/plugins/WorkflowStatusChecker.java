@@ -20,7 +20,6 @@ import static io.seqware.common.model.WorkflowRunStatus.submitted_cancel;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +58,8 @@ import io.seqware.Engines;
 import io.seqware.common.model.WorkflowRunStatus;
 import io.seqware.pipeline.SqwKeys;
 import io.seqware.util.XMLChar;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
@@ -467,35 +468,39 @@ public class WorkflowStatusChecker extends Plugin {
 
 		@SuppressWarnings("deprecation")
 		private Properties getCurrentConf(WorkflowJob wfJob) {
-			/*
-			 * Why this method is needed:
-			 * 
-			 * To rerun an oozie job, one must pass in a Properties instance.
-			 * 
-			 * The current conf of a WorkflowJob is only exposed via getConf() which does
-			 * not return a Properties instance, but rather a String of XML.
-			 * 
-			 * The XML is not of a Properties, but rather of a hadoop Configuration!
-			 * 
-			 * A hadoop Configuration instance cannot be loaded from a String, but only from
-			 * resources or an input stream.
-			 * 
-			 * Further, a hadoop Configuration instance does not expose a public method for
-			 * obtaining a Properties representation.
-			 * 
-			 * It does expose an iterator of Map.Entry objects (which is internally obtained
-			 * from a Properties instance!).
-			 * 
-			 * It'd be swell if these guys could just pick one representation, or at least
-			 * an easy way to convert between them.
-			 */
-			Configuration conf = new Configuration(false);
-			conf.addResource(new StringBufferInputStream(wfJob.getConf()));
-			Properties props = new Properties();
-			for (Map.Entry<String, String> e : conf) {
-				props.setProperty(e.getKey(), e.getValue());
-			}
-			return props;
+                    Properties props = new Properties();
+                    try {
+                        /*
+                        * Why this method is needed:
+                        *
+                        * To rerun an oozie job, one must pass in a Properties instance.
+                        *
+                        * The current conf of a WorkflowJob is only exposed via getConf() which does
+                        * not return a Properties instance, but rather a String of XML.
+                        *
+                        * The XML is not of a Properties, but rather of a hadoop Configuration!
+                        *
+                        * A hadoop Configuration instance cannot be loaded from a String, but only from
+                        * resources or an input stream.
+                        *
+                        * Further, a hadoop Configuration instance does not expose a public method for
+                        * obtaining a Properties representation.
+                        *
+                        * It does expose an iterator of Map.Entry objects (which is internally obtained
+                        * from a Properties instance!).
+                        *
+                        * It'd be swell if these guys could just pick one representation, or at least
+                        * an easy way to convert between them.
+                        */
+                        Configuration conf = new Configuration(false);
+                        conf.addResource(new ByteArrayInputStream(wfJob.getConf().getBytes("UTF-8")));
+                        for (Map.Entry<String, String> e : conf) {
+                            props.setProperty(e.getKey(), e.getValue());
+                        }
+                    } catch (UnsupportedEncodingException ex) {
+                        LOGGER.error("Incorrect encoding on configuration file (assumed utf-8 but it's not)",ex);
+                    }
+                    return props;
 		}
 
 		private WorkflowRunStatus convertOozieToSeqware(WorkflowJob.Status oozieStatus) {

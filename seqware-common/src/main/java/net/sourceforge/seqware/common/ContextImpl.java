@@ -38,8 +38,6 @@ import net.sourceforge.seqware.common.business.SequencerRunService;
 import net.sourceforge.seqware.common.business.StudyService;
 import net.sourceforge.seqware.common.business.StudyTypeService;
 import net.sourceforge.seqware.common.business.ValidationReportService;
-import net.sourceforge.seqware.common.business.WorkflowParamService;
-import net.sourceforge.seqware.common.business.WorkflowParamValueService;
 import net.sourceforge.seqware.common.business.WorkflowRunService;
 import net.sourceforge.seqware.common.business.WorkflowService;
 import org.slf4j.Logger;
@@ -78,8 +76,6 @@ public class ContextImpl {
     private ProcessingSamplesService processingSamplesService;
     private ProcessingSequencerRunsService processingSequencerRunService;
     private ProcessingStudiesService processingStudiesService;
-    private WorkflowParamService workflowParamService;
-    private WorkflowParamValueService workflowParamValueService;
     private SessionFactory sessionFactory;
     private PlatformService platformService;
     private StudyTypeService studyTypeService;
@@ -546,52 +542,6 @@ public class ContextImpl {
      */
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>workflowParamService</code>.
-     * </p>
-     * 
-     * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
-     */
-    public WorkflowParamService getWorkflowParamService() {
-        return workflowParamService;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>workflowParamService</code>.
-     * </p>
-     * 
-     * @param workflowParamService
-     *            a {@link net.sourceforge.seqware.common.business.WorkflowParamService} object.
-     */
-    public void setWorkflowParamService(WorkflowParamService workflowParamService) {
-        this.workflowParamService = workflowParamService;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>workflowParamValueService</code>.
-     * </p>
-     * 
-     * @return a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
-     */
-    public WorkflowParamValueService getWorkflowParamValueService() {
-        return workflowParamValueService;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>workflowParamValueService</code>.
-     * </p>
-     * 
-     * @param workflowParamValueService
-     *            a {@link net.sourceforge.seqware.common.business.WorkflowParamValueService} object.
-     */
-    public void setWorkflowParamValueService(WorkflowParamValueService workflowParamValueService) {
-        this.workflowParamValueService = workflowParamValueService;
     }
 
     /**
