@@ -79,7 +79,8 @@ import net.sourceforge.seqware.common.model.lists.WorkflowList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -91,6 +92,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @since 0.13.3
  */
 public class JaxbObjectTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JaxbObjectTest.class);
 
 	/**
 	 * <p>
@@ -150,7 +152,7 @@ public class JaxbObjectTest {
 	 */
 	@Test
 	public void testMarshal() throws Exception {
-		Log.info("marshal");
+		LOGGER.info("JaxbObjectTest.marshal");
 		FileType type = new FileType();
 		type.setDisplayName("Display Name");
 		type.setExtension("extension");
@@ -171,7 +173,7 @@ public class JaxbObjectTest {
 	 */
 	@Test
 	public void testUnMarshal() throws Exception {
-		Log.info("unMarshal");
+		LOGGER.info("unMarshal");
 		FileType type = new FileType();
 		type.setDisplayName("Display Name");
 		type.setExtension("extension");
@@ -433,7 +435,7 @@ public class JaxbObjectTest {
 	 */
 	@Test
 	public void testWorkflowRunJaxb() throws Exception {
-		Log.info("workflowRunJaxb");
+		LOGGER.info("JaxbObjectTest.workflowRunJaxb");
 		WorkflowRun wr = new WorkflowRun();
 		wr.setWorkflowRunId(Integer.MIN_VALUE);
 
@@ -507,12 +509,12 @@ public class JaxbObjectTest {
 			Assert.fail("Marshalling WorkflowRunList failed");
 		}
 
-		Log.info(text);
+		LOGGER.info("JaxbObjectTest.testWorkflowRunListJaxb"+ text);
 
 		WorkflowRunList2 unmarshalledList = (WorkflowRunList2) XmlTools.unMarshal(jaxb, WorkflowRunList2.class, text);
 		Assert.assertEquals(2, unmarshalledList.getList().size());
 		for (WorkflowRun rv : unmarshalledList.getList()) {
-			Log.info(rv.getCommand());
+			LOGGER.info("JaxbObjectTest.testWorkflowRunListJaxb:"+ rv.getCommand());
 		}
 	}
 
@@ -551,7 +553,7 @@ public class JaxbObjectTest {
 		WorkflowList unmarshalledList = (WorkflowList) XmlTools.unMarshal(jaxb,  WorkflowList.class, text);
 		Assert.assertEquals(2, unmarshalledList.getList().size());
 		for (Workflow rv : unmarshalledList.getList()) {
-			Log.info(rv.getCommand());
+			LOGGER.info("JaxbObjectTest.testWorkflowListJaxb"+rv.getCommand());
 		}
 	}
 

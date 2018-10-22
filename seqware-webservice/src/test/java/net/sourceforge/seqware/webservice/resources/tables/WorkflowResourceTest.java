@@ -16,11 +16,15 @@
  */
 package net.sourceforge.seqware.webservice.resources.tables;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author mtaschuk
  */
 public class WorkflowResourceTest extends DatabaseResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowResourceTest.class);
 
     public WorkflowResourceTest() {
         super("/workflows");
@@ -42,7 +46,7 @@ public class WorkflowResourceTest extends DatabaseResourceTest {
     // rep.exhaust();
     // rep.release();
     // } catch (Exception e) {
-    // e.printStackTrace();
+    // logger.error("WorkflowResourceTest.testPost exception:",e);
     // Assert.fail(e.getMessage());
     // }
     // }
@@ -60,7 +64,7 @@ public class WorkflowResourceTest extends DatabaseResourceTest {
     // rep.exhaust();
     // rep.release();
     // } catch (Exception e) {
-    // e.printStackTrace();
+    // logger.error("WorkflowResourceTest.testURIPost exception:",e);
     // Assert.fail(e.getMessage());
     // }
     // }

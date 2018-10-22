@@ -12,11 +12,12 @@ import net.sourceforge.seqware.common.err.DataIntegrityException;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.IUSAttribute;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import org.hibernate.SessionFactory;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * @since 0.13.3
  */
 public class IusServiceImplTest extends AbstractTestCase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IusServiceImplTest.class);
 
     @Autowired
     @Qualifier("IUSService")
@@ -63,7 +65,7 @@ public class IusServiceImplTest extends AbstractTestCase {
     public void testAssociatedWorkflowRuns() {
         IUS ius = iusService.findByID(4);
         Set<WorkflowRun> iuses = ius.getWorkflowRuns();
-        Log.info("Count " + iuses.size());
+        LOGGER.info("IusServiceImplTest.testAssociatedWorkflowRuns: Count " + iuses.size());
     }
 
     /**

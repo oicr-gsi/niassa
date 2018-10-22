@@ -30,6 +30,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -41,6 +43,7 @@ import org.junit.Test;
  * @since 0.13.6.2
  */
 public class MapToolsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapToolsTest.class);
 
     /**
      * <p>

@@ -26,17 +26,20 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.lists.SampleList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class SampleIDFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(SampleIDFilterTest.class);
 
     public SampleIDFilterTest() {
         super("");
@@ -128,7 +131,7 @@ public class SampleIDFilterTest extends AbstractResourceTest {
     // 1792 is root
     private List<Sample> getSamples(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         SampleList parent = new SampleList();
         JaxbObject<SampleList> jaxb = new JaxbObject<>();
         try {
@@ -138,10 +141,10 @@ public class SampleIDFilterTest extends AbstractResourceTest {
             rep.exhaust();
             rep.release();
         } catch (ResourceException e) {
-            e.printStackTrace();
+            logger.error("SampleIDFilterTest.getSamples resource exception:",e);
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleIDFilterTest.getSamples exception:",e);
             throw e;
         }
         return parent.getList();

@@ -18,7 +18,6 @@ package net.sourceforge.seqware.common.factory;
 
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 
 import javax.naming.InitialContext;
@@ -26,6 +25,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -36,6 +37,7 @@ import java.util.Map;
  * @version $Id: $Id
  */
 public class DBAccess {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBAccess.class);
 
     private static final ThreadLocal<MetadataDB> METADATA_DB_WRAPPER = new ThreadLocal<>();
 
@@ -66,14 +68,14 @@ public class DBAccess {
         DataSource ds = getDataSource();
 
         if (ds != null) {
-            Log.debug("Instantiate MetadataDB via datasource " + ds.getClass());
+            LOGGER.debug("DBAccess.create: Instantiate MetadataDB via datasource " + ds.getClass());
             try {
                 return new MetadataDB(ds);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            Log.debug("Obtain MetadataDB via MetadataFactory");
+            LOGGER.debug("DBAccess.create: Obtain MetadataDB via MetadataFactory");
             Map<String, String> settings = ConfigTools.getSettings();
             return MetadataFactory.getDB(settings);
         }
@@ -85,7 +87,7 @@ public class DBAccess {
             InitialContext initCtx = new InitialContext();
             ds = (DataSource) initCtx.lookup("java:comp/env/jdbc/SeqWareMetaDB");
         } catch (NamingException ex) {
-            Log.info("Could not lookup database via context", ex);
+            LOGGER.info("DBAccess.getDataSource: Could not lookup database via context", ex);
         }
         return ds;
     }
@@ -98,7 +100,7 @@ public class DBAccess {
     public static synchronized void close() {
         MetadataDB mdb = METADATA_DB_WRAPPER.get();
         if (mdb != null) {
-            Log.debug(METADATA_DB_WRAPPER.get().toString() + " was closed ");
+            LOGGER.debug("DBAccess.close: "+METADATA_DB_WRAPPER.get().toString() + " was closed ");
             mdb.clean_up();
         }
         METADATA_DB_WRAPPER.remove();

@@ -18,10 +18,12 @@ import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Workflow Rescheduler can schedule a new workflow based on the configuration of a previously launched workflow.
@@ -34,6 +36,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowRescheduler extends Plugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowRescheduler.class);
 
     public static final String INPUT_FILES = "input-files";
     private final ArgumentAcceptingOptionSpec<String> workflowEngineSpec;
@@ -82,7 +85,7 @@ public class WorkflowRescheduler extends Plugin {
 
     public static ReturnValue validateEngineString(String engine) {
         if (!Engines.ENGINES.contains(engine)) {
-            Log.error("Invalid workflow-engine value. Must be one of: " + Engines.ENGINES_LIST);
+            LOGGER.error("Invalid workflow-engine value. Must be one of: " + Engines.ENGINES_LIST);
             return new ReturnValue(ExitStatus.INVALIDARGUMENT);
         }
         return new ReturnValue(ExitStatus.SUCCESS);
@@ -121,14 +124,14 @@ public class WorkflowRescheduler extends Plugin {
           WorkflowRun oldWorkflowRun = metadata.getWorkflowRunWithIuses(Integer.parseInt(runSWID));
 
           if (oldWorkflowRun == null) {
-            Log.error("Workflow run SWID = [" + runSWID + "] not found.");
+            LOGGER.error("Workflow run SWID = [" + runSWID + "] not found.");
             return new ReturnValue(ExitStatus.INVALIDARGUMENT);
           }
 
           // get IUSes that the old workflow run is linked to
           List<Integer> linkedIusSwids = new ArrayList<>();
           if (oldWorkflowRun.getIus() == null || oldWorkflowRun.getIus().isEmpty()) {
-            Log.warn("Workflow run [" + runSWID + "] does not have any linked IUSes.");
+            LOGGER.warn("Workflow run [" + runSWID + "] does not have any linked IUSes.");
           } else {
             for (IUS ius : oldWorkflowRun.getIus()) {
               linkedIusSwids.add(ius.getSwAccession());
@@ -139,7 +142,7 @@ public class WorkflowRescheduler extends Plugin {
                     // this translation here is ugly, do we still need to do this?
                     int workflowRunAccessionInt = this.metadata.get_workflow_run_accession(newWorkflowRunID);
                     WorkflowRun newWorkflowRun = metadata.getWorkflowRun(workflowRunAccessionInt);
-                    Log.stdout("Created workflow run with SWID: " + workflowRunAccessionInt);
+                    LOGGER.info("Created workflow run with SWID: " + workflowRunAccessionInt);
 
                     // have the old workflow run mimic the new one and upload for re-launching
                     oldWorkflowRun.setWorkflowRunId(newWorkflowRunID);
@@ -165,7 +168,7 @@ public class WorkflowRescheduler extends Plugin {
                         oldWorkflowRun.setWorkflowEngine(engine);
                     }
 
-                    Log.info("You are re-scheduling workflow-run " + runSWID + " to " + workflowRunAccessionInt);
+                    LOGGER.info("You are re-scheduling workflow-run " + runSWID + " to " + workflowRunAccessionInt);
                     this.metadata.updateWorkflowRun(oldWorkflowRun);
           rescheduledWorkflowRunSwids.add(workflowRunAccessionInt);
 
@@ -174,7 +177,7 @@ public class WorkflowRescheduler extends Plugin {
             try {
               this.metadata.linkWorkflowRunAndParent(newWorkflowRunID, iusSwid);
             } catch (Exception e) {
-              Log.error("Could not link workflow run SWID = [" + runSWID + "] to its parents: " + linkedIusSwids.toString());
+              LOGGER.error("Could not link workflow run SWID = [" + runSWID + "] to its parents: " + linkedIusSwids.toString());
               throw Rethrow.rethrow(e);
             }
           }
@@ -185,8 +188,8 @@ public class WorkflowRescheduler extends Plugin {
                 }
 
             } else {
-                Log.error("I don't understand the combination of arguments you gave!");
-                Log.info(this.get_syntax());
+                LOGGER.error("I don't understand the combination of arguments you gave!");
+                LOGGER.info(this.get_syntax());
                 return new ReturnValue(ExitStatus.INVALIDARGUMENT);
             }
         } catch (IOException ex) {

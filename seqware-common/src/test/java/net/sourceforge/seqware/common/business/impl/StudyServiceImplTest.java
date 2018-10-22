@@ -15,7 +15,8 @@ import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.StudyService;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Study;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -27,6 +28,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @since 0.13.3
  */
 public class StudyServiceImplTest extends AbstractTestCase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceImplTest.class);
 
     @Autowired
     StudyService studyService;
@@ -114,8 +116,8 @@ public class StudyServiceImplTest extends AbstractTestCase {
     public void testNoLazyInitializationException() {
         Study study = studyService.findByID(10);
         Set<Processing> processings = study.getProcessings();
-        Log.info("Procissings count: " + processings.size());
-        Log.info("Owner is " + study.getOwner().getFirstName());
+        LOGGER.info("StudyServiceImplTest.testNoLazyInitializationException: Processings count: " + processings.size());
+        LOGGER.info("StudyServiceImplTest.testNoLazyInitializationException: Owner is " + study.getOwner().getFirstName());
     }
 
     /**

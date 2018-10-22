@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,10 +58,12 @@ import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreator;
 import net.sourceforge.seqware.webservice.resources.tables.FileChildWorkflowRunsResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -72,7 +73,7 @@ public class MetadataWSTest {
 
     protected Metadata instance;
     private BasicTestDatabaseCreator dbCreator;
-
+    
     public static Metadata newTestMetadataInstance() {
         // if an alternative database is set, then we need to redirect to look at the defined REST URL
         Map<String, String> settings = ConfigTools.getSettings();
@@ -88,10 +89,9 @@ public class MetadataWSTest {
         return !settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey());
     }
 
-    private final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(MetadataWSTest.class);
 
     public MetadataWSTest() {
-        logger = Logger.getLogger(MetadataWSTest.class);
     }
 
     @Before
@@ -127,7 +127,7 @@ public class MetadataWSTest {
             configFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ini").toURI());
             templateFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ftl").toURI());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("MetadataWSTest.testAddWorkflow URIsyntax exception:",e);
         }
         java.io.File provisionDir = new java.io.File("/u/seqware/provisioned-bundles"
                 + "/sqwprod/Workflow_Bundle_GATKRecalibrationAndVariantCalling_" + "1.2.29_SeqWare_0.10.0/");
@@ -181,7 +181,7 @@ public class MetadataWSTest {
             configFile = new java.io.File(MetadataWSTest.class.getResource("novoalign.ini").toURI());
             templateFile = new java.io.File(MetadataWSTest.class.getResource("GATKRecalibrationAndVariantCalling_1.3.16.ftl").toURI());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("MetadataWSTest.testAddNovoAlignWorkflow exception:",e);
         }
         java.io.File provisionDir = new java.io.File("/u/seqware/provisioned-bundles"
                 + "/sqwprod/Workflow_Bundle_GATKRecalibrationAndVariantCalling_" + "1.2.29_SeqWare_0.10.0/");
@@ -247,7 +247,7 @@ public class MetadataWSTest {
                 Assert.fail("No rows in ResultSet");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error("MetadataWSTest.testTimestamp exception:",ex);
             Assert.fail("SQL Exception");
         } finally {
             DBAccess.close();
@@ -273,7 +273,7 @@ public class MetadataWSTest {
             }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error("MetadataWSTest.testCount exception:",ex);
             Assert.fail("SQL Exception");
         } finally {
             DBAccess.close();
@@ -648,56 +648,56 @@ public class MetadataWSTest {
 
     @Test
     public void testGetAllSequencerRuns() {
-        Log.info("testGetAllSequencerRuns");
+        logger.info("testGetAllSequencerRuns");
         List<SequencerRun> runs = instance.getAllSequencerRuns();
         Assert.assertFalse("There are no sequencer runs!", runs.isEmpty());
     }
 
     @Test
     public void testGetLanesFrom() {
-        Log.info("testGetLanesFrom");
+        logger.info("testGetLanesFrom");
         List<Lane> lanes = instance.getLanesFrom(4715);
         Assert.assertFalse("There are no lanes for sequencer run!", lanes.isEmpty());
     }
 
     @Test
     public void testGetIUSFromLane() {
-        Log.info("testGetIUSFromLane");
+        logger.info("testGetIUSFromLane");
         List<IUS> iuses = instance.getIUSFrom(4764);
         Assert.assertFalse(iuses.isEmpty());
     }
 
     @Test
     public void testGetIUSFromSample() {
-        Log.info("testGetIUSFromSample");
+        logger.info("testGetIUSFromSample");
         List<IUS> iuses = instance.getIUSFrom(4783);
         Assert.assertFalse(iuses.isEmpty());
     }
 
     @Test
     public void testGetExperimentsFrom() {
-        Log.info("testGetExperimentsFrom");
+        logger.info("testGetExperimentsFrom");
         List<Experiment> experiments = instance.getExperimentsFrom(120);
         Assert.assertFalse(experiments.isEmpty());
     }
 
     @Test
     public void testGetSamplesFromExperiment() {
-        Log.info("testGetSamplesFromExperiment");
+        logger.info("testGetSamplesFromExperiment");
         List<Sample> samples = instance.getSamplesFrom(6157);
         Assert.assertFalse(samples.isEmpty());
     }
 
     @Test
     public void testGetChildSamplesFrom() {
-        Log.info("testGetChildSamplesFrom");
+        logger.info("testGetChildSamplesFrom");
         List<Sample> samples = instance.getChildSamplesFrom(1940);
         Assert.assertFalse(samples.isEmpty());
     }
 
     @Test
     public void testGetParentSamplesFrom() {
-        Log.info("testGetParentSamplesFrom");
+        logger.info("testGetParentSamplesFrom");
         List<Sample> samples = instance.getParentSamplesFrom(1944);
         Assert.assertFalse(samples.isEmpty());
     }
@@ -806,7 +806,7 @@ public class MetadataWSTest {
     
     @Test
     public void getLimsKeyFromIUS() {
-        Log.info("getLimsKeyFromIUS");
+        logger.info("getLimsKeyFromIUS");
         LimsKey limsKey = instance.getLimsKeyFrom(6212);
         assertNotNull(limsKey);
         assertEquals("25", limsKey.getId());
@@ -817,7 +817,7 @@ public class MetadataWSTest {
 
     @Test
     public void getLimsKeyFromIUSWithNoLimsKey() {
-        Log.info("getLimsKeyFromMissingIUS");
+        logger.info("getLimsKeyFromMissingIUS");
         LimsKey limsKey = instance.getLimsKeyFrom(-1);
         assertNull(limsKey);
     }

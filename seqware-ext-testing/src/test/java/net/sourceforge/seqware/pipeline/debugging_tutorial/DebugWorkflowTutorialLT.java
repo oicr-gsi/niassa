@@ -19,7 +19,7 @@ package net.sourceforge.seqware.pipeline.debugging_tutorial;
 import com.google.common.io.Files;
 import io.seqware.cli.Main;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ExtendedTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import org.junit.Assert;
@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support the tutorial for debugging workflows.
@@ -36,6 +38,7 @@ import java.io.IOException;
  * @author dyuen
  */
 public class DebugWorkflowTutorialLT {
+    private final Logger logger = LoggerFactory.getLogger(DebugWorkflowTutorialLT.class);
 
     @Test
     public void runThroughFirstFailAtLaunchTutorial() throws IOException {
@@ -45,7 +48,7 @@ public class DebugWorkflowTutorialLT {
         Main main = new Main();
         String SEQWARE_VERSION = main.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         File tempDir = Files.createTempDir();
 
@@ -55,7 +58,7 @@ public class DebugWorkflowTutorialLT {
                 + "-Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId=BuggyWorkflow "
                 + "-Dworkflow-name=BuggyWorkflow -B";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.info(genOutput);
+        logger.info(genOutput);
 
         // Replace contents of WorkflowClient from both workflows with code from tutorial
         String tarTemplatePath = DebugWorkflowTutorialLT.class.getResource("FailLaunch.template").getPath();
@@ -68,7 +71,7 @@ public class DebugWorkflowTutorialLT {
         // rebuild bundles
         command = "mvn clean install";
         genOutput = ITUtility.runArbitraryCommand(command, 0, new File(tempDir, "BuggyWorkflow"));
-        Log.info(genOutput);
+        logger.info(genOutput);
         // package bundles
         String listCommand = " bundle launch --dir BuggyWorkflow/target/Workflow_Bundle_BuggyWorkflow_1.0-SNAPSHOT_SeqWare_"
                 + SEQWARE_VERSION + "/";
@@ -87,7 +90,7 @@ public class DebugWorkflowTutorialLT {
         Main main = new Main();
         String SEQWARE_VERSION = main.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         File tempDir = Files.createTempDir();
 
@@ -97,7 +100,7 @@ public class DebugWorkflowTutorialLT {
                 + "-Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId=BuggyWorkflow "
                 + "-Dworkflow-name=BuggyWorkflow -B";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.info(genOutput);
+        logger.info(genOutput);
 
         // Replace contents of WorkflowClient from both workflows with code from tutorial
         String tarTemplatePath = DebugWorkflowTutorialLT.class.getResource("FailRun.template").getPath();
@@ -110,12 +113,12 @@ public class DebugWorkflowTutorialLT {
         // rebuild bundles
         command = "mvn clean install";
         genOutput = ITUtility.runArbitraryCommand(command, 0, new File(tempDir, "BuggyWorkflow"));
-        Log.info(genOutput);
+        logger.info(genOutput);
         // package bundles
         String listCommand = " bundle launch --dir BuggyWorkflow/target/Workflow_Bundle_BuggyWorkflow_1.0-SNAPSHOT_SeqWare_"
                 + SEQWARE_VERSION + "/";
         String listOutput = ITUtility.runSeqwareCLI(listCommand, ReturnValue.FAILURE, tempDir);
-        Log.stderr(listOutput);
+        logger.error(listOutput);
         Assert.assertTrue("Workflow did not fail as expected",
                 listOutput.contains("The method 'do_run' exited abnormally so the Runner will terminate here!"));
 
@@ -126,13 +129,13 @@ public class DebugWorkflowTutorialLT {
         // check whether the error output contains the expected error
         listCommand = " workflow-run stderr --accession 2";
         listOutput = ITUtility.runSeqwareCLI(listCommand, ReturnValue.SUCCESS, tempDir);
-        Log.stderr(listOutput);
+        logger.error(listOutput);
         Assert.assertTrue("Did not create error output", listOutput.contains("Created file 2.err"));
 
         // cat stderr and check for error
         command = "cat 2.err";
         genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.stderr(genOutput);
+        logger.error(genOutput);
         Assert.assertTrue("Did not see error in error output, saw: " + genOutput, genOutput.contains("missing operand"));
 
         // clean-up on the way out

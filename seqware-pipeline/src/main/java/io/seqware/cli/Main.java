@@ -37,19 +37,22 @@ import net.sourceforge.seqware.common.model.Annotatable;
 import net.sourceforge.seqware.common.model.Attribute;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.util.ExitException;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.TabExpansionUtil;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.workflowtools.WorkflowInfo;
 import net.sourceforge.seqware.pipeline.bundle.Bundle;
 import net.sourceforge.seqware.pipeline.bundle.BundleInfo;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * TODO:
  * - add descriptions to fields of create
  */
 public class Main {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
 	/**
 	 * Take a List and create a 'delim' delimited String.
@@ -1649,8 +1652,8 @@ public class Main {
 				runnerArgs.add(cdl(ids));
 			}
 
-			Log.stdoutWithTime("Propagated workflow engine statuses");
-			run(runnerArgs);
+                        
+                        run(runnerArgs);
 		}
 	}
 

@@ -21,6 +21,8 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.junit.Assert;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -28,6 +30,8 @@ import org.w3c.dom.Document;
  * @author mtaschuk
  */
 public class FileResourceTest extends DatabaseResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(FileResourceTest.class);
+
     public FileResourceTest() {
         super("/files");
     }
@@ -47,7 +51,7 @@ public class FileResourceTest extends DatabaseResourceTest {
             rep.exhaust();
             rep.release();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("FileResourceTest.testPost exception:",e);
             Assert.fail();
         }
     }

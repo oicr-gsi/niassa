@@ -5,15 +5,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.workflowV2.AbstractWorkflowDataModel;
 import net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object.WorkflowApp;
 import org.apache.hadoop.fs.Path;
 import org.jdom.Document;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OozieWorkflowXmlGenerator {
+    private final Logger logger = LoggerFactory.getLogger(OozieWorkflowXmlGenerator.class);
+
     /**
      * generate a dax file from the object model
      * 
@@ -42,7 +46,7 @@ public class OozieWorkflowXmlGenerator {
                 
                 out.flush();
         } catch (IOException e) {
-            Log.error(e);
+            logger.error("OozieWorkflowXmlGenerator.generateWorkflowXml",e);
             ret.setExitStatus(ReturnValue.FAILURE);
         }
         return ret;

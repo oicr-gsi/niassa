@@ -26,11 +26,13 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -43,6 +45,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class MarkdownPlugin extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(MarkdownPlugin.class);
 
 	/**
 	 * <p>
@@ -127,8 +130,7 @@ public class MarkdownPlugin extends Plugin {
 		try {
 			parser.printHelpOn(System.err);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Log.fatal(e);
+			logger.error("MarkdownPlugin.get_syntax",e);
 		}
 		return ("");
 	}
@@ -241,7 +243,7 @@ public class MarkdownPlugin extends Plugin {
 					writeModuleDescription((Module) plug, bufferedWriter);
 				}
 			} catch (IOException ex) {
-				Log.fatal(ex, ex);
+				logger.error("MarkdownPlugin.handlePlugins", ex);
 			}
 
 		}
@@ -270,7 +272,7 @@ public class MarkdownPlugin extends Plugin {
 			bufferedWriter.append("---");
 			bufferedWriter.newLine();
 		} catch (IOException ex) {
-			Log.fatal(ex, ex);
+			logger.error("MarkdownPlugin.writePageHeader", ex);
 		}
 	}
 
@@ -307,7 +309,7 @@ public class MarkdownPlugin extends Plugin {
 			ReturnValue init = mod.init();
 			description = init.getDescription() == null ? "" : init.getDescription();
 		} catch (Exception e) {
-			Log.info("Could not print description for " + mod.getClass());
+			logger.info("Could not print description for " + mod.getClass());
 		}
 		bufferedWriter.append(description);
 

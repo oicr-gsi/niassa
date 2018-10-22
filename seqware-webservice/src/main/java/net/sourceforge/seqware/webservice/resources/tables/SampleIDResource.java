@@ -27,7 +27,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.IUS;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.Sample;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -35,6 +35,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -47,6 +49,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class SampleIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(SampleIDResource.class);
 
     /**
      * <p>
@@ -84,7 +87,7 @@ public class SampleIDResource extends DatabaseIDResource {
                 }
                 dto.setLanes(copiedLanes);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
         if (fields.contains("ius")) {
@@ -97,7 +100,7 @@ public class SampleIDResource extends DatabaseIDResource {
                 dto.setIUS(copiedIUS);
             }
             {
-                Log.info("Could not be found : ius");
+                logger.info("Could not be found : ius");
             }
         }
 
@@ -200,7 +203,7 @@ public class SampleIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

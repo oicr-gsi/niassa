@@ -16,8 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.sourceforge.seqware.common.AbstractTestCase;
 import net.sourceforge.seqware.common.business.ExperimentService;
 import net.sourceforge.seqware.common.model.Experiment;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreatorWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -29,6 +30,7 @@ import net.sourceforge.seqware.common.util.testtools.BasicTestDatabaseCreatorWra
  * @since 0.13.3
  */
 public class ExperimentServiceImplTest extends AbstractTestCase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentServiceImplTest.class);
 
     @Autowired
     ExperimentService experimentService;
@@ -93,7 +95,7 @@ public class ExperimentServiceImplTest extends AbstractTestCase {
     @Test
     public void testNoLazyInitializationException() {
         Experiment experiment = experimentService.findByID(6);
-        Log.info("Owner is " + experiment.getOwner().getFirstName());
+        LOGGER.info("ExperimentServiceImplTest.testNoLazyInitializationException:Owner is " + experiment.getOwner().getFirstName());
     }
 
     /**

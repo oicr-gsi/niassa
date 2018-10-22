@@ -39,11 +39,12 @@ import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.runtools.ConsoleAdapter;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This plugin currently lets users creation a limited set of table rows in the database from the command line. In the future we should
@@ -56,6 +57,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class Metadata extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(Metadata.class);
 
     ReturnValue ret = new ReturnValue();
     BufferedWriter bw = null;
@@ -152,7 +154,7 @@ public class Metadata extends Plugin {
                 bw = new BufferedWriter(new FileWriter(new File((String) options.valueOf("output-file"))));
             } catch (IOException ex) {
                 bw = null;
-                Log.error(null, ex);
+                logger.error(null, ex);
             }
         }
 
@@ -203,7 +205,7 @@ public class Metadata extends Plugin {
                     ret = addFile();
                     return ret;
                 default:
-                    Log.error("This tool does not know how to save to the " + options.valueOf("table") + " table.");
+                    logger.error("This tool does not know how to save to the " + options.valueOf("table") + " table.");
                     break;
                 }
 
@@ -310,7 +312,7 @@ public class Metadata extends Plugin {
                 print("\nThis command will result in one workflow_run, one processing tied to the parents specified, and n files attached to that processing event.\n");
                 break;
             default:
-                Log.error("This tool does not know how to list the fields for the " + table + " table.");
+                logger.error("This tool does not know how to list the fields for the " + table + " table.");
                 break;
             }
         return (rv);
@@ -334,7 +336,7 @@ public class Metadata extends Plugin {
             print(String.format("Created workflow '%s' version %s with SWID: %s", fields.get("name"), fields.get("version"),
                     localRet.getAttribute("sw_accession")));
         } else {
-            Log.error("You need to supply name, version, and description for the workflow table.");
+            logger.error("You need to supply name, version, and description for the workflow table.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -356,7 +358,7 @@ public class Metadata extends Plugin {
             int[] parents = parseParentAccessions();
             // if we have parent accessions, check that they're valid right up front
             if (metadata.getViaParentAccessions(parents).contains(null)) {
-                Log.error("parent accession invalid.");
+                logger.error("parent accession invalid.");
                 localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                 return localRet;
             }
@@ -364,7 +366,7 @@ public class Metadata extends Plugin {
             // create a new workflow!
             int workflowRunId = metadata.add_workflow_run(Integer.parseInt(fields.get("workflow_accession")));
             if (workflowRunId == 0) {
-                Log.error("Workflow_accession invalid.");
+                logger.error("Workflow_accession invalid.");
                 localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                 return localRet;
             }
@@ -373,7 +375,7 @@ public class Metadata extends Plugin {
             // create and update processing
             ReturnValue metaret = metadata.add_empty_processing_event_by_parent_accession(parents);
             if (metaret.getExitStatus() != ReturnValue.SUCCESS) {
-                Log.error("Parent_accessions invalid.");
+                logger.error("Parent_accessions invalid.");
                 localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                 return localRet;
             }
@@ -408,7 +410,7 @@ public class Metadata extends Plugin {
                     wr.getWorkflowEngine(), wr.getInputFileAccessions());
 
         } else {
-            Log.error("You need to supply workflow_accession and status for the workflow_run table.");
+            logger.error("You need to supply workflow_accession and status for the workflow_run table.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
 
@@ -431,19 +433,19 @@ public class Metadata extends Plugin {
             int[] parents = parseParentAccessions();
             // if we have parent accessions, check that they're valid right up front
             if (metadata.getViaParentAccessions(parents).contains(null)) {
-                Log.error("parent accession invalid.");
+                logger.error("parent accession invalid.");
                 localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                 return localRet;
             }
             if (this.files.size() != 1) {
-                Log.error("incorrect number of files.");
+                logger.error("incorrect number of files.");
                 localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                 return localRet;
             }
             // create a new file!
             ReturnValue processingEventRet = metadata.add_empty_processing_event_by_parent_accession(parents);
             if (processingEventRet.getExitStatus() != ReturnValue.SUCCESS) {
-                Log.error("Error creating processing event.");
+                logger.error("Error creating processing event.");
                 localRet.setExitStatus(ReturnValue.FAILURE);
                 return localRet;
             }
@@ -459,7 +461,7 @@ public class Metadata extends Plugin {
             print("Created file processing with SWID: " + mapProcessingIdToAccession);
 
         } else {
-            Log.error("You need to supply workflow_accession and status for the workflow_run table.");
+            logger.error("You need to supply workflow_accession and status for the workflow_run table.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
 
@@ -488,7 +490,7 @@ public class Metadata extends Plugin {
             print("Created study with SWID: " + localRet.getAttribute("sw_accession"));
         } else {
             printErrorMessage(necessaryFields, null);
-            // Log.error("You need to supply title, description, accession, center_name, and center_project_name for the study table along with an integer for study_type [1: Whole Genome Sequencing, 2: Metagenomics, 3: Transcriptome Analysis, 4: Resequencing, 5: Epigenetics, 6: Synthetic Genomics, 7: Forensic or Paleo-genomics, 8: Gene Regulation Study, 9: Cancer Genomics, 10: Population Genomics, 11: Other]. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply title, description, accession, center_name, and center_project_name for the study table along with an integer for study_type [1: Whole Genome Sequencing, 2: Metagenomics, 3: Transcriptome Analysis, 4: Resequencing, 5: Epigenetics, 6: Synthetic Genomics, 7: Forensic or Paleo-genomics, 8: Gene Regulation Study, 9: Cancer Genomics, 10: Population Genomics, 11: Other]. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -529,7 +531,7 @@ public class Metadata extends Plugin {
 
         } else {
             printErrorMessage(necessaryFields, null);
-            // Log.error("You need to supply study_accession (reported if you create a study using this tool), title, and description for the experiment table along with an integer for platform_id [9: Illumina Genome Analyzer II, 20: Illumina HiSeq 2000, 26: Illumina MiSeq]. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply study_accession (reported if you create a study using this tool), title, and description for the experiment table along with an integer for platform_id [9: Illumina Genome Analyzer II, 20: Illumina HiSeq 2000, 26: Illumina MiSeq]. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -570,7 +572,7 @@ public class Metadata extends Plugin {
 
         } else {
             printErrorMessage(necessaryFields, optionalFields);
-            // Log.error("You need to supply experiment_accession (reported if you create an experiment using this tool), title, and description for the sample table along with an integer for organism_id [31: Homo sapiens]. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply experiment_accession (reported if you create an experiment using this tool), title, and description for the sample table along with an integer for organism_id [31: Homo sapiens]. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -637,7 +639,7 @@ public class Metadata extends Plugin {
 
         } else {
             printErrorMessage(necessaryFields, optionalFields);
-            // Log.error("You need to supply name, description, platform_accession [see platform lookup], the complete file path of the run, and 'true' or 'false' for paired_end and skip. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply name, description, platform_accession [see platform lookup], the complete file path of the run, and 'true' or 'false' for paired_end and skip. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -670,7 +672,7 @@ public class Metadata extends Plugin {
 
         } else {
             printErrorMessage(necessaryFields, null);
-            // Log.error("You need to supply name, description, cycle_descriptor [e.g. {F*120}{..}{R*120}], sequencer_run_accession, study_type_accession, library_strategy_accession, library_selection_accession, library_source_accession and 'true' or 'false' for skip. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply name, description, cycle_descriptor [e.g. {F*120}{..}{R*120}], sequencer_run_accession, study_type_accession, library_strategy_accession, library_selection_accession, library_source_accession and 'true' or 'false' for skip. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -700,7 +702,7 @@ public class Metadata extends Plugin {
 
         } else {
             printErrorMessage(necessaryFields, null);
-            // Log.error("You need to supply name, description, lane_accession, sample_accession, barcode and 'true' or 'false' for skip. Alternatively, enable --interactive mode.");
+            // logger.error("You need to supply name, description, lane_accession, sample_accession, barcode and 'true' or 'false' for skip. Alternatively, enable --interactive mode.");
             localRet.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
         return localRet;
@@ -721,8 +723,8 @@ public class Metadata extends Plugin {
         }
         sb.append("\nFor more information about these options, run with the --list-fields switch.");
         sb.append("\nAlternatively, enable --interactive mode.");
-        Log.error(sb.toString());
-        Log.stdout("You supplied:");
+        logger.error(sb.toString());
+        logger.info("You supplied:");
         printFields();
     }
 
@@ -737,7 +739,7 @@ public class Metadata extends Plugin {
             try {
                 bw.write(string);
             } catch (IOException ex) {
-                Log.error(null, ex);
+                logger.error(null, ex);
             }
         } else {
             System.out.println(string);
@@ -755,7 +757,7 @@ public class Metadata extends Plugin {
             String[] t = value.toString().split("::");
             if (t.length == 2) {
                 fields.put(t[0], t[1]);
-                Log.info("  Field: " + t[0] + " value " + t[1]);
+                logger.info("  Field: " + t[0] + " value " + t[1]);
             }
         }
         return localRet;
@@ -827,9 +829,9 @@ public class Metadata extends Plugin {
         for (String s : fs) {
             if (!fields.containsKey(s)) {
                 allPresent = false;
-                Log.debug(s + " <null>");
+                logger.debug(s + " <null>");
             } else {
-                Log.debug(s + " " + fields.get(s));
+                logger.debug(s + " " + fields.get(s));
             }
         }
         return allPresent;
@@ -837,7 +839,7 @@ public class Metadata extends Plugin {
 
     private void printFields() {
         for (String s : fields.keySet()) {
-            Log.stdout(s + "=" + fields.get(s));
+            logger.info(s + "=" + fields.get(s));
         }
     }
 
@@ -845,11 +847,11 @@ public class Metadata extends Plugin {
     // /// Interactive code
     // //////////////////////////////////////////////////////////////////////////
     protected void promptForStudy(String[] necessaryFields) {
-        Log.stdout("---Create a study---");
+        logger.info("---Create a study---");
         if (!fields.containsKey("study_type")) {
             System.out.println();
             for (StudyType st : metadata.getStudyTypes()) {
-                Log.stdout(st.toString());
+                logger.info(st.toString());
             }
             promptInteger("study_type", 4);
         }
@@ -860,7 +862,7 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForSample(String[] necessaryFields) {
-        Log.stdout("---Create a sample---");
+        logger.info("---Create a sample---");
 
         int checkMe;
         if (!fields.containsKey("experiment_accession")) {
@@ -875,7 +877,7 @@ public class Metadata extends Plugin {
         if (!fields.containsKey("organism_id")) {
             System.out.println();
             for (Organism o : metadata.getOrganisms()) {
-                Log.stdout(o.toString());
+                logger.info(o.toString());
             }
             promptInteger("organism_id", 31);
         }
@@ -884,18 +886,18 @@ public class Metadata extends Plugin {
 
         if (!fieldsConfirmed(necessaryFields) || checkMe <= 0) {
             if (checkMe <= 0) {
-                Log.stdout("You must provide experiment_accession and/or parent_sample_accession.");
+                logger.info("You must provide experiment_accession and/or parent_sample_accession.");
             }
             promptForSample(necessaryFields);
         }
     }
 
     protected void promptForSequencerRun(String[] necessaryFields) {
-        Log.stdout("---Create a sequencer run---");
+        logger.info("---Create a sequencer run---");
         if (!fields.containsKey("platform_accession")) {
             System.out.println();
             for (Platform p : metadata.getPlatforms()) {
-                Log.stdout(p.toString());
+                logger.info(p.toString());
             }
             promptInteger("platform_accession", 20);
         }
@@ -913,11 +915,11 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForExperiment(String[] necessaryFields) {
-        Log.stdout("---Create an experiment---");
+        logger.info("---Create an experiment---");
         if (!fields.containsKey("platform_id")) {
             System.out.println();
             for (Platform p : metadata.getPlatforms()) {
-                Log.stdout(p.toString());
+                logger.info(p.toString());
             }
             promptInteger("platform_id", 20);
         }
@@ -929,35 +931,35 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForLane(String[] necessaryFields) {
-        Log.stdout("---Create a lane---");
+        logger.info("---Create a lane---");
         if (!fields.containsKey("sequencer_run_accession")) {
             promptInteger("sequencer_run_accession", null);
         }
         if (!fields.containsKey("study_type_accession")) {
             System.out.println();
             for (StudyType st : metadata.getStudyTypes()) {
-                Log.stdout(st.toString());
+                logger.info(st.toString());
             }
             promptInteger("study_type_accession", 4);
         }
         if (!fields.containsKey("library_strategy_accession")) {
             System.out.println();
             for (LibraryStrategy st : metadata.getLibraryStrategies()) {
-                Log.stdout(st.toString());
+                logger.info(st.toString());
             }
             promptInteger("library_strategy_accession", null);
         }
         if (!fields.containsKey("library_selection_accession")) {
             System.out.println();
             for (LibrarySelection st : metadata.getLibrarySelections()) {
-                Log.stdout(st.toString());
+                logger.info(st.toString());
             }
             promptInteger("library_selection_accession", null);
         }
         if (!fields.containsKey("library_source_accession")) {
             System.out.println();
             for (LibrarySource st : metadata.getLibrarySource()) {
-                Log.stdout(st.toString());
+                logger.info(st.toString());
             }
             promptInteger("library_source_accession", null);
         }
@@ -976,7 +978,7 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForIUS(String[] necessaryFields) {
-        Log.stdout("---Create a IUS/barcode---");
+        logger.info("---Create a IUS/barcode---");
         if (!fields.containsKey("lane_accession")) {
             promptInteger("lane_accession", null);
         }
@@ -1020,7 +1022,7 @@ public class Metadata extends Plugin {
 
     protected boolean fieldsConfirmed(String[] necessaryFields) {
         for (String s : necessaryFields) {
-            Log.stdout(s + " : " + fields.get(s));
+            logger.info(s + " : " + fields.get(s));
         }
 
         String confirm = ConsoleAdapter.getInstance().readLine("Is this information correct? [y/n] :");

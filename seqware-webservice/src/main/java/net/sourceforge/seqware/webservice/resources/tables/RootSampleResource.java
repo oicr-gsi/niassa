@@ -23,11 +23,13 @@ import net.sourceforge.seqware.common.business.SampleService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.lists.SampleList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -37,6 +39,7 @@ import org.w3c.dom.Document;
  * @version $Id: $Id
  */
 public class RootSampleResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(RootSampleResource.class);
 
     /**
      * <p>
@@ -64,7 +67,7 @@ public class RootSampleResource extends DatabaseResource {
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
         JaxbObject<SampleList> jaxbTool;
         for (String key : queryValues.keySet()) {
-            Log.debug("key: " + key + " -> " + queryValues.get(key));
+            logger.debug("key: " + key + " -> " + queryValues.get(key));
         }
 
         SampleService ss = BeanFactory.getSampleServiceBean();

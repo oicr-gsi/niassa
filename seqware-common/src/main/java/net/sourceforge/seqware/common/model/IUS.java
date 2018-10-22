@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -552,7 +551,7 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
      */
     public void setSkip(Boolean skip) {
         if (skip != null && !Objects.equals(this.skip, skip)) {
-            Log.debug("Skipping ius " + getSwAccession());
+            LOGGER.debug("IUS.setSkip Skipping ius " + getSwAccession());
             this.skip = skip;
         }
     }
@@ -560,15 +559,15 @@ public class IUS extends PermissionsAware implements Serializable, Comparable<IU
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on IUS object " + swAccession);
+            LOGGER.debug("IUS.givesPermissionInternal Skipping permissions admin on IUS object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for IUS object " + swAccession);
+            LOGGER.debug("IUS.givesPermissionInternal Checking permissions for IUS object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for IUS object " + swAccession + " , checked before");
+            LOGGER.debug("IUS.givesPermissionInternal Skipping permissions for IUS object " + swAccession + " , checked before");
             return true;
         }
 

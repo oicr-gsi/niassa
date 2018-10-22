@@ -8,7 +8,7 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.common.util.runtools.RunTools;
 import net.sourceforge.seqware.pipeline.module.Module;
@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a very simple module that takes a few options on the command line and then passes the rest of the arguments to whatever command
@@ -46,6 +48,8 @@ import java.util.Set;
  */
 @ServiceProvider(service = ModuleInterface.class)
 public class GenericCommandRunner extends Module {
+    private final Logger logger = LoggerFactory.getLogger(GenericCommandRunner.class);
+
     public static final String GCR_STDOUT = "gcr-stdout";
     public static final String GCR_STDERR = "gcr-stderr";
     public static final String GCR_STDERR_BUFFERSIZE = "gcr-stderr-buffer-size";
@@ -366,7 +370,7 @@ public class GenericCommandRunner extends Module {
             cmdBuff.append(token).append(" ");
         }
         theCommand.add(cmdBuff.toString());
-        Log.stdout("Command run: \nbash -lc " + cmdBuff.toString());
+        logger.info("Command run: \nbash -lc " + cmdBuff.toString());
         ReturnValue result;
         if (options.has(permanentPrefixSpec)) {
             result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength,
@@ -375,7 +379,7 @@ public class GenericCommandRunner extends Module {
             result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength);
         }
 
-        Log.stdout("Command exit code: " + result.getExitStatus());
+        logger.info("Command exit code: " + result.getExitStatus());
         // ReturnValue result = RunTools.runCommand(new String[] { "bash", "-c",
         // (String)options.valueOf("gcr-command"), cmdParameters.toArray(new
         // String[0])} );
@@ -441,7 +445,7 @@ public class GenericCommandRunner extends Module {
             for (String file : files) {
                 String[] tokens = file.split("::");
                 if (FileTools.fileExistsAndReadable(new File(tokens[2])).getExitStatus() != ReturnValue.SUCCESS) {
-                    Log.error("File does not exist or is not readable: " + tokens[2]);
+                    logger.error("File does not exist or is not readable: " + tokens[2]);
                     ret.setExitStatus(ReturnValue.FILENOTREADABLE);
                     return ret;
                 }
@@ -484,7 +488,7 @@ public class GenericCommandRunner extends Module {
         List<String> files = (List<String>) options.valuesOf("gcr-check-output-file");
         for (String file : files) {
             if (FileTools.fileExistsAndNotEmpty(new File(file)).getExitStatus() != ReturnValue.SUCCESS) {
-                Log.error("File does not exist or is not readable: " + file);
+                logger.error("File does not exist or is not readable: " + file);
                 newret.setExitStatus(ReturnValue.FILENOTREADABLE);
                 return (newret);
             }

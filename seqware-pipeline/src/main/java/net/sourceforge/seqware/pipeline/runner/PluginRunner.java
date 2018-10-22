@@ -17,12 +17,13 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import net.sourceforge.seqware.common.util.exceptiontools.ExceptionTools;
 import net.sourceforge.seqware.pipeline.module.PluginMethod;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,7 +54,7 @@ public class PluginRunner {
     private Plugin plugin = null;
     private Metadata meta = null;
     private HashMap<String, ArrayList<String>> map = new HashMap<>();
-
+    private final Logger logger = LoggerFactory.getLogger(PluginRunner.class);
     /**
      * <p>
      * main.
@@ -121,7 +122,7 @@ public class PluginRunner {
         parser.acceptsAll(Arrays.asList("plugin", "p"), "The plugin you wish to trigger.").withRequiredArg();
         this.nonOptionSpec = parser
                 .nonOptions("Specify arguments for the plugin by providding an additional -- and then --<key> <value> pairs");
-        parser.accepts("verbose", "Show debug information");
+        parser.accepts("verbose", "Deprecated option");
     }
 
     /**
@@ -133,22 +134,21 @@ public class PluginRunner {
      */
     private void getSyntax(OptionParser parser, String errorMessage) {
         if (errorMessage != null && errorMessage.length() > 0) {
-            Log.stdout("ERROR: " + errorMessage);
-            Log.stdout("");
+            logger.error("ERROR: " + errorMessage);
         }
         PluginRunner it = new PluginRunner();
         String seqwareVersion = it.getClass().getPackage().getImplementationVersion();
-        Log.stdout("Syntax: java seqware-distribution-" + seqwareVersion
-                + "-full.jar [[--help]] [--list] [--verbose] [--plugin] PluginName -- [PluginParameters]");
-        Log.stdout("");
-        Log.stdout("--> PluginParameters are passed directly to the Plugin and ignored by the PluginRunner. ");
-        Log.stdout("--> You must pass '--' right after the PluginName in order to prevent the parameters from being parsed by the PluginRunner!");
-        Log.stdout("");
-        Log.stdout("PluginRunner parameters are limited to the following:");
+        System.out.println("Syntax: java seqware-distribution-" + seqwareVersion
+                + "-full.jar [[--help]] [--list] [--plugin] PluginName -- [PluginParameters]");
+        System.out.println("");
+        System.out.println("--> PluginParameters are passed directly to the Plugin and ignored by the PluginRunner. ");
+        System.out.println("--> You must pass '--' right after the PluginName in order to prevent the parameters from being parsed by the PluginRunner!");
+        System.out.println("");
+        System.out.println("PluginRunner parameters are limited to the following:");
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+           logger.error("PluginRunner.getSyntax I/O exception:",e);
         }
         throw new ExitException(ReturnValue.INVALIDARGUMENT);
     }
@@ -166,7 +166,7 @@ public class PluginRunner {
 
         // FIXME: check single char options too
         if (options.has("list") && options.has("plugin")) {
-            Log.error("You can't have both --list and --plugin defined at the same time!");
+            logger.error("You can't have both --list and --plugin defined at the same time!");
             throw new ExitException(ReturnValue.INVALIDARGUMENT);
         }
 
@@ -176,9 +176,8 @@ public class PluginRunner {
             throw new ExitException(ReturnValue.INVALIDARGUMENT);
         }
 
-        // check if verbose was requested, then override the log4j.properties
         if (options.has("verbose")) {
-            Log.setVerbose(true);
+            logger.error("You really want it more verbose than this? Verbosity level not changing.");
         }
     }
 
@@ -198,13 +197,13 @@ public class PluginRunner {
         // PluginInterface p = (PluginInterface)Lookup.getDefault().lookup(PluginInterface.class);
 
         if (options.has("list") || options.has("l")) {
-            Log.info("Plugin List:\n");
+            System.out.println("Plugin List:\n");
         }
 
         for (PluginInterface plug : plugs) {
             if (options.has("list") || options.has("l")) {
-                Log.stdout("  Plugin: " + plug.getClass().getPackage().getName() + "." + plug.getClass().getSimpleName());
-                Log.stdout("          " + plug.get_description() + "\n");
+                System.out.println("  Plugin: " + plug.getClass().getPackage().getName() + "." + plug.getClass().getSimpleName());
+                System.out.println("          " + plug.get_description() + "\n");
             }
             ArrayList<String> classList = map.get(plug.getClass().getPackage().getName());
             if (classList == null) {
@@ -224,23 +223,22 @@ public class PluginRunner {
         String pluginName = null;
         if (options.has("plugin")) {
             pluginName = (String) options.valueOf("plugin");
-            Log.debug("Running Plugin: " + pluginName);
+            logger.debug("Running Plugin: " + pluginName);
 
             try {
                 plugin = (Plugin) Class.forName(pluginName).newInstance();
 
             } catch (ClassNotFoundException e) {
-                Log.error("Could not find the Plugin class for '" + pluginName + "'");
+                logger.error("Could not find the Plugin class for '" + pluginName + "'");
                 throw new ExitException(ReturnValue.INVALIDPLUGIN);
             } catch (Throwable e) {
-                e.printStackTrace();
-                Log.error(e);
+                logger.error("PluginRunner.setupPlugin Throwable exception:",e);
                 throw new ExitException(ReturnValue.FAILURE);
             }
 
             if (options.has("help") || options.has("h")) {
 
-                Log.stdout(plugin.get_syntax());
+                System.out.println(plugin.get_syntax());
 
             } else {
 
@@ -253,13 +251,13 @@ public class PluginRunner {
                 // set the metadata object in case the plugin needs access to the DB
                 plugin.setMetadata(meta);
 
-                Log.debug("Setting Up Plugin: " + plugin);
+                logger.debug("Setting Up Plugin: " + plugin);
             }
 
         } else if (options.has("list")) {
             PluginRunner it = new PluginRunner();
             String seqwareVersion = it.getClass().getPackage().getImplementationVersion();
-            Log.stdout("For more information use \"java -jar seqware-distribution-" + seqwareVersion
+            System.out.println("For more information use \"java -jar seqware-distribution-" + seqwareVersion
                     + "-full.jar --plugin <plugin_name> --help\" to see options for each.\n");
         } else {
             getSyntax(parser, "You must specifiy a plugin with option --plugin");
@@ -277,7 +275,7 @@ public class PluginRunner {
 
         if ((options.has("plugin") || options.has("p")) && plugin != null) {
 
-            Log.info("Invoking Plugin Methods:");
+            logger.info("Invoking Plugin Methods:");
 
             // evaluate the plugin method parse_parameters
             evaluateReturn(plugin, PluginMethod.parse_parameters);
@@ -308,12 +306,11 @@ public class PluginRunner {
         ReturnValue newReturn = null;
 
         try {
-            Log.debug("  Invoking Method: " + methodName);
+            logger.debug("  Invoking Method: " + methodName);
             newReturn = methodName.step(app);
 
         } catch (Exception e) {
-            Log.stderr("Module caught exception during method: " + methodName + ":" + e.getMessage());
-            Log.stderr(ExceptionTools.stackTraceToString(e));
+            logger.error("Module caught exception during method: " + methodName + ":" + e.getMessage(),e);
             // Exit on error
             throw new ExitException(ReturnValue.RUNNERERR);
         }
@@ -321,10 +318,10 @@ public class PluginRunner {
         // On failure, update metadb and exit
         if (newReturn.getExitStatus() > ReturnValue.SUCCESS) {
             if (newReturn.getStderr() != null) {
-                Log.stderr(newReturn.getStderr());
+                logger.error(newReturn.getStderr());
             } else {
-                Log.stderr("The method '" + methodName + "' exited abnormally so the Runner will terminate here!");
-                Log.stderr("Return value was: " + newReturn.getExitStatus());
+                logger.error("The method '" + methodName + "' exited abnormally so the Runner will terminate here!");
+                logger.error("Return value was: " + newReturn.getExitStatus());
             }
             throw new ExitException(newReturn.getExitStatus());
         }
@@ -334,8 +331,8 @@ public class PluginRunner {
             // If it returned unimplemented, let's warn
             if (newReturn.getExitStatus() < ReturnValue.SUCCESS) {
                 if (!options.has("suppress-unimplemented-warnings")) {
-                    Log.debug("The plugin method '" + methodName + "' returned exit value of " + newReturn.getExitStatus() + ".");
-                    Log.debug("This means an unimplemented method was called (such as an unneeded optional cleanup or init step)");
+                    logger.debug("The plugin method '" + methodName + "' returned exit value of " + newReturn.getExitStatus() + ".");
+                    logger.debug("This means an unimplemented method was called (such as an unneeded optional cleanup or init step)");
                 }
                 newReturn.setExitStatus(ReturnValue.NULL);
             }
@@ -350,8 +347,7 @@ public class PluginRunner {
         try {
             this.config = ConfigTools.getSettings();
         } catch (Exception e) {
-            Log.stderr("Error reading settings file: " + e.getMessage());
-            Log.fatal("Error reading settings file", e);
+            logger.error("Error reading settings file: " + e.getMessage(), e);
             throw new ExitException(ReturnValue.SETTINGSFILENOTFOUND);
         }
     }

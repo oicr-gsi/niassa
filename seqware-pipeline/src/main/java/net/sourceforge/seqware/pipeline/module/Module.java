@@ -8,7 +8,8 @@ import java.util.List;
 import joptsimple.OptionParser;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -19,6 +20,8 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public abstract class Module implements ModuleInterface {
+    private final Logger logger = LoggerFactory.getLogger(Module.class);
+
     // Data Members
     Metadata metadata;
 
@@ -43,7 +46,6 @@ public abstract class Module implements ModuleInterface {
     protected int processingAccession;
 
     List<String> parameters = new ArrayList<>();
-
     /**
      * Getter for the file where the stdout will be redirected. By default, the stdout will be redirected before the do_run() method and
      * turned off after do_run() method. However, this can be changed via the @StdoutRedirect annotation on the module class
@@ -155,7 +157,7 @@ public abstract class Module implements ModuleInterface {
      */
     @Override
     public void setParameters(List<String> parameters) {
-        Log.info("Parsing Command Parameters:");
+        logger.info("Parsing Command Parameters:");
         // Clear the parameters first. Otherwise, it will have side effect when
         // setParameters are called twice, the parameters
         // are merged as opposed to be set
@@ -181,7 +183,7 @@ public abstract class Module implements ModuleInterface {
             param = param.replaceAll("~#42;", "*");
             param = param.replaceAll("~star;", "*");
 
-            // Log.info("Param Parser: "+param);
+            // logger.info("Param Parser: "+param);
             if (readingQuoteString && !param.endsWith(quoteString)) {
                 buffer.append(" ").append(param);
             } else if (param.startsWith("\"") && !readingQuoteString) {
@@ -196,11 +198,11 @@ public abstract class Module implements ModuleInterface {
                 buffer.append(" ").append(param.substring(0, param.length() - 1));
                 readingQuoteString = false;
                 quoteString = null;
-                Log.info("  param: " + buffer.toString());
+                logger.info("  param: " + buffer.toString());
                 this.parameters.add(buffer.toString());
                 buffer = new StringBuffer();
             } else {
-                Log.info("  param: " + param);
+                logger.info("  param: " + param);
                 this.parameters.add(param);
             }
         }
@@ -233,7 +235,7 @@ public abstract class Module implements ModuleInterface {
         try {
             parser.printHelpOn(output);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Module.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
         return (output.toString());
@@ -255,7 +257,7 @@ public abstract class Module implements ModuleInterface {
             // left off here, need to look at the options that are available
             parser.printHelpOn(output);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Module.get_galaxy_xml I/O exception:",e);
             return (e.getMessage());
         }
         return (output.toString());

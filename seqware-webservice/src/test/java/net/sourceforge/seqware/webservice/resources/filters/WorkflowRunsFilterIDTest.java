@@ -19,12 +19,15 @@ package net.sourceforge.seqware.webservice.resources.filters;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import org.junit.Assert;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class WorkflowRunsFilterIDTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunsFilterIDTest.class);
 
     private String workflowId;
     private String runId;
@@ -61,7 +64,7 @@ public class WorkflowRunsFilterIDTest extends AbstractResourceTest {
             Assert.assertTrue("runId is not in representation:" + result, result.contains(runId));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("WorkflowRunsFilterIDTest.testGet exception:",e);
         }
 
     }

@@ -6,18 +6,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.maptools.ReservedIniKeys;
 import net.sourceforge.seqware.pipeline.bundle.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a utils class for creating the AbstractWorkflowDataModel, by reading the
@@ -28,6 +27,7 @@ import net.sourceforge.seqware.pipeline.bundle.Bundle;
  * 
  */
 public class WorkflowDataModelFactory {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowDataModelFactory.class);
 
 	private final Map<String, String> config;
 	private final Metadata metadata;
@@ -63,7 +63,7 @@ public class WorkflowDataModelFactory {
 		// change to absolute path
 		bundlePath = bundle.getAbsolutePath();
 		Map<String, String> metaInfo = metadata.get_workflow_info(workflowAccession);
-		Log.info("Bundle Path: " + bundlePath);
+		logger.info("Bundle Path: " + bundlePath);
 		if (!bundle.exists()) {
 
 			// then first try to see if we can get it from it's permenant location instead
@@ -72,7 +72,7 @@ public class WorkflowDataModelFactory {
 			}
 			// if we still can't get the bundle then error out
 			if (!bundle.exists()) {
-				Log.error(
+				logger.error(
 						"ERROR: Bundle is null or doesn't exist! The bundle must be either a zip file or a directory structure.");
 				return null;
 			}
@@ -80,10 +80,10 @@ public class WorkflowDataModelFactory {
 
 		metaInfo = WorkflowV2Utility.parseMetaInfo(bundle);
 		if (metaInfo == null) {
-			Log.error("ERROR: Bundle structure is incorrect, unable to parse metadata.");
+			logger.error("ERROR: Bundle structure is incorrect, unable to parse metadata.");
 			return null;
 		}
-		Log.info("bundle for workflowdatamodel found");
+		logger.info("bundle for workflowdatamodel found");
 
 		// check FTL exist?
 		boolean workflowJava = true;
@@ -96,26 +96,26 @@ public class WorkflowDataModelFactory {
 		Class<?> clazz = null;
 		if (workflowJava) {
 			// String clazzPath = metaInfo.get("classes");
-			// Log.stdout("looking for classes at " + clazzPath);
-			// Log.info("CLASSPATH: " + clazzPath);
+			// logger.stdout("looking for classes at " + clazzPath);
+			// logger.info("CLASSPATH: " + clazzPath);
 			// // get user defined classes
 			String classpath = metaInfo.get("workflow_class");
-			Log.debug("Attempting to instantiate " + classpath);
+			logger.debug("Attempting to instantiate " + classpath);
 			WorkflowClassFinder finder = new WorkflowClassFinder();
 			clazz = finder.findFirstWorkflowClass(classpath);
 
 			if (null != clazz) {
-				Log.debug("using java object");
+				logger.debug("using java object");
 				try {
 					Object object = clazz.newInstance();
 					dataModel = (AbstractWorkflowDataModel) object;
 				} catch (InstantiationException | IllegalAccessException | SecurityException
 						| IllegalArgumentException ex) {
-					Log.error(ex, ex);
+                                        logger.error("WorkflowDataModelFactory.getWorkflowDataModel",ex);
 					throw Rethrow.rethrow(ex);
 				}
 			} else {
-				Log.stdout("failed looking for classes at " + classpath);
+				logger.error("failed looking for classes at " + classpath);
 				throw new RuntimeException("Unable to construct workflow class");
 			}
 		} else {
@@ -124,7 +124,7 @@ public class WorkflowDataModelFactory {
 		if (dataModel == null) {
 			throw new RuntimeException("Unable to construct datamodel");
 		}
-		Log.info("datamodel generated");
+		logger.info("datamodel generated");
 		// load metadata.xml
 		dataModel.setTags(metaInfo);
 		// set name, version in workflow
@@ -140,7 +140,7 @@ public class WorkflowDataModelFactory {
 		dataModel.getEnv().setNetwork(metaInfo.get("network"));
 		dataModel.getEnv().setMemory(metaInfo.get("memory"));
 
-		Log.info("loading ini files");
+		logger.info("loading ini files");
 		// load ini config
 		WorkflowRun workflowRun = metadata.getWorkflowRun(workflowRunAccession);
 		Map<String, String> iniString2Map = MapTools.iniString2Map(workflowRun.getIniFile());
@@ -194,20 +194,20 @@ public class WorkflowDataModelFactory {
 				dataModel.buildWorkflow();
 				dataModel.wrapup();
 			} catch (NullPointerException e) {
-				Log.error("NullPointerException", e);
+				logger.error("NullPointerException", e);
 				throw Rethrow.rethrow(e);
 			} catch (SecurityException e) {
-				Log.error("SecurityException", e);
+				logger.error("SecurityException", e);
 				throw Rethrow.rethrow(e);
 			} catch (IllegalArgumentException e) {
-				Log.error("IllegalArgumentException", e);
+				logger.error("IllegalArgumentException", e);
 				throw Rethrow.rethrow(e);
 			}
 		} else {
 			throw new RuntimeException("No other workflow engine is currently supported.");
 		}
 		AbstractWorkflowDataModel.prepare(dataModel);
-		Log.info("returning datamodel");
+		logger.info("returning datamodel");
 		return dataModel;
 	}
 
@@ -264,12 +264,12 @@ public class WorkflowDataModelFactory {
 			try {
 				// TODO: fix this magic name
 				boolean metadataWriteBack = model.getProperty(ReservedIniKeys.METADATA.getKey()).equals("metadata");
-				Log.info("Launching with metadataWriteback = " + metadataWriteBack + " since property was "
+				logger.info("Launching with metadataWriteback = " + metadataWriteBack + " since property was "
 						+ model.getProperty(ReservedIniKeys.METADATA.getKey()));
 				model.setMetadataWriteBack(metadataWriteBack);
 			} catch (Exception ex) {
-				Logger.getLogger(WorkflowDataModelFactory.class.getName()).log(Level.SEVERE, null, ex);
-			}
+                            logger.error("WorkflowDataModelFactory.mergeCmdOptions 1",ex);
+                        }
 		}
 
 		// metadata-output-file-prefix
@@ -277,10 +277,10 @@ public class WorkflowDataModelFactory {
 			try {
 				model.setMetadata_output_file_prefix(model.getProperty(ReservedIniKeys.OUTPUT_PREFIX.getKey()));
 			} catch (Exception ex) {
-				Logger.getLogger(WorkflowDataModelFactory.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.error("WorkflowDataModelFactory.mergeCmdOptions 2",ex);
 			}
 		} else {
-			Log.error(
+			logger.error(
 					"You need to specify the output prefix for your workflow using either an override parameter at schedule-time or in your workflow INI file as "
 							+ ReservedIniKeys.OUTPUT_PREFIX.getKey());
 		}
@@ -289,10 +289,10 @@ public class WorkflowDataModelFactory {
 			try {
 				model.setMetadata_output_dir(model.getProperty(ReservedIniKeys.OUTPUT_DIR.getKey()));
 			} catch (Exception ex) {
-				Logger.getLogger(WorkflowDataModelFactory.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.error("WorkflowDataModelFactory.mergeCmdOptions 3",ex);
 			}
 		} else {
-			Log.error(
+			logger.error(
 					"You need to specify the output dir for your workflow using either an override parameter at schedule-time or in your workflow INI file as output_dir!");
 		}
 		// workflow_engine

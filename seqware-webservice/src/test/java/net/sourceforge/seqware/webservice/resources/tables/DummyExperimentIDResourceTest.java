@@ -22,6 +22,8 @@ import org.restlet.representation.Representation;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stupid hack, first test fails when tomcat is used after glassfish
@@ -29,7 +31,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @author dyuen
  */
 public class DummyExperimentIDResourceTest extends DatabaseResourceIDTest<Experiment> {
-
+        private final Logger logger = LoggerFactory.getLogger(DummyExperimentIDResourceTest.class);
 	public DummyExperimentIDResourceTest() {
 		super("/experiments/6157", Experiment.class);
 	}
@@ -52,8 +54,8 @@ public class DummyExperimentIDResourceTest extends DatabaseResourceIDTest<Experi
 			rep.exhaust();
 			rep.release();
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                    logger.error("DummyExperimentIDResourceTest.testGet exception:",e);
+                }
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class DummyExperimentIDResourceTest extends DatabaseResourceIDTest<Experi
 		 * resource.put(test); String result = rep.getText(); rep.exhaust();
 		 * rep.release(); System.out.println("id = " + id); System.out.println(result);
 		 * Assert.assertTrue("ID is not in representation:" + result,
-		 * result.contains(id)); } catch (Exception e) { e.printStackTrace();
+		 * result.contains(id)); } catch (Exception e) { logger.error("DummyExperimentIDResourceTest.testPut exception:",e);;
 		 * Assert.fail(e.getMessage());
 		 * 
 		 * }

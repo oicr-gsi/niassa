@@ -10,7 +10,6 @@ import java.util.List;
 import net.sourceforge.seqware.common.dao.FileDAO;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Registration;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import net.sourceforge.seqware.common.util.filetools.ProvisionFilesUtil;
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -93,20 +92,20 @@ public class FileDAOHibernate extends HibernateDaoSupport implements FileDAO {
             java.io.File f = new java.io.File(fileName);
 
             // Make sure the file or directory exists and isn't write protected
-            if (!f.exists()) Log.stderr("Delete: no such file or directory: " + fileName);
+            if (!f.exists()) localLogger.error("Delete: no such file or directory: " + fileName);
 
-            if (!f.canWrite()) Log.stderr("Delete: write protected: " + fileName);
+            if (!f.canWrite()) localLogger.error("Delete: write protected: " + fileName);
 
             // If it is a directory, make sure it is empty
             if (f.isDirectory()) {
                 String[] files = f.list();
-                if (files.length > 0) Log.stderr("Delete: directory not empty: " + fileName);
+                if (files.length > 0) localLogger.error("Delete: directory not empty: " + fileName);
             }
 
             // Attempt to delete it
             boolean success = f.delete();
 
-            if (!success) Log.stderr("Delete: deletion failed");
+            if (!success) localLogger.error("Delete: deletion failed");
         }
     }
 

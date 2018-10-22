@@ -54,7 +54,7 @@ public abstract class DatabaseResourceIDTest<T> extends AbstractResourceTest {
             rep.release();
             Assert.assertTrue("ID is not in representation:" + result, result.contains(id));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("DatabaseResourceIDTest.testPut exception:",e);
             Assert.fail(e.getMessage());
 
         }
@@ -80,7 +80,7 @@ public abstract class DatabaseResourceIDTest<T> extends AbstractResourceTest {
             rep.exhaust();
             rep.release();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("DatabaseResourceIDTest.testGet exception:",e);
             Assert.fail(e.getMessage());
 
         }

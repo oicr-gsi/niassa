@@ -29,11 +29,12 @@ import java.util.Map;
 import joptsimple.OptionSpec;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.plugins.filelinker.FileLinkerParser;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -46,6 +47,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class FileLinker extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(FileLinker.class);
 
     ReturnValue ret = new ReturnValue();
     private final OptionSpec<String> separator;
@@ -100,14 +102,14 @@ public class FileLinker extends Plugin {
                 // pre-emptively check whether there are any valid files, skip workflow run creation if there are not
                 List<FileMetadata> files = removeFilesThatAlreadyExistInSeqWare(entry.getValue());
                 if (files.isEmpty()) {
-                    Log.stdout("No files to add for IUS " + entry.getKey() + " skipping.");
+                    logger.info("No files to add for IUS " + entry.getKey() + " skipping.");
                     continue;
                 }
 
                 // Make the workflow run, one for every IUS.
                 int workflowRunId = metadata.add_workflow_run(workflowAccession);
                 if (workflowRunId == 0) {
-                    Log.error("Failure to create a new workflow run id. Value is " + workflowRunId
+                    logger.error("Failure to create a new workflow run id. Value is " + workflowRunId
                             + ". The workflow_run accession may be incorrect.");
                     ret.setExitStatus(ReturnValue.SQLQUERYFAILED);
                     return ret;
@@ -115,12 +117,12 @@ public class FileLinker extends Plugin {
 
                 try {
                     if (!metadata.linkWorkflowRunAndParent(workflowRunId, entry.getKey())) {
-                        Log.error("Incorrect ius or lane accession");
+                        logger.error("Incorrect ius or lane accession");
                         ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
                         return ret;
                     }
                 } catch (SQLException ex) {
-                    Log.fatal("SQLException", ex);
+                    logger.error("FileLinker.do_run() SQLException", ex);
                     ret.setExitStatus(ReturnValue.SQLQUERYFAILED);
                     return ret;
                 }
@@ -134,7 +136,7 @@ public class FileLinker extends Plugin {
                         null, null, null, null, null, null, null);
                 print("SWID: " + rv.getReturnValue() + "\n");
                 if (rv.getExitStatus() != ReturnValue.SUCCESS) {
-                    Log.error("Failure in updating the workflow run " + workflowRunId + ". The workflow_run accession may be incorrect.");
+                    logger.error("Failure in updating the workflow run " + workflowRunId + ". The workflow_run accession may be incorrect.");
                     ret.setExitStatus(ReturnValue.FAILURE);
                     return ret;
                 }
@@ -163,7 +165,7 @@ public class FileLinker extends Plugin {
             if (!metadata.isDuplicateFile(file.getFilePath())) {
                 result.add(file);
             } else {
-                Log.error("Ignored file [" + file.getFilePath() + "]. Already exists in database.");
+                logger.error("Ignored file [" + file.getFilePath() + "]. Already exists in database.");
             }
         }
         return result;
@@ -175,7 +177,7 @@ public class FileLinker extends Plugin {
         processingReturnValue.setAlgorithm("fileImport");
         for (FileMetadata file : files) {
             processingReturnValue.getFiles().add(file);
-            Log.info("Attempting to add file [" + file.getFilePath() + "] with meta data type [" + file.getMetaType()
+            logger.info("Attempting to add file [" + file.getFilePath() + "] with meta data type [" + file.getMetaType()
                     + "] to database. SeqWare Accession [" + iusSwa + "].");
         }
         metadata.update_processing_workflow_run(processingId, metadata.get_workflow_run_accession(workflowRunId));

@@ -13,7 +13,6 @@ import net.sourceforge.seqware.common.model.FileAttribute;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.common.util.filetools.ProvisionFilesUtil;
@@ -33,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -48,6 +49,7 @@ import java.util.TreeSet;
  */
 @ServiceProvider(service = ModuleInterface.class)
 public class ProvisionFiles extends Module {
+    private final Logger logger = LoggerFactory.getLogger(ProvisionFiles.class);
 
     protected OptionSet options = null;
     private String algorithmName = "ProvisionFiles";
@@ -156,7 +158,7 @@ public class ProvisionFiles extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            Log.error("error paring input", e);
+            logger.error("error paring input", e);
             return (e.getMessage());
         }
     }
@@ -189,7 +191,7 @@ public class ProvisionFiles extends Module {
         } catch (OptionException e) {
             ret.setStderr(e.getMessage() + System.getProperty("line.separator") + this.get_syntax());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
-            Log.error("error paring input", e);
+            logger.error("error paring input", e);
             return ret;
         }
 
@@ -388,7 +390,7 @@ public class ProvisionFiles extends Module {
 
             // debug info, loop over inputs
             for (FileMetadata fmd : fileArray) {
-                Log.info("FMD:\nDescription: " + fmd.getDescription() + "\nFile Path: " + fmd.getFilePath() + "\nMeta Type: " + fmd.getMetaType() + "\nType: " + fmd.getType());
+                logger.info("FMD:\nDescription: " + fmd.getDescription() + "\nFile Path: " + fmd.getFilePath() + "\nMeta Type: " + fmd.getMetaType() + "\nType: " + fmd.getType());
                 // handle text/key-value
                 if (fmd.getMetaType().equals("text/key-value") && this.getProcessingAccession() != 0) {
                     handleAnnotations(fmd.getFilePath(), this.getProcessingAccession(), this.getMetadata());
@@ -413,14 +415,14 @@ public class ProvisionFiles extends Module {
             for (String input : inputs) {
                 FileMetadata filemetadata = input2metadataMap.get(input);
                 if (filemetadata != null) {
-                    Log.stdout("Found metadata for input: " + input);
+                    logger.info("Found metadata for input: " + input);
                 }
-                Log.stdout("Processing input: " + input);
+                logger.info("Processing input: " + input);
                 if (options.has(outputDirSpec)) {
-                    Log.stdout("      output-dir: " + options.valueOf(outputDirSpec));
+                    logger.info("      output-dir: " + options.valueOf(outputDirSpec));
                 }
                 if (options.has(outputFileSpec)) {
-                    Log.stdout("     output-file: " + options.valueOf(outputFileSpec));
+                    logger.info("     output-file: " + options.valueOf(outputFileSpec));
                 }
                 if (!input.startsWith("http") && !input.startsWith("s3") && new File(input).isDirectory()) {
                     if (options.has(recursiveSpec)) {
@@ -433,20 +435,20 @@ public class ProvisionFiles extends Module {
                 } else if ((options.valuesOf(inputFileSpec).size() == 1 && options.valuesOf(inputFileMetadataSpec).isEmpty()) && options.has(outputFileSpec) && options.valuesOf(outputFileSpec).size() == 1) { // then this is a single file to single
                     // file copy
                     if (!provisionFile(input, options.valueOf(outputFileSpec), skipIfMissing, fileArray, true, filemetadata)) {
-                        Log.error("Failed to copy file");
+                        logger.error("Failed to copy file");
                         ret.setExitStatus(ReturnValue.FAILURE);
                         return ret;
                     }
                 } else if ((options.valuesOf(inputFileSpec).isEmpty() && options.valuesOf(inputFileMetadataSpec).size() == 1) && options.has(inputFileMetadataSpec) && options.valuesOf(outputFileSpec).size() == 1) { // then this is a single file to
                     // single file copy
                     if (!provisionFile(input, options.valueOf(outputFileSpec), skipIfMissing, fileArray, true, filemetadata)) {
-                        Log.error("Failed to copy file");
+                        logger.error("Failed to copy file");
                         ret.setExitStatus(ReturnValue.FAILURE);
                         return ret;
                     }
                 } else if (options.has(outputDirSpec)) { // then this is just a normal file copy
                     if (!provisionFile(input, options.valueOf(outputDirSpec), skipIfMissing, fileArray, false, filemetadata)) {
-                        Log.error("Failed to copy file to dir");
+                        logger.error("Failed to copy file to dir");
                         ret.setExitStatus(ReturnValue.FAILURE);
                         return ret;
                     }
@@ -458,7 +460,7 @@ public class ProvisionFiles extends Module {
             }
 
         } finally{
-            Log.stdout("ProvisionFiles exit code: " + ret.getExitStatus() + "\n");
+            logger.info("ProvisionFiles exit code: " + ret.getExitStatus() + "\n");
         }
 
         return ret;
@@ -475,9 +477,9 @@ public class ProvisionFiles extends Module {
         ReturnValue ret = new ReturnValue(ReturnValue.SUCCESS);
         boolean skipIfMissing = options.has("skip-if-missing");
 
-        // Log.error("BASEDIR: "+baseDir);
+        // logger.error("BASEDIR: "+baseDir);
         for (String file : files) {
-            // Log.error("  FILE: "+file);
+            // logger.error("  FILE: "+file);
 
             // clean
             if (baseDir.endsWith("/")) {
@@ -490,15 +492,15 @@ public class ProvisionFiles extends Module {
             String additionalPath = currFile.getAbsolutePath().replace(baseDir + "/", "");
 
             if (currFile.isDirectory()) {
-                // Log.error("    CURR FILE IS DIR: "+currFile.getAbsolutePath()+"\n");
+                // logger.error("    CURR FILE IS DIR: "+currFile.getAbsolutePath()+"\n");
                 ReturnValue currRet = recursivelyCopyDir(currFile.getAbsolutePath(), currFile.list(), outputDir + "/" + additionalPath,
                         fileArray);
                 if (currRet.getExitStatus() != ReturnValue.SUCCESS) {
                     return (currRet);
                 }
             } else {
-                // Log.error("    CURR FILE IS FILE: "+currFile.getAbsolutePath()+"\n");
-                Log.info("\n  COPYING FILE: " + currFile.getAbsolutePath() + "\n    to " + outputDir + "/" + additionalPath);
+                // logger.error("    CURR FILE IS FILE: "+currFile.getAbsolutePath()+"\n");
+                logger.info("\n  COPYING FILE: " + currFile.getAbsolutePath() + "\n    to " + outputDir + "/" + additionalPath);
                 // when this goes recursive, there is no single metadata that clearly corresponds so set that to null
                 if (!provisionFile(currFile.getAbsolutePath(),
                         outputDir + "/" + additionalPath.substring(0, additionalPath.length() - file.length()), skipIfMissing, fileArray,
@@ -538,7 +540,7 @@ public class ProvisionFiles extends Module {
         // I believe this is done so the file path in the ReturnValue object is
         // ready for saving to the DB prefixed by output prefix
         for (FileMetadata fmd : fileArray) {
-            Log.info("Examining: " + fmd.getFilePath() + " fileUti's file: " + filesUtil.getFileName() + " fileutil's original file: "
+            logger.info("Examining: " + fmd.getFilePath() + " fileUti's file: " + filesUtil.getFileName() + " fileutil's original file: "
                     + filesUtil.getOriginalFileName());
             if (fmd.getFilePath() != null && fmd.getFilePath().equals(filesUtil.getOriginalFileName())) {
                 fmd.setFilePath(filesUtil.getFileName());
@@ -553,11 +555,11 @@ public class ProvisionFiles extends Module {
             metadata.setFilePath("");
             metadata.setMetaType("");
             if (skipIfMissing) {
-                Log.warn("File does not exist: " + input + ". Skipping...");
+                logger.warn("File does not exist: " + input + ". Skipping...");
                 return true;
             } else {
-                Log.error("File does not exist: " + input);
-                Log.error("To proceed, run ProvisionFile again with --skip-if-missing");
+                logger.error("File does not exist: " + input);
+                logger.error("To proceed, run ProvisionFile again with --skip-if-missing");
                 return false;
             }
         }
@@ -597,11 +599,11 @@ public class ProvisionFiles extends Module {
         // finally record the metadata about the file, update the output path to
         // prepare this file for adding output-prefix as a prefix
         for (FileMetadata fmd : fileArray) {
-            Log.info("Examining: " + fmd.getFilePath() + " fileUti's file: " + output + " " + filesUtil.getFileName()
+            logger.info("Examining: " + fmd.getFilePath() + " fileUti's file: " + output + " " + filesUtil.getFileName()
                     + " fileutil's original file: " + filesUtil.getOriginalFileName());
             if (fmd.getFilePath() != null && fmd.getFilePath().equals(filesUtil.getOriginalFileName())) {
                 fmd.setFilePath(filesUtil.getFileName());
-                Log.info("    SETTING FINAL PATH: " + filesUtil.getFileName());
+                logger.info("    SETTING FINAL PATH: " + filesUtil.getFileName());
             }
         }
 
@@ -648,7 +650,7 @@ public class ProvisionFiles extends Module {
         try {
             reader.close();
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            logger.error(e.getMessage());
             return false;
         }
         return result;
@@ -669,7 +671,7 @@ public class ProvisionFiles extends Module {
                 HashMap<String, String> settings = (HashMap<String, String>) ConfigTools.getSettings();
                 return (filesUtil.getDecryptCipher(settings.get(SqwKeys.SW_DECRYPT_KEY.getSettingKey())));
             } catch (Exception e) {
-                Log.error(e.getMessage());
+                logger.error(e.getMessage());
                 return null;
             }
         }
@@ -691,7 +693,7 @@ public class ProvisionFiles extends Module {
                 HashMap<String, String> settings = (HashMap<String, String>) ConfigTools.getSettings();
                 return (filesUtil.getEncryptCipher(settings.get(SqwKeys.SW_ENCRYPT_KEY.getSettingKey())));
             } catch (Exception e) {
-                Log.error(e.getMessage());
+                logger.error(e.getMessage());
                 return null;
             }
         }

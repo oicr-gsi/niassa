@@ -16,7 +16,17 @@
  */
 package io.seqware.pipeline.engines.whitestar;
 
-import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import net.sourceforge.seqware.common.metadata.Metadata;
+import net.sourceforge.seqware.common.metadata.MetadataFactory;
+import net.sourceforge.seqware.common.metadata.MetadataInMemory;
+import net.sourceforge.seqware.common.model.Workflow;
+import net.sourceforge.seqware.common.model.WorkflowRun;
+import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FileUtils;
-
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import net.sourceforge.seqware.common.metadata.Metadata;
-import net.sourceforge.seqware.common.metadata.MetadataFactory;
-import net.sourceforge.seqware.common.metadata.MetadataInMemory;
-import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
-import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a KISS implementation of persistence for WhiteStar relying upon JSON text files in the working directory.
@@ -46,6 +45,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
  * @author dyuen
  */
 public class Persistence {
+    private final Logger logger = LoggerFactory.getLogger(Persistence.class);
 
     public static final String PERSISTENT_DIR = "whitestar";
     public static final String WORKFLOW_RUN_FILENAME = "workflowRun.json";
@@ -78,7 +78,7 @@ public class Persistence {
             SortedSet<String> states = gson.fromJson(statesString, collectionType);
             return states;
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to read workflowrun state");
+            logger.error("Persistence.readCompletedJobs Unable to read workflowrun state", ex);
             rethrow(ex);
         }
         return null;
@@ -104,7 +104,7 @@ public class Persistence {
             }
             return workflowRun;
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to read workflowrun state");
+            logger.error("Persistence.readWorkflowRun Unable to read workflowrun state", ex);
             rethrow(ex);
         }
         return null;
@@ -128,7 +128,7 @@ public class Persistence {
             set.add(workflowRun);
             workflow.setWorkflowRuns(set);
         } catch (IOException ex) {
-            Log.stdoutWithTime("Unable to write workflowrun state");
+            logger.error("Persistence.persistState Unable to write workflowrun state",ex);
             rethrow(ex);
         }
     }

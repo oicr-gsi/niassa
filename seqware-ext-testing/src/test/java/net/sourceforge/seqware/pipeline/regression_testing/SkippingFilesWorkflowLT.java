@@ -19,7 +19,7 @@ package net.sourceforge.seqware.pipeline.regression_testing;
 import com.google.common.io.Files;
 import io.seqware.cli.Main;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ExtendedTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import org.apache.commons.dbutils.handlers.ArrayHandler;
@@ -28,6 +28,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This tests a workflow that skips files (and should not create File entries in the database).
@@ -35,7 +37,8 @@ import java.io.IOException;
  * @author dyuen
  */
 public class SkippingFilesWorkflowLT {
-
+    private final Logger logger = LoggerFactory.getLogger(SkippingFilesWorkflowLT.class);
+    
     @Test
     public void runSEQWARE2039() throws IOException {
         // here we test that the first error is properly propagated into the database and reported
@@ -45,7 +48,7 @@ public class SkippingFilesWorkflowLT {
         Main main = new Main();
         String SEQWARE_VERSION = main.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         File tempDir = Files.createTempDir();
 
@@ -55,7 +58,7 @@ public class SkippingFilesWorkflowLT {
                 + "-Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId=Skipping "
                 + "-Dworkflow-name=Skipping -B";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir);
-        Log.info(genOutput);
+        logger.info(genOutput);
 
         // Replace contents of WorkflowClient from both workflows with code from tutorial
         String workflowJavaPath = SkippingFilesWorkflowLT.class.getResource("seqware2039.template").getPath();
@@ -73,7 +76,7 @@ public class SkippingFilesWorkflowLT {
         // rebuild bundles
         command = "mvn clean install";
         genOutput = ITUtility.runArbitraryCommand(command, 0, new File(tempDir, "Skipping"));
-        Log.info(genOutput);
+        logger.info(genOutput);
         // run bundle and don't error
         String listCommand = " bundle launch --dir Skipping/target/Workflow_Bundle_Skipping_1.0-SNAPSHOT_SeqWare_"
                 + SEQWARE_VERSION + "/";

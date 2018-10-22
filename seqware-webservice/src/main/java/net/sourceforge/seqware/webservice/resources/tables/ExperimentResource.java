@@ -151,10 +151,10 @@ public class ExperimentResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("ExperimentResource.postJaxb IO exception:",e);
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("ExperimentResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

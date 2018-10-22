@@ -31,7 +31,7 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
@@ -52,6 +52,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -62,6 +64,7 @@ import java.util.TreeSet;
  * @version $Id: $Id
  */
 public class WorkflowRunIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunIDResource.class);
 
     /**
      * <p>
@@ -90,7 +93,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
         CollectionPropertyName<WorkflowRun>[] createCollectionPropertyNames = CollectionPropertyName.createCollectionPropertyNames(
                 WorkflowRun.class, new String[] { "inputFileAccessions", "workflowRunAttributes" });
         WorkflowRun dto = copier.hibernate2dto(WorkflowRun.class, workflowRun, ArrayUtils.EMPTY_CLASS_ARRAY, createCollectionPropertyNames);
-        // Log.debug("getXML() Workflow run contains " + workflowRun.getInputFileAccessions().size() + " input files");
+        // logger.debug("getXML() Workflow run contains " + workflowRun.getInputFileAccessions().size() + " input files");
         // dto.setInputFileAccessions(workflowRun.getInputFileAccessions());
 
         if (fields.contains("lanes")) {
@@ -103,7 +106,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 dto.setLanes(copiedLanes);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
 
@@ -116,7 +119,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 dto.setIus(copiedIUS);
             } else {
-                Log.info("Could not be found: ius");
+                logger.info("Could not be found: ius");
             }
         }
 
@@ -129,7 +132,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 dto.setProcessings(copiedPs);
             } else {
-                Log.info("Could not be found: processings");
+                logger.info("Could not be found: processings");
             }
             procs = workflowRun.getOffspringProcessings();
             if (procs != null) {
@@ -139,7 +142,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 dto.setOffspringProcessings(copiedPs);
             } else {
-                Log.info("Could not be found: offspring processings");
+                logger.info("Could not be found: offspring processings");
             }
         }
 
@@ -179,7 +182,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 wr.setIus(set);
             } else {
-                Log.info("Could not be found: iuses");
+                logger.info("Could not be found: iuses");
             }
         }
         // lane_workflow_runs
@@ -195,7 +198,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 }
                 wr.setLanes(set);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
 
@@ -217,7 +220,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
         wr.setSgeNameIdMap(newWR.getSgeNameIdMap());
 
         if (newWR.getInputFileAccessions() != null) {
-            Log.debug("Saving " + wr.getInputFileAccessions().size() + " input files");
+            logger.debug("Saving " + wr.getInputFileAccessions().size() + " input files");
             wr.getInputFileAccessions().addAll(newWR.getInputFileAccessions());
         }
 
@@ -227,7 +230,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             if (w != null) {
                 wr.setWorkflow(w);
             } else {
-                Log.info("Could not be found: workflow " + newWR.getWorkflow());
+                logger.info("Could not be found: workflow " + newWR.getWorkflow());
             }
         }
         if (newWR.getOwner() != null) {
@@ -235,7 +238,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             if (reg != null) {
                 wr.setOwner(reg);
             } else {
-                Log.info("Could not be found: " + newWR.getOwner());
+                logger.info("Could not be found: " + newWR.getOwner());
             }
         } else if (wr.getOwner() == null) {
             wr.setOwner(registration);
@@ -250,7 +253,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
         if (wr.getIniFile() != null && !wr.getIniFile().isEmpty()) {
             // just skip if previous ini file params detected
             if (wr.getWorkflowRunParams().size() > 0) {
-                Log.debug("Skipping since params: " + wr.getWorkflowRunParams().size());
+                logger.debug("Skipping since params: " + wr.getWorkflowRunParams().size());
             } else {
                 String[] splitByWholeSeparator = StringUtils.splitByWholeSeparator(wr.getIniFile(), "\n");
                 for (String line : splitByWholeSeparator) {
@@ -265,7 +268,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
                 for (WorkflowRunParam p : createWorkflowRunParameters) {
                     p.setWorkflowRun(wr);
                 }
-                Log.debug("Setting params: " + createWorkflowRunParameters.size());
+                logger.debug("Setting params: " + createWorkflowRunParameters.size());
                 wr.getWorkflowRunParams().addAll(createWorkflowRunParameters);
             }
         }
@@ -303,10 +306,10 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             JaxbObject<WorkflowRun> jo = new JaxbObject<>();
             try {
                 String text = entity.getText();
-                Log.debug(text);
+                logger.debug(text);
                 newWR = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
             } catch (SAXException | IOException ex) {
-                Log.fatal(ex, ex);
+                logger.error("WorkflowRunIdResource.put", ex);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
             }
             try {
@@ -323,16 +326,16 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             } catch (SecurityException e) {
                 getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
             } catch (SQLException ex) {
-                Log.fatal(ex, ex);
+                logger.error("WorkflowRunIdResource.put", ex);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
             } catch (Exception e) {
-                Log.error(e, e);
+                logger.error("WorkflowRunIdResource.put", e);
                 getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
             } finally {
                 try {
                     entity.exhaust();
                 } catch (IOException ex) {
-                    Log.fatal(ex, ex);
+                    logger.error("WorkflowRunIdResource.put", ex);
                     throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex);
                 }
                 entity.release();
@@ -365,7 +368,7 @@ public class WorkflowRunIDResource extends DatabaseIDResource {
             if (ius != null && ius.givesPermission(registration)) {
                 currentWR.getIus().add(ius);
             } else if (ius == null) {
-                Log.info("Could not be found: ius " + swa);
+                logger.info("Could not be found: ius " + swa);
             }
         }
     }

@@ -21,12 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import org.junit.Assert;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Do all tests that can be concurrently done in the admin tutorial
@@ -34,6 +36,7 @@ import org.junit.Test;
  * @author dyuen
  */
 public class AdminPhase1 {
+    private final Logger logger = LoggerFactory.getLogger(AdminPhase1.class);
 
     private static File separateTempDir = Files.createTempDir();
 
@@ -41,11 +44,11 @@ public class AdminPhase1 {
     public void testPackageBundleAndInstallSeparately() throws IOException {
 
         separateTempDir = Files.createTempDir();
-        Log.info("Trying to package archetype at: " + separateTempDir.getAbsolutePath());
+        logger.info("Trying to package archetype at: " + separateTempDir.getAbsolutePath());
         PluginRunner it = new PluginRunner();
         String SEQWARE_VERSION = it.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         File packageDir = Files.createTempDir();
 
@@ -61,7 +64,7 @@ public class AdminPhase1 {
                     + workflow
                     + " -Dworkflow-name=" + workflowName + " -B -Dgoals=install";
             String genOutput = ITUtility.runArbitraryCommand(command, 0, separateTempDir);
-            Log.info(genOutput);
+            logger.info(genOutput);
             // install the workflows to the database and record their information
             File workflowDir = new File(separateTempDir, workflow);
             File targetDir = new File(workflowDir, "target");
@@ -70,13 +73,13 @@ public class AdminPhase1 {
             String packageCommand = "-p net.sourceforge.seqware.pipeline.plugins.BundleManager -- -b " + packageDir + " -p "
                     + bundleDir.getAbsolutePath();
             String packageOutput = ITUtility.runSeqWareJar(packageCommand, ReturnValue.SUCCESS, null);
-            Log.info(packageOutput);
+            logger.info(packageOutput);
 
             // locate the zip bundle and then install it
             File zippedBundle = new File(packageDir, bundleDir.getName() + ".zip");
             Assert.assertTrue("zipped bundle " + zippedBundle.getAbsolutePath() + ".zip", zippedBundle.exists());
             String installOutput = installBundle(zippedBundle);
-            Log.info(installOutput);
+            logger.info(installOutput);
         }
 
         FileUtils.deleteDirectory(packageDir);
@@ -85,13 +88,13 @@ public class AdminPhase1 {
     @Test
     public void testLaunchScheduled() throws IOException {
         String schedOutput = launchScheduled();
-        Log.info(schedOutput);
+        logger.info(schedOutput);
     }
 
     @Test
     public void testMonitoring() throws IOException {
         String listOutput = statusCheck();
-        Log.info(listOutput);
+        logger.info(listOutput);
     }
 
     // later we will test/add utilities for wrapping cancel and rescue workflows

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import net.sourceforge.seqware.common.dao.SequencerRunDAO;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 
 /**
@@ -237,7 +236,7 @@ public class SequencerRunDAOHibernate extends HibernateDaoSupport implements Seq
     String query = "from SequencerRun as sr";
 
         List list = this.getHibernateTemplate().find(query);
-        Log.trace("Hibernate query found " + list.size() + "sequencer runs");
+        localLogger.trace("Hibernate query found " + list.size() + "sequencer runs");
 
         for (Object obj : list) {
             SequencerRun sr = (SequencerRun) obj;

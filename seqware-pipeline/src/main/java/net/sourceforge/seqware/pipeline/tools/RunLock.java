@@ -5,8 +5,10 @@ import it.sauronsoftware.junique.AlreadyLockedException;
 import it.sauronsoftware.junique.JUnique;
 import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
 
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -23,6 +25,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
  * 
  */
 public final class RunLock {
+    private final Logger logger = LoggerFactory.getLogger(RunLock.class);
 
 	private static final int MAX_ATTEMPTS = 5;
 
@@ -46,7 +49,7 @@ public final class RunLock {
 				if (count == MAX_ATTEMPTS - 1) {
 					throw rethrow(e);
 				}
-				Log.warn("Failed to acquire lock, sleeping...");
+				logger.warn("Failed to acquire lock, sleeping...");
 				try {
 					Thread.sleep(10_000);
 				} catch (InterruptedException eint) {

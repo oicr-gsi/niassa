@@ -39,6 +39,8 @@ import net.sourceforge.seqware.common.model.lists.LimsKeyList;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.BasicResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -46,6 +48,7 @@ import net.sourceforge.seqware.webservice.resources.BasicResource;
  */
 //@Path("/limskey")
 public class LimsKeyResource extends BasicResource {
+    private final Logger logger = LoggerFactory.getLogger(LimsKeyResource.class);
 
     @Get
     public void getXml() throws IOException {
@@ -109,10 +112,10 @@ public class LimsKeyResource extends BasicResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("LimsKeyResource.post IOexception:",e);
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("LimsKeyResource.post exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

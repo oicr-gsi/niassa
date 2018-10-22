@@ -32,7 +32,7 @@ import net.sourceforge.seqware.common.model.LibraryStrategy;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -40,6 +40,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -52,6 +54,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class LaneIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(LaneIDResource.class);
 
     /**
      * <p>
@@ -88,7 +91,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 SequencerRun copySR = copier.hibernate2dto(SequencerRun.class, sr);
                 dto.setSequencerRun(copySR);
             } else {
-                Log.info("Could not be found sequencer run");
+                logger.info("Could not be found sequencer run");
             }
         }
 
@@ -113,7 +116,7 @@ public class LaneIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newLane = (Lane) XmlTools.unMarshal(jo, Lane.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("LaneIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
         }
         try {
@@ -162,7 +165,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 if (newSample != null && newSample.givesPermission(registration)) {
                     lane.setSample(newSample);
                 } else if (newSample == null) {
-                    Log.info("Could not be found " + sample);
+                    logger.info("Could not be found " + sample);
                 }
             }
 
@@ -172,7 +175,7 @@ public class LaneIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     lane.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found " + owner);
+                    logger.info("Could not be found " + owner);
                 }
             } else if (lane.getOwner() == null) {
                 lane.setOwner(registration);
@@ -197,7 +200,7 @@ public class LaneIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("LaneIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

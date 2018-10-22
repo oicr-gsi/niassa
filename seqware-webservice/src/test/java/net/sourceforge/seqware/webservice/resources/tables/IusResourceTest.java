@@ -36,6 +36,8 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
 import net.sourceforge.seqware.webservice.resources.SeqwareResourceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -45,6 +47,7 @@ public class IusResourceTest extends DatabaseResourceTest {
 
     private final SeqwareResourceClient<IUS> iusClient;
     private final SeqwareResourceClient<LimsKey> limsKeyClient;
+    private final Logger logger = LoggerFactory.getLogger(IusResourceTest.class);
 
     public IusResourceTest() {
         super("/ius");
@@ -104,7 +107,7 @@ public class IusResourceTest extends DatabaseResourceTest {
             rep.exhaust();
             rep.release();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("IusResourceTest.testPostWithLimsKey exception:",e);
             fail(e.getMessage());
         }
         assertEquals(lk, returnedLimsKey);

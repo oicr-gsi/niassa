@@ -26,17 +26,20 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.lists.LaneList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class LaneIDFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(LaneIDFilterTest.class);
 
     public LaneIDFilterTest() {
         super("");
@@ -97,7 +100,7 @@ public class LaneIDFilterTest extends AbstractResourceTest {
 
     private List<Lane> getLanes(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         LaneList parent = new LaneList();
         JaxbObject<LaneList> jaxb = new JaxbObject<>();
         try {
@@ -107,10 +110,10 @@ public class LaneIDFilterTest extends AbstractResourceTest {
             rep.exhaust();
             rep.release();
         } catch (ResourceException e) {
-            e.printStackTrace();
+            logger.error("LaneIDFilterTest.getLanes resource exception:",e);
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("LaneIDFilterTest.getLanes exception:",e);
             throw e;
         }
         return parent.getList();

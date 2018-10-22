@@ -24,13 +24,14 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import org.apache.commons.codec.binary.Base64;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -49,7 +50,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class ProvisionDependenciesBundle extends Module {
 
     private OptionSet options = null;
-
+    private final Logger logger = LoggerFactory.getLogger(ProvisionDependenciesBundle.class);
     /**
      * <p>
      * getOptionParser.
@@ -83,7 +84,7 @@ public class ProvisionDependenciesBundle extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("ProvisionDependenciesBundle.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -224,13 +225,13 @@ public class ProvisionDependenciesBundle extends Module {
                 String bucket = m.group(1);
                 String key = m.group(2);
                 S3Object object = s3.getObject(new GetObjectRequest(bucket, key));
-                Log.info("Content-Type: " + object.getObjectMetadata().getContentType());
+                logger.info("Content-Type: " + object.getObjectMetadata().getContentType());
                 output = new File((String) options.valueOf("output-dir") + File.separator + key);
                 output.getParentFile().mkdirs();
                 // only download if it isn't on the local filesystem or the lengths
                 // don't match
                 if (!output.exists() || output.length() != object.getObjectMetadata().getContentLength()) {
-                    Log.info("Downloading an S3 object from bucket: " + bucket + " with key: " + key);
+                    logger.info("Downloading an S3 object from bucket: " + bucket + " with key: " + key);
                     BufferedInputStream reader = new BufferedInputStream(object.getObjectContent(), bufLen);
                     try {
                         try (BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(output), bufLen)) {
@@ -244,12 +245,12 @@ public class ProvisionDependenciesBundle extends Module {
                             reader.close();
                         }
                     } catch (FileNotFoundException e) {
-                        Log.error(e.getMessage());
+                        logger.error(e.getMessage());
                     } catch (IOException e) {
-                        Log.error(e.getMessage());
+                        logger.error(e.getMessage());
                     }
                 } else {
-                    Log.info("Skipping download of S3 object from bucket: " + bucket + " with key: " + key + " since local output exists: "
+                    logger.info("Skipping download of S3 object from bucket: " + bucket + " with key: " + key + " since local output exists: "
                             + output.getAbsolutePath());
                 }
             }
@@ -293,7 +294,7 @@ public class ProvisionDependenciesBundle extends Module {
                         // again
                         // FIXME: I haven't tested this...
                         if (!output.exists() || output.length() != urlConn.getContentLength()) {
-                            Log.info("Downloading an http object from URL: " + url);
+                            logger.info("Downloading an http object from URL: " + url);
                             BufferedOutputStream writer;
                             try (BufferedInputStream reader = new BufferedInputStream(urlConn.getInputStream(), bufLen)) {
                                 writer = new BufferedOutputStream(new FileOutputStream(output), bufLen);
@@ -307,15 +308,15 @@ public class ProvisionDependenciesBundle extends Module {
                             }
                             writer.close();
                         } else {
-                            Log.info("Skipping download of http object from URL: " + url + " since local output exists: "
+                            logger.info("Skipping download of http object from URL: " + url + " since local output exists: "
                                     + output.getAbsolutePath());
                         }
                     }
                 }
             } catch (MalformedURLException e) {
-                Log.error(e.getMessage());
+                logger.error(e.getMessage());
             } catch (IOException e) {
-                Log.error(e.getMessage());
+                logger.error(e.getMessage());
             }
 
         } else {

@@ -12,9 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -24,9 +21,10 @@ import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -40,6 +38,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunFilesInitialPopulationPlugin.class);
 
     /**
      * <p>
@@ -117,8 +116,7 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Log.fatal(e);
+            logger.error("WorkflowRunFilesInitialPopulationPlugin.get_syntax", e);
         }
         return ("");
     }
@@ -175,7 +173,7 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
                     .append("ON w.workflow_run_id = f.workflow_run_id WHERE (status = 'completed' OR status= 'failed') AND ")
                     .append("f.workflow_run_id IS NULL ORDER BY w.sw_accession;").toString();
 
-            Log.info("Executing query: " + query);
+            logger.info("Executing query: " + query);
             mdb = DBAccess.get();
 
             List<int[]> ids = mdb.executeQuery(query, new ResultSetHandler<List<int[]>>() {
@@ -194,11 +192,11 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
             for (int[] i : ids) {
                 int workflowSWID = i[0];
                 int workflowRunID = i[1];
-                Log.stdout("Working on workflow_run " + workflowSWID);
+                logger.info("Working on workflow_run " + workflowSWID);
 
                 // populate input files
                 List<Integer> listOfFiles = this.getListOfFiles(workflowSWID);
-                Log.stdout("Found " + listOfFiles.size() + " input files for workflow_run " + workflowSWID);
+                logger.info("Found " + listOfFiles.size() + " input files for workflow_run " + workflowSWID);
                 // insert into new workflow_run_input_files table
                 for (Integer fSWID : listOfFiles) {
                     Integer fileID = this.metadata.getFile(fSWID).getFileId();
@@ -207,12 +205,11 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
                     prepareStatement.executeUpdate();
                 }
             }
-            Log.stdout("Success!");
+            logger.info("Success!");
             mdb.getDb().commit();
             return ret;
         } catch (SQLException ex) {
-            Log.fatal("Population failed, aborting.");
-            Logger.getLogger(WorkflowRunFilesInitialPopulationPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("WorkflowRunFilesInitialPopulationPlugin.do_run Population failed, aborting.",ex);
             ret.setExitStatus(ReturnValue.FAILURE);
         } finally {
             if (mdb != null) {
@@ -250,9 +247,9 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
         }
         for (String i : ranOnArr) {
             ranOnList.add(Integer.valueOf(i.trim()));
-            Log.trace("Adding item: " + i);
+            logger.trace("Adding item: " + i);
         }
-        Log.debug("Got list of files: " + StringUtils.join(ranOnList, ','));
+        logger.debug("Got list of files: " + StringUtils.join(ranOnList, ','));
         return ranOnList;
     }
 

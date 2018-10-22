@@ -18,13 +18,15 @@
 package net.sourceforge.seqware.pipeline.module;
 
 //import org.aspectj.weaver.ast.Test;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: xiao Date: 7/25/11 Time: 11:09 PM
@@ -36,6 +38,7 @@ import org.junit.Test;
 @StdoutRedirect
 @StderrRedirect
 public class ModuleMethodTest {
+    private final Logger logger = LoggerFactory.getLogger(ModuleMethodTest.class);
 
     /**
      * <p>
@@ -95,7 +98,7 @@ public class ModuleMethodTest {
     @Test
     public void testAnnotation() {
         for (ModuleMethod m : ModuleMethod.values()) {
-            Log.info("m.name() = " + m.name());
+            logger.info("m.name() = " + m.name());
         }
         StdoutRedirect stoann = getClass().getAnnotation(StdoutRedirect.class);
         StderrRedirect steann = getClass().getAnnotation(StderrRedirect.class);

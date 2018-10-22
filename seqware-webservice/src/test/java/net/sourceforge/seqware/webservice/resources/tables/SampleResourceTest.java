@@ -23,6 +23,8 @@ import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.junit.Assert;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -30,6 +32,7 @@ import org.w3c.dom.Document;
  * @author mtaschuk
  */
 public class SampleResourceTest extends DatabaseResourceTest {
+private final Logger logger = LoggerFactory.getLogger(SampleResourceTest.class);
 
     public SampleResourceTest() {
         super("/samples");
@@ -65,7 +68,7 @@ public class SampleResourceTest extends DatabaseResourceTest {
             rep.exhaust();
             rep.release();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleResourceTest.testCreateNormalSample exception:",e);
             Assert.fail(e.getMessage());
         }
     }
@@ -87,7 +90,7 @@ public class SampleResourceTest extends DatabaseResourceTest {
             rep.exhaust();
             rep.release();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleResourceTest.testCreateRootSample exception:",e);
             Assert.fail(e.getMessage());
         }
     }

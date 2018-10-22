@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -22,6 +24,7 @@ import java.util.List;
  */
 @Transactional(rollbackFor=Exception.class)
 public class ExperimentLibraryDesignDAOHibernate extends HibernateDaoSupport implements ExperimentLibraryDesignDAO {
+    private final Logger logger = LoggerFactory.getLogger(ExperimentLibraryDesignDAOHibernate.class);
 
     /**
      * <p>
@@ -86,7 +89,7 @@ public class ExperimentLibraryDesignDAOHibernate extends HibernateDaoSupport imp
             beanUtils.copyProperties(dbObject, eld);
             return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("ExperimentLibraryDesignDAOHibernate.updateDetached IllegalAccessException or InvocationTargetException exception:",e);
         }
         return null;
     }

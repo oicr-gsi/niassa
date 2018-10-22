@@ -15,7 +15,8 @@ import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.Study;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -27,6 +28,7 @@ import net.sourceforge.seqware.common.util.Log;
  */
 @Transactional(rollbackFor=Exception.class)
 public class SampleServiceImpl implements SampleService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleServiceImpl.class);
 
     private SampleDAO sampleDAO = null;
     private FileDAO fileDAO = null;
@@ -204,7 +206,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 sample = sampleDAO.findByTitle(title.trim());
             } catch (Exception exception) {
-                Log.debug("Cannot find Sample by title " + title, exception);
+                LOGGER.debug("SampleServiceImpl.findByTitle: Cannot find Sample by title " + title, exception);
             }
         }
         return sample;
@@ -222,7 +224,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 sample = sampleDAO.findByName(name.trim());
             } catch (Exception exception) {
-                Log.debug("Cannot find Sample by name " + name, exception);
+                LOGGER.debug("SampleServiceImpl.findByName: Cannot find Sample by name " + name, exception);
             }
         }
         return sample;
@@ -235,7 +237,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 sample = sampleDAO.matchName(name.trim());
             } catch (Exception exception) {
-                Log.debug("Cannot find matches for name " + name, exception);
+                LOGGER.debug("SampleServiceImpl.matchName: Cannot find matches for name " + name, exception);
             }
         }
         return sample;
@@ -253,7 +255,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 sample = sampleDAO.findByID(sampleId);
             } catch (Exception exception) {
-                Log.error("Cannot find Sample by expID " + sampleId, exception);
+                LOGGER.error("SampleServiceImpl.findByID: Cannot find Sample by expID " + sampleId, exception);
             }
         }
         return sample;
@@ -269,7 +271,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 sample = sampleDAO.findBySWAccession(swAccession);
             } catch (Exception exception) {
-                Log.error("Cannot find Sample by swAccession " + swAccession, exception);
+                LOGGER.error("SampleServiceImpl.findBySWAccession: Cannot find Sample by swAccession " + swAccession, exception);
             }
         }
         return sample;
@@ -285,7 +287,7 @@ public class SampleServiceImpl implements SampleService {
             try {
                 samples = sampleDAO.findByOwnerID(registrationId);
             } catch (Exception exception) {
-                Log.error("Cannot find Sample by registrationId " + registrationId, exception);
+                LOGGER.error("SampleServiceImpl.findByOwnerID: Cannot find Sample by registrationId " + registrationId, exception);
             }
         }
         return samples;

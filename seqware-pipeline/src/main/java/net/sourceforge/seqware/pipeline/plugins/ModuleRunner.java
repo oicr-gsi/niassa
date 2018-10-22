@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.runner.Runner;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -27,6 +29,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class ModuleRunner extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(ModuleRunner.class);
 
     ReturnValue ret = new ReturnValue();
     Runner runner = new Runner();
@@ -99,7 +102,7 @@ public class ModuleRunner extends Plugin {
 
         if (params == null || params.length == 0 || contains(params, "help")) {
             doHelp();
-            Log.stdout("NOTE: This ModuleRunner will simply pass all parameters to the Runner object. To use one of the modules above simple execute:\n"
+            logger.info("NOTE: This ModuleRunner will simply pass all parameters to the Runner object. To use one of the modules above simple execute:\n"
                     + "\n"
                     + "  java -jar seqware-pipeline-*.jar -p net.sourceforge.seqware.pipeline.plugins.ModuleRunner [RunnerParameters (see help message below)] --module [module from list above] -- [ModuleParameters]"
                     + "\n\nRunner Help Message:\n");
@@ -114,7 +117,7 @@ public class ModuleRunner extends Plugin {
 
     private boolean contains(String[] arr, String search) {
         for (String token : arr) {
-            Log.debug("Array:" + token);
+            logger.debug("Array:" + token);
             if (token.contains(search)) {
                 return (true);
             }
@@ -154,7 +157,7 @@ public class ModuleRunner extends Plugin {
         Collection<? extends ModuleInterface> mods;
         mods = Lookup.getDefault().lookupAll(ModuleInterface.class);
 
-        Log.stdout("\nAvailable Module List:");
+        logger.info("\nAvailable Module List:");
 
         HashMap<String, ArrayList<String>> modules = new HashMap<>();
 
@@ -169,9 +172,9 @@ public class ModuleRunner extends Plugin {
         }
 
         for (String pack : modules.keySet()) {
-            Log.stdout("\n  Package: " + pack + "\n");
+            logger.info("\n  Package: " + pack + "\n");
             for (String mod : modules.get(pack)) {
-                Log.stdout("    Module: " + mod);
+                logger.info("    Module: " + mod);
             }
         }
 

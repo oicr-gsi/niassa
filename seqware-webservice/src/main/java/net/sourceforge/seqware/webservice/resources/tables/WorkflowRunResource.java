@@ -28,7 +28,7 @@ import net.sourceforge.seqware.common.model.RegistrationDTO;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import org.restlet.data.Status;
@@ -36,6 +36,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -48,6 +50,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class WorkflowRunResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunResource.class);
 
     /**
      * <p>
@@ -96,7 +99,7 @@ public class WorkflowRunResource extends DatabaseResource {
             }
 
             if (constraintBuilder.length() != 0) {
-                Log.debug("WorkflowRunResource constraint: " + constraintBuilder.toString());
+                logger.debug("WorkflowRunResource constraint: " + constraintBuilder.toString());
                 runs = ss.findByCriteria(constraintBuilder.toString());
             } else {
                 runs = (List<WorkflowRun>) testIfNull(ss.list());
@@ -123,7 +126,7 @@ public class WorkflowRunResource extends DatabaseResource {
             String text = entity.getText();
             p = (WorkflowRun) XmlTools.unMarshal(jo, WorkflowRun.class, text);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("WorkflowRunResource.postJaxb exception:",e);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
         } catch (SAXException ex) {
             throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
@@ -134,7 +137,7 @@ public class WorkflowRunResource extends DatabaseResource {
                 if (reg != null) {
                     p.setOwner(reg);
                 } else {
-                    Log.info("Could not be found: owner " + p.getOwner());
+                    logger.info("Could not be found: owner " + p.getOwner());
                 }
             } else {
                 p.setOwner(registration);

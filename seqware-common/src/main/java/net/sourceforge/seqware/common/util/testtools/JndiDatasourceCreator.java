@@ -6,9 +6,10 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 /**
@@ -20,7 +21,8 @@ import org.springframework.mock.jndi.SimpleNamingContextBuilder;
  * @version $Id: $Id
  */
 public class JndiDatasourceCreator {
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(JndiDatasourceCreator.class);
+
     private static final String JNDI_NAME = "SeqWareMetaDB";
 
     /**
@@ -55,7 +57,7 @@ public class JndiDatasourceCreator {
             try {
                 settings = ConfigTools.getSettings();
             } catch (Exception e) {
-                Log.stderr("Error reading settings file: " + e.getMessage());
+                LOGGER.error("JndiDatasourceCreator.create Error reading settings file: " + e.getMessage());
             }
             if (settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey())) {
                 ds.setUsername(settings.get(SqwKeys.BASIC_TEST_DB_USER.getSettingKey()));
@@ -75,7 +77,7 @@ public class JndiDatasourceCreator {
             builder.bind("java:comp/env/jdbc/" + JNDI_NAME, ds);
             builder.activate();
         } catch (NamingException ex) {
-            ex.printStackTrace();
+            LOGGER.error("JndiDatasourceCreator.create naming exception:",ex);
         }
     }
 

@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import net.sourceforge.seqware.common.model.adapters.XmlizeIUSSortedSet;
 import net.sourceforge.seqware.common.model.adapters.XmlizeLaneSortedSet;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -1039,20 +1038,20 @@ public class Sample extends PermissionsAware implements Serializable, Comparable
     @Override
     public boolean givesPermissionInternal(Registration registration, Set<Integer> considered) {
         if (registration.isLIMSAdmin()) {
-            Log.debug("Skipping permissions admin on Sample object " + swAccession);
+            LOGGER.debug("Sample.givesPermissionInternal Skipping permissions admin on Sample object " + swAccession);
             return true;
         }
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for Sample object " + swAccession);
+            LOGGER.debug("Sample.givesPermissionInternal Checking permissions for Sample object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for Sample object " + swAccession + " , checked before");
+            LOGGER.debug("Sample.givesPermissionInternal Skipping permissions for Sample object " + swAccession + " , checked before");
             return true;
         }
 
         boolean hasPermission;
-        Log.debug("registration: " + registration + " owner: " + owner);
+        LOGGER.debug("Sample.givesPermissionInternal registration: " + registration + " owner: " + owner);
         if (experiment != null) {
             hasPermission = experiment.givesPermission(registration, considered);
         } else {// orphaned Sample

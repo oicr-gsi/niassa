@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sourceforge.seqware.common.security.PermissionsAware;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.jsontools.JsonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -759,9 +758,9 @@ public class Study extends PermissionsAware implements Serializable, ParentAcces
         boolean consideredBefore = considered.contains(this.getSwAccession());
         if (!consideredBefore) {
             considered.add(this.getSwAccession());
-            Log.debug("Checking permissions for Study object " + swAccession);
+            LOGGER.debug("Study.givesPermissionInternal Checking permissions for Study object " + swAccession);
         } else {
-            Log.debug("Skipping permissions for Study object " + swAccession + " , checked before");
+            LOGGER.debug("Study.givesPermissionInternal Skipping permissions for Study object " + swAccession + " , checked before");
             return true;
         }
 

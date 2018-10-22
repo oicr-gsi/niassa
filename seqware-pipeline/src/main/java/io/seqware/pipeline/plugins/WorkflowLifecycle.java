@@ -9,7 +9,6 @@ import net.sourceforge.seqware.common.metadata.MetadataInMemory;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.util.ExitException;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
@@ -28,6 +27,8 @@ import java.util.List;
 
 import static io.seqware.pipeline.plugins.WorkflowScheduler.OVERRIDE_INI_DESC;
 import static io.seqware.pipeline.plugins.WorkflowScheduler.validateEngineString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -40,6 +41,7 @@ import static io.seqware.pipeline.plugins.WorkflowScheduler.validateEngineString
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowLifecycle extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowLifecycle.class);
 
     private final NonOptionArgumentSpec<String> nonOptionSpec;
     private final ArgumentAcceptingOptionSpec<String> workflowNameSpec;
@@ -94,7 +96,7 @@ public class WorkflowLifecycle extends Plugin {
     @Override
     public ReturnValue init() {
         if (options.has(noRunSpec) && options.has(waitSpec)) {
-            Log.error("Waiting and no-run do not make sense together, remove one");
+            logger.error("Waiting and no-run do not make sense together, remove one");
             return new ReturnValue(ReturnValue.ExitStatus.INVALIDARGUMENT);
         }
         if (options.has(workflowEngineSpec)) {
@@ -156,8 +158,8 @@ public class WorkflowLifecycle extends Plugin {
                 if (metadata.getWorkflowRun(workflowRunSWID).getStatus().equals(WorkflowRunStatus.failed)) {
                     String stdout = metadata.getWorkflowRunReportStdOut(workflowRunSWID);
                     String stderr = metadata.getWorkflowRunReportStdErr(workflowRunSWID);
-                    Log.stdoutWithTime("Output for stdout due to workflow run failure: \n " + stdout);
-                    Log.stderrWithTime("Output for stderr due to workflow run failure: \n " + stderr);
+                    logger.info("Output for stdout due to workflow run failure: \n " + stdout);
+                    logger.error("Output for stderr due to workflow run failure: \n " + stderr);
                 }
             }
             if (metadata.getWorkflowRun(workflowRunSWID).getStatus().equals(WorkflowRunStatus.failed)) {
@@ -203,7 +205,7 @@ public class WorkflowLifecycle extends Plugin {
                 }
             }
             if (workflowAccession == null) {
-                Log.fatal("Unexpected output from installer " + readLines.toString());
+                logger.error("Unexpected output from installer " + readLines.toString());
                 throw new ExitException(ReturnValue.FAILURE);
             }
         }
@@ -248,7 +250,7 @@ public class WorkflowLifecycle extends Plugin {
         if (readLines.size() == 1) {
             workflowRunAccession = readLines.get(0);
         } else {
-            Log.fatal("Unexpected output from scheduler " + readLines.toString());
+            logger.error("Unexpected output from scheduler " + readLines.toString());
             throw new ExitException(ReturnValue.FAILURE);
         }
 
@@ -268,7 +270,7 @@ public class WorkflowLifecycle extends Plugin {
         a.add(plugin.getCanonicalName());
         a.add("--");
         a.addAll(Arrays.asList(params));
-        Log.stdout(Arrays.deepToString(a.toArray()));
+        logger.info(Arrays.deepToString(a.toArray()));
         p.run(a.toArray(new String[a.size()]));
     }
 }
