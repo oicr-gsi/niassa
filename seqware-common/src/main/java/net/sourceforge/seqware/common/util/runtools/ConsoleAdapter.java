@@ -19,14 +19,12 @@ package net.sourceforge.seqware.common.util.runtools;
 import java.io.Console;
 import java.io.PrintWriter;
 import java.io.Reader;
-import net.sourceforge.seqware.common.util.Log;
 
 /**
  * 
  * @author mtaschuk
  */
 public class ConsoleAdapter {
-
     protected static ConsoleAdapter instance = null;
 
     protected ConsoleAdapter() {
@@ -137,7 +135,7 @@ public class ConsoleAdapter {
                 try {
                     title = Integer.parseInt(line);
                 } catch (NumberFormatException e) {
-                    Log.stdout(string + " must be an integer.");
+                    System.out.println(string + " must be an integer.");
                 }
             }
         }
@@ -157,7 +155,7 @@ public class ConsoleAdapter {
                 try {
                     title = Boolean.parseBoolean(line);
                 } catch (NumberFormatException e) {
-                    Log.stdout(string + " must be true or false.");
+                    System.out.println(string + " must be true or false.");
                 }
 
             }

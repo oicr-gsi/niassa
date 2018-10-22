@@ -24,7 +24,6 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import net.sf.beanlib.CollectionPropertyName;
 import net.sf.beanlib.hibernate3.Hibernate3DtoCopier;
@@ -33,10 +32,12 @@ import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -47,6 +48,7 @@ import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServi
  * @version $Id: $Id
  */
 public class WorkflowIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowIDResource.class);
 
 	/**
 	 * <p>
@@ -102,8 +104,8 @@ public class WorkflowIDResource extends DatabaseIDResource {
 		try {
 			String text = entity.getText();
 			newWorkflow = (Workflow) XmlTools.unMarshal(jo, Workflow.class, text);
-		} catch (SAXException | IOException ex) {
-			ex.printStackTrace();
+                } catch (SAXException | IOException ex) {
+                        logger.error("WorkflowIDResource.put SAX/IO exception:",ex);
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex.getMessage());
 		}
 		try {
@@ -148,7 +150,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
 				if (newReg != null) {
 					workflow.setOwner(newReg);
 				} else {
-					Log.info("Could not be found: " + owner);
+					logger.info("Could not be found: " + owner);
 				}
 			} else if (workflow.getOwner() == null) {
 				workflow.setOwner(registration);
@@ -173,7 +175,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
 		} catch (SecurityException e) {
 			getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("WorkflowIDResource.put exception:",e);
 			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
 		}
 

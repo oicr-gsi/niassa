@@ -27,7 +27,7 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.lists.WorkflowList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 
@@ -37,6 +37,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -49,6 +51,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $Id
  */
 public class WorkflowResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowResource.class);
 
 	/**
 	 * <p>
@@ -148,7 +151,7 @@ public class WorkflowResource extends DatabaseResource {
 				if (r != null) {
 					p.setOwner(r);
 				} else {
-					Log.info("Could not be found: owner" + p.getOwner());
+                    logger.info("Could not be found: owner" + p.getOwner());
 				}
 			} else {
 				p.setOwner(registration);
@@ -170,10 +173,10 @@ public class WorkflowResource extends DatabaseResource {
 		} catch (SecurityException e) {
 			getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
 		} catch (IOException e) {
-			e.printStackTrace();
+            logger.error("WorkflowResource.postJaxb IO exception:",e);
 			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		} catch (Exception e) {
-			e.printStackTrace();
+            logger.error("WorkflowResource.postJaxb exception:",e);
 			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
 		}
 

@@ -18,7 +18,7 @@ package net.sourceforge.seqware.pipeline.plugins;
 
 import com.google.common.io.Files;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, WorkflowRunReporter
@@ -36,6 +38,7 @@ import java.util.UUID;
  * @author dyuen
  */
 public class WorkflowRunReporterET {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunReporterET.class);
 
     @BeforeClass
     public static void resetDatabase() {
@@ -50,7 +53,7 @@ public class WorkflowRunReporterET {
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.WorkflowRunReporter " + "-- --output-filename "
                 + testOutFile.getName() + " --workflow-run-accession 6698";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, createTempDir);
-        Log.info(listOutput);
+        logger.info(listOutput);
         File retrievedFile = new File(createTempDir, testOutFile.getName());
         Assert.assertTrue("output file does not exist", retrievedFile.exists());
         List<String> readLines = FileUtils.readLines(testOutFile, StandardCharsets.UTF_8);
@@ -84,7 +87,7 @@ public class WorkflowRunReporterET {
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.WorkflowRunReporter " + "-- --output-filename "
                 + testOutFile.getName() + " --workflow-accession 2861 --time-period 2012-01-01 ";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, createTempDir);
-        Log.info(listOutput);
+        logger.info(listOutput);
         File retrievedFile = new File(createTempDir, testOutFile.getName());
         Assert.assertTrue("output file does not exist", retrievedFile.exists());
         List<String> readLines = FileUtils.readLines(testOutFile,StandardCharsets.UTF_8);
@@ -103,7 +106,7 @@ public class WorkflowRunReporterET {
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.WorkflowRunReporter " + "-- --output-filename "
                 + testOutFile.getName() + " --workflow-accession 2861 --time-period 2012-01-01:2012-01-15 ";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, createTempDir);
-        Log.info(listOutput);
+        logger.info(listOutput);
         File retrievedFile = new File(createTempDir, testOutFile.getName());
         Assert.assertTrue("output file does not exist", retrievedFile.exists());
         List<String> readLines = FileUtils.readLines(testOutFile,StandardCharsets.UTF_8);

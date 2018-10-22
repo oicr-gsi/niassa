@@ -27,7 +27,6 @@ import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.WorkflowAttribute;
 import net.sourceforge.seqware.common.model.WorkflowRunAttribute;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.openide.util.lookup.ServiceProvider;
@@ -43,6 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -54,6 +55,7 @@ import java.util.TreeSet;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class AttributeAnnotator extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(AttributeAnnotator.class);
 
     ReturnValue ret = new ReturnValue();
 
@@ -337,10 +339,10 @@ public class AttributeAnnotator extends Plugin {
                 }
             }
         } catch (FileNotFoundException e) {
-            Log.error("Input file was not found", e);
+            logger.error("Input file was not found", e);
             return false;
         } catch (IOException ex) {
-            Log.error("IOException", ex);
+            logger.error("IOException", ex);
             return false;
         }
         return true;

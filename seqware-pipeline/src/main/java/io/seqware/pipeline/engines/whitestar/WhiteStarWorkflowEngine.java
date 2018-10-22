@@ -14,7 +14,6 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.workflowV2.AbstractWorkflowDataModel;
@@ -44,6 +43,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a synchronous bare-bones implementation of the WorkflowEngine for prototyping and debugging.
@@ -53,6 +54,7 @@ import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
  * @author dyuen
  */
 public class WhiteStarWorkflowEngine implements WorkflowEngine {
+    private final Logger logger = LoggerFactory.getLogger(WhiteStarWorkflowEngine.class);
 
     // for this engine, just use the SWID
     private String jobId;
@@ -173,14 +175,14 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                 }
             }
             if (jobsToRemove.size() > 0) {
-                Log.stdoutWithTime("Skipping " + Joiner.on(",").join(jobsToRemove) + " found in persistent set of completed steps");
+                logger.info("Skipping " + Joiner.on(",").join(jobsToRemove) + " found in persistent set of completed steps");
                 jobsLeft.removeAll(jobsToRemove);
             }
 
             final SortedSet<OozieJob> jobsFailed = Collections.synchronizedSortedSet(new ConcurrentSkipListSet<OozieJob>());
 
             for (int i = 1; i <= totalAttempts && !jobsLeft.isEmpty(); i++) {
-                Log.stdoutWithTime("Row #" + j + " , Attempt #" + i + " out of " + totalAttempts + " : " + StringUtils.join(jobsLeft, ","));
+                logger.info("Row #" + j + " , Attempt #" + i + " out of " + totalAttempts + " : " + StringUtils.join(jobsLeft, ","));
                 // for each row of Jobs in the DAG
                 ListeningExecutorService pool = null;
                 try {
@@ -202,7 +204,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                         try {
                             batch.get();
                         } catch (InterruptedException | ExecutionException ex) {
-                            Log.stdoutWithTime("\tBatch of jobs failed: " + Joiner.on(",").join(jobsFailed));
+                            logger.info("\tBatch of jobs failed: " + Joiner.on(",").join(jobsFailed));
                             break;
                         }
                     }
@@ -250,7 +252,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                 memoryUsed += memoryAttempt;
             }
         }
-        Log.stdoutWithTime("\tSubmitting " + memoryUsed + "M batch with: " + Joiner.on(",").join(currentBatch));
+        logger.info("\tSubmitting " + memoryUsed + "M batch with: " + Joiner.on(",").join(currentBatch));
         List<ListenableFuture<Integer>> memoryBatchFutures = Lists.newArrayList();
         for (final OozieJob job : currentBatch) {
             ListenableFuture<Integer> future = pool.submit(new ExecutionThread(job));
@@ -258,18 +260,18 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                 @Override
                 public void onSuccess(Integer result) {
                     if (result != null && result == 0) {
-                        Log.stdoutWithTime("\tWorkflow step succeeded: " + job.getLongName());
+                        logger.info("\tWorkflow step succeeded: " + job.getLongName());
                         completedJobs.add(job.getLongName());
                         persistence.persistState(Integer.parseInt(WhiteStarWorkflowEngine.this.jobId), completedJobs);
                     } else {
                         jobsFailed.add(job);
-                        Log.stdoutWithTime("\tWorkflow step failed: " + job.getLongName());
+                        logger.info("\tWorkflow step failed: " + job.getLongName());
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    Log.stdoutWithTime("\tWorkflow step " + job.getLongName() + " was interrupted or threw an exception");
+                    logger.error("\tWorkflow step " + job.getLongName() + " was interrupted or threw an exception");
                     jobsFailed.add(job);
                 }
 
@@ -293,7 +295,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
         for (OozieJob job : jobsLeft) {
             int memoryAttempt = Integer.parseInt(job.getJobObject().getMaxMemory());
             if (memoryAttempt > memoryLimit) {
-                Log.stdoutWithTime("Workflow step " + job.getLongName() + " exceeds the memory limit of " + memoryLimit);
+                logger.error("Workflow step " + job.getLongName() + " exceeds the memory limit of " + memoryLimit);
                 alterWorkflowRunStatus(swid, WorkflowRunStatus.failed);
                 return false;
             }
@@ -302,7 +304,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
     }
 
     private void alterWorkflowRunStatus(int jobId, WorkflowRunStatus status) {
-        Log.stdoutWithTime("Setting workflow-run status to " + status + " for: " + jobId);
+        logger.info("Setting workflow-run status to " + status + " for: " + jobId);
         // set the status to completed
         Metadata ws = MetadataFactory.get(ConfigTools.getSettings());
         WorkflowRun workflowRun = ws.getWorkflowRun(jobId);
@@ -338,7 +340,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
 
             Executor executor = new DefaultExecutor();
             executor.setWorkingDirectory(scriptsDir);
-            Log.stdoutWithTime("\tRunning command: " + cmdLine.toString());
+            logger.info("\tRunning command: " + cmdLine.toString());
 
             // record output ourselves if not using sge
             if (!WhiteStarWorkflowEngine.this.useSge) {
@@ -354,7 +356,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                     executor.execute(cmdLine);
                     // grab stdout and stderr
                 } catch (ExecuteException e) {
-                    Log.debug("\tFatal error in workflow at step: " + job.getLongName());
+                    logger.debug("\tFatal error in workflow at step: " + job.getLongName());
                     return -1;
                 } catch (IOException e) {
                     throw rethrow(e);
@@ -369,7 +371,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
                 try {
                     executor.execute(cmdLine);
                 } catch (ExecuteException ex) {
-                    Log.debug("Fatal error in workflow at step: " + job.getLongName());
+                    logger.debug("Fatal error in workflow at step: " + job.getLongName());
                     return -1;
                 }
             }
@@ -382,7 +384,7 @@ public class WhiteStarWorkflowEngine implements WorkflowEngine {
     public ReturnValue watchWorkflow(String jobToken) {
         Metadata ws = MetadataFactory.get(ConfigTools.getSettings());
         WorkflowRun workflowRun = ws.getWorkflowRun(Integer.parseInt(jobToken));
-        Log.stdout("Workflow run " + jobToken + " is currently " + workflowRun.getStatus().name());
+        logger.info("Workflow run " + jobToken + " is currently " + workflowRun.getStatus().name());
         return new ReturnValue(workflowRun.getStatus() == WorkflowRunStatus.completed ? ReturnValue.SUCCESS : ReturnValue.FAILURE);
     }
 

@@ -34,11 +34,13 @@ import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.plugins.checkdb.CheckDBPluginInterface.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A database validation tool for your SeqWare metadb
@@ -48,6 +50,8 @@ import net.sourceforge.seqware.pipeline.plugins.checkdb.CheckDBPluginInterface.L
  */
 @ServiceProvider(service = PluginInterface.class)
 public final class CheckDB extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(CheckDB.class);
+
     public static final int NUMBER_TO_OUTPUT = 100;
 
     /**
@@ -126,12 +130,12 @@ public final class CheckDB extends Plugin {
             for (Level l : CheckDBPluginInterface.Level.values()) {
                 result.put(l, new HashSet<String>());
             }
-            Log.info("Running " + plugin.getClass().getSimpleName());
+            logger.info("Running " + plugin.getClass().getSimpleName());
             try {
                 plugin.check(new SelectQueryRunner(DBAccess.get()), result);
                 resultMap.put(plugin, result);
             } catch (Exception e) {
-                Log.fatal("Plugin " + plugin.getClass().getSimpleName() + " died", e);
+                logger.error("Plugin " + plugin.getClass().getSimpleName() + " died", e);
                 if (!result.containsKey(Level.SEVERE)) {
                     // defensive check in case plugin author decided to corrupt the map
                     result.put(Level.SEVERE, new HashSet<String>());

@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.openide.util.lookup.ServiceProvider;
@@ -18,9 +15,10 @@ import io.seqware.util.PasswordStorage;
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This plugin migrates passwords from pre-1.2.x and generates password hashes for existing passwords while encrypting them.
@@ -31,6 +29,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class RegistrationMigrationPlugin extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(RegistrationMigrationPlugin.class);
 
     public static final int HASH_BYTE_SIZE = 18;
     public static final int PBKDF2_ITERATIONS = 64000;
@@ -91,8 +90,7 @@ public class RegistrationMigrationPlugin extends Plugin {
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Log.fatal(e);
+            logger.error("RegistrationMigrationPlugin.get_syntax",e);
         }
         return ("");
     }
@@ -139,12 +137,10 @@ public class RegistrationMigrationPlugin extends Plugin {
                 }
             }
         } catch (SQLException e) {
-            Log.fatal("Could not close DB connection");
-            Logger.getLogger(RegistrationMigrationPlugin.class.getName()).log(Level.SEVERE, null, e);
+            logger.error("RegistrationMigrationPlugin.do_run Could not close DB connection",e);
             return new ReturnValue(ReturnValue.FAILURE);
         } catch (PasswordStorage.CannotPerformOperationException e) {
-            Log.fatal("Could not hash passwords");
-            Logger.getLogger(RegistrationMigrationPlugin.class.getName()).log(Level.SEVERE, null, e);
+            logger.error("RegistrationMigrationPlugin.do_run Could not hash passwords",e);
             return new ReturnValue(ReturnValue.FAILURE);
         }
 

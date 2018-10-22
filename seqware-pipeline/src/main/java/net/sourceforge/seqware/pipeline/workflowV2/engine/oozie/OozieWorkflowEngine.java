@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Properties;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.workflowV2.AbstractWorkflowDataModel;
@@ -19,6 +19,8 @@ import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowAction;
 import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.client.WorkflowJob.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of the WorkflowEngine with a Oozie back-end.
@@ -36,7 +38,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     private final File nfsWorkDir;
     private final Configuration conf;
     private final Path hdfsWorkDir;
-
+    private final Logger logger = LoggerFactory.getLogger(OozieWorkflowEngine.class);
     /**
      * 
      * @param objectModel
@@ -129,7 +131,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
             propertiesConf.setProperty("queueName", this.dataModel.getEnv().getOOZIE_QUEUENAME());
 
             jobId = wc.run(propertiesConf);
-            Log.stdout("Submitted Oozie job: " + jobId);
+            logger.info("Submitted Oozie job: " + jobId);
 
         } catch (Exception e) {
             throw rethrow(e);
@@ -158,9 +160,9 @@ public class OozieWorkflowEngine implements WorkflowEngine {
 
     private ReturnValue watchWorkflowInternal(OozieClient wc, String jobId, ReturnValue ret) throws OozieClientException,
             InterruptedException {
-        Log.stdout("");
-        Log.stdout("Polling workflow run status every 10 seconds.");
-        Log.stdout("Terminating this program will NOT affect the running workflow.");
+        logger.info("");
+        logger.info("Polling workflow run status every 10 seconds.");
+        logger.info("Terminating this program will NOT affect the running workflow.");
         Thread.sleep(2 * 1000);
         // Ensure that we can pull the job info from oozie
         int maxwait = 5;
@@ -171,20 +173,20 @@ public class OozieWorkflowEngine implements WorkflowEngine {
                 break;
             } catch (Exception e) {
                 if (maxwait == 0) {
-                    Log.stdout("\nTimed out waiting for workflow job to be available.");
+                    logger.error("\nTimed out waiting for workflow job to be available.");
                     throw rethrow(e);
                 } else {
-                    Log.stdout("\nWorkflow job pending ...");
+                    logger.info("\nWorkflow job pending ...");
                     Thread.sleep(5 * 1000);
                 }
             }
         }
         while (wc.getJobInfo(jobId).getStatus() == WorkflowJob.Status.RUNNING) {
-            Log.stdout("\nWorkflow job running ...");
+            logger.info("\nWorkflow job running ...");
             printWorkflowInfo(wc.getJobInfo(jobId));
             Thread.sleep(10 * 1000);
         }
-        Log.stdout("\nWorkflow job completed ...");
+        logger.info("\nWorkflow job completed ...");
         WorkflowJob job = wc.getJobInfo(jobId);
         printWorkflowInfo(job);
         if (job.getStatus() != Status.SUCCEEDED) {
@@ -194,12 +196,12 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     }
 
     private void printWorkflowInfo(WorkflowJob wf) {
-        Log.stdout("Application Path   : " + wf.getAppPath());
-        Log.stdout("Application Name   : " + wf.getAppName());
-        Log.stdout("Application Status : " + wf.getStatus());
-        Log.stdout("Application Actions:");
+        logger.info("Application Path   : " + wf.getAppPath());
+        logger.info("Application Name   : " + wf.getAppName());
+        logger.info("Application Status : " + wf.getStatus());
+        logger.info("Application Actions:");
         for (WorkflowAction action : wf.getActions()) {
-            Log.stdout(MessageFormat.format("   Name: {0} Type: {1} Status: {2}", action.getName(), action.getType(), action.getStatus()));
+            logger.info(MessageFormat.format("   Name: {0} Type: {1} Status: {2}", action.getName(), action.getType(), action.getStatus()));
         }
     }
 
@@ -319,7 +321,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // return null;
     // return wfJob.getStatus().toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception:",e);
     // return null;
     // }
     // }
@@ -346,7 +348,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // }
     // return sb.toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception2:",e);
     // return null;
     // }
     // }
@@ -370,7 +372,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     // }
     // return sb.toString();
     // } catch (OozieClientException e) {
-    // e.printStackTrace();
+    // logger.error("OozieWorkflowEngine.getOozieClient exception3:",e);
     // return null;
     // }
     // }

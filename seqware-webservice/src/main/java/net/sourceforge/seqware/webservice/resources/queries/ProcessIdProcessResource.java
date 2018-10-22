@@ -22,7 +22,6 @@ import net.sourceforge.seqware.common.business.ProcessingService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.lists.ProcessingList;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import static net.sourceforge.seqware.webservice.resources.BasicResource.parseClientInt;
@@ -31,6 +30,8 @@ import net.sourceforge.seqware.webservice.resources.BasicRestlet;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -42,6 +43,7 @@ import org.w3c.dom.Document;
  * @version $Id: $Id
  */
 public class ProcessIdProcessResource extends BasicRestlet {
+    private final Logger logger = LoggerFactory.getLogger(ProcessIdProcessResource.class);
 
     /**
      * <p>
@@ -77,7 +79,7 @@ public class ProcessIdProcessResource extends BasicRestlet {
                 list.add(copier.hibernate2dto(Processing.class, parent));
             }
         } else {
-            Log.info("Could not find parents");
+            logger.warn("Could not find parents");
         }
         Document line = XmlTools.marshalToDocument(jaxbTool, list, ProcessingList.class);
 

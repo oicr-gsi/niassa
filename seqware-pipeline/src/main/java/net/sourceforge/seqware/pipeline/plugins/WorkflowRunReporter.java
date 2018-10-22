@@ -19,7 +19,7 @@ package net.sourceforge.seqware.pipeline.plugins;
 import io.seqware.common.model.WorkflowRunStatus;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.TabExpansionUtil;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
@@ -34,6 +34,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -45,6 +47,8 @@ import java.util.Date;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowRunReporter extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunReporter.class);
+
     private static final String WRSTDERR = "wr-stderr";
     private static final String WRSTDOUT = "wr-stdout";
 
@@ -138,7 +142,7 @@ public class WorkflowRunReporter extends Plugin {
                         lastDate = localDateFormat.parse(dates[1].trim());
                     }
                 } catch (ParseException ex) {
-                    Log.warn("Date not found. Date must be in format YYYY-MM-DD or YYYY-MM-DD:YYYY-MM-DD.", ex);
+                    logger.warn("Date not found. Date must be in format YYYY-MM-DD or YYYY-MM-DD:YYYY-MM-DD.", ex);
                     println("Incorrect date");
                     ret = new ReturnValue(ReturnValue.INVALIDPARAMETERS);
                     return ret;
@@ -178,7 +182,7 @@ public class WorkflowRunReporter extends Plugin {
                 return ret;
             }
         } catch (IOException e) {
-            Log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             ret.setExitStatus(ReturnValue.FILENOTREADABLE);
             ret.setDescription(e.getMessage());
         }
@@ -215,7 +219,7 @@ public class WorkflowRunReporter extends Plugin {
             initWriter(title);
             writer.write(metadata.getWorkflowRunReportStdErr(Integer.parseInt(workflowRunAccession)));
         } else {
-            Log.error("Unknown stream type: " + streamType + " should be " + WorkflowRunReporter.STDERR + " for stderr or "
+            logger.error("Unknown stream type: " + streamType + " should be " + WorkflowRunReporter.STDERR + " for stderr or "
                     + WorkflowRunReporter.STDOUT + " for stdout!");
             initWriter(title);
             writer.write("Unknown stream type: " + streamType + " should be " + WorkflowRunReporter.STDERR + " for stderr or "
@@ -246,7 +250,7 @@ public class WorkflowRunReporter extends Plugin {
             }
             report = metadata.getWorkflowRunReport(workflowParameter, status, earlyDate, lateDate);
         } catch (RuntimeException e) {
-            Log.fatal("Workflow not found", e);
+            logger.error("Workflow not found", e);
             ret = new ReturnValue(ReturnValue.INVALIDPARAMETERS);
             return;
         }
@@ -281,11 +285,11 @@ public class WorkflowRunReporter extends Plugin {
             writer.flush();
             writer.close();
             if (options.has("stdout")) {
-                Log.stdout(writer.toString());
+                logger.info(writer.toString());
             }
 
         } catch (IOException ex) {
-            Log.error("Writer is already closed.", ex);
+            logger.error("Writer is already closed.", ex);
         }
         return ret;
     }

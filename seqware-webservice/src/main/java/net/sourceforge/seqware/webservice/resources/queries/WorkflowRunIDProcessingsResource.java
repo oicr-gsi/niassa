@@ -37,6 +37,8 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -48,6 +50,7 @@ import org.w3c.dom.Document;
  * @version $Id: $Id
  */
 public class WorkflowRunIDProcessingsResource extends BasicRestlet {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunIDProcessingsResource.class);
 
     /**
      * <p>
@@ -79,7 +82,7 @@ public class WorkflowRunIDProcessingsResource extends BasicRestlet {
 
             response.setEntity(XmlTools.getRepresentation(doc));
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error("WorkflowRunIDProcessingsResource.handle SQLexception:",ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL, ex);
         }
     }

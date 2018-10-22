@@ -18,7 +18,6 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.module.FileMetadata;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.commons.codec.binary.Base64;
 
@@ -49,6 +48,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -59,6 +60,7 @@ import java.util.regex.Pattern;
  * @version $Id: $Id
  */
 public class ProvisionFilesUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionFilesUtil.class);
 
     private final int READ_ATTEMPTS = 1000;
     private long inputSize = 0L;
@@ -122,7 +124,7 @@ public class ProvisionFilesUtil {
                 if (fullOutputPath) {
                     exe = "ln" + " -s " + input + " " + output;
                 }
-                Log.debug(exe);
+                LOGGER.debug("ProvisionFilesUtil.createSymlink "+ exe);
                 result = rt.exec(exe);
                 try {
                     // see if the command worked
@@ -132,10 +134,10 @@ public class ProvisionFilesUtil {
                     }
                 } catch (Exception e) {
                     // see http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=2 for info on this exception
-                    Log.error(e.getMessage());
+                    LOGGER.error("ProvisionFilesUtil.createSymlink "+ e.getMessage(),e);
                 }
             } catch (IOException e) {
-                Log.error(e.getMessage());
+                LOGGER.error("ProvisionFilesUtil.createSymlink "+e.getMessage(),e);
             }
             retryCount++;
         }
@@ -148,7 +150,7 @@ public class ProvisionFilesUtil {
         if (outputFilePath.exists()) {
             return true;
         } else {
-            Log.error("Output file does not exist! " + outputFilePath.getAbsolutePath());
+            LOGGER.error("ProvisionFilesUtil.createSymlink Output file does not exist! " + outputFilePath.getAbsolutePath());
             return false;
         }
     }
@@ -166,7 +168,7 @@ public class ProvisionFilesUtil {
         try {
             cipher = createDecryptCipherInternal();
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getDecryptCipher" +e.getMessage(),e);
             cipher = null;
         }
         return cipher;
@@ -185,7 +187,7 @@ public class ProvisionFilesUtil {
         try {
             cipher = createEncryptCipherInternal();
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getEncryptCipher "+ e.getMessage(),e);
             cipher = null;
         }
         return cipher;
@@ -266,24 +268,24 @@ public class ProvisionFilesUtil {
                     } catch (IOException e) {
 
                         attempts++;
-                        Log.error("There has been an exception while reading the stream: " + e.getMessage());
+                        LOGGER.error("ProvisionFilesUtil.copyToFile There has been an exception while reading the stream: " + e.getMessage());
 
                         if (attempts > this.READ_ATTEMPTS) {
-                            Log.error("Giving up after " + attempts + " attempts!");
+                            LOGGER.error("ProvisionFilesUtil.copyToFile Giving up after " + attempts + " attempts!");
                             return null;
                         }
 
-                        Log.error("Trying to recover from read or write error, opening the reader at position " + this.position);
+                        LOGGER.error("ProvisionFilesUtil.copyToFile Trying to recover from read or write error, opening the reader at position " + this.position);
                         // FIXME: notice I'm assuming this is a problem with the reader
                         try {
                             reader.close();
                         } catch (IOException e1) {
-                            Log.error(e1.getMessage());
+                            LOGGER.error("ProvisionFilesUtil.copyToFile "+ e1.getMessage(),e1);
                         }
                         try {
                             Thread.sleep(2000);
                         } catch (java.lang.InterruptedException e2) {
-                            Log.error("thread sleep failed: " + e2.getMessage());
+                            LOGGER.error("ProvisionFilesUtil.copyToFile thread sleep failed: " + e2.getMessage(),e2);
                         }
                         reader = getSourceReader(input, bufLen, this.position);
                         if (reader == null) {
@@ -298,15 +300,15 @@ public class ProvisionFilesUtil {
                         break;
                     } catch (IOException e) {
                         attempts++;
-                        Log.error("There has been an exception while writing the stream: " + e.getMessage());
+                        LOGGER.error("ProvisionFilesUtil.copyToFile There has been an exception while writing the stream: " + e.getMessage());
                         if (attempts > this.READ_ATTEMPTS) {
-                            Log.error("Giving up after " + attempts + " attempts!");
+                            LOGGER.error("ProvisionFilesUtil.copyToFile Giving up after " + attempts + " attempts!");
                             return null;
                         }
                         try {
                             Thread.sleep(2000);
                         } catch (java.lang.InterruptedException e2) {
-                            Log.error("thread sleep failed: " + e2.getMessage());
+                            LOGGER.error("ProvisionFilesUtil.copyToFile thread sleep failed: " + e2.getMessage());
                         }
                     }
                 }
@@ -316,23 +318,23 @@ public class ProvisionFilesUtil {
             }
 
             // print newline
-            Log.stdout("");
+            //LOGGER.stdout(""); //no
 
             // close reader/writer
             reader.close();
             writer.close();
 
         } catch (FileNotFoundException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.copyToFile "+e.getMessage(),e);
             return null;
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.copyToFile "+e.getMessage(),e);
             return null;
         }
 
         // now that the copy is complete, make sure the file out and the input size are equal
         if (this.inputSize != outputObj.length() && decryptCipher == null && encryptCipher == null) {
-            Log.error("The output file size of " + outputObj.length() + " and the input file size of " + this.inputSize
+            LOGGER.error("ProvisionFilesUtil.copyToFile The output file size of " + outputObj.length() + " and the input file size of " + this.inputSize
                     + " do not match so the file provisioning failed!");
             return null;
         }
@@ -345,12 +347,12 @@ public class ProvisionFilesUtil {
             // verify source and destination values. this does the file size check again but we'll probably delete the former code given a
             // chance
             if (!Objects.equals(metadata.getSize(), outputMetadata.getSize())) {
-                Log.error("The output file size of " + outputMetadata.getSize() + " and the input file size of " + metadata.getSize()
+                LOGGER.error("ProvisionFilesUtil.copyToFile The output file size of " + outputMetadata.getSize() + " and the input file size of " + metadata.getSize()
                         + " do not match so the file provisioning failed!");
                 return null;
             }
             if (!Objects.equals(metadata.getMd5sum(), outputMetadata.getMd5sum())) {
-                Log.error("The output md5sum of " + outputMetadata.getMd5sum() + " and the input md5sum of " + metadata.getMd5sum()
+                LOGGER.error("ProvisionFilesUtil.copyToFile The output md5sum of " + outputMetadata.getMd5sum() + " and the input md5sum of " + metadata.getMd5sum()
                         + " do not match so the file provisioning failed!");
                 return null;
             }
@@ -388,7 +390,7 @@ public class ProvisionFilesUtil {
      */
     public boolean putToHttp() {
         // TODO: not going to support HTTP PUT initially
-        Log.warn("HTTP upload not yet supported");
+        LOGGER.warn("ProvisionFilesUtil.putToHttp HTTP upload not yet supported");
         return false;
     }
 
@@ -479,13 +481,13 @@ public class ProvisionFilesUtil {
                 accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                 secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
             } catch (Exception e) {
-                Log.error(e.getMessage());
+                LOGGER.error("ProvisionFilesUtil.putToS3 "+e.getMessage(),e);
                 return false;
             }
         }
 
         if (accessKey == null || secretKey == null) {
-            Log.error("Couldn't find access or secret key for S3 output so will exit!");
+            LOGGER.error("ProvisionFilesUtil.putToS3 Couldn't find access or secret key for S3 output so will exit!");
             return false;
         }
 
@@ -530,16 +532,16 @@ public class ProvisionFilesUtil {
                 try {
                     reader.close();
                 } catch (IOException e1) {
-                    Log.error(e1.getMessage());
+                    LOGGER.error("ProvisionFilesUtil.putToS3 " + e1.getMessage(),e1);
                 }
 
-                Log.info("S3 WRITES: BUCKET: " + bucket + " KEY: " + key + " INPUT FILE: " + inputFile);
+                LOGGER.info("ProvisionFilesUtil.putToS3 S3 WRITES: BUCKET: " + bucket + " KEY: " + key + " INPUT FILE: " + inputFile);
 
                 Upload upload = tm.upload(bucket, key, this.inputFile);
 
                 boolean uploadStatus = (waitForS3Upload(upload));
                 if (!uploadStatus) {
-                    Log.error("The S3 upload returned false!");
+                    LOGGER.error("ProvisionFilesUtil.putToS3 The S3 upload returned false!");
                     tm.shutdownNow();
                     return (false);
                 }
@@ -548,13 +550,13 @@ public class ProvisionFilesUtil {
                 try {
                     ObjectMetadata om = s3.getObjectMetadata(bucket, key);
                     if (this.inputSize != om.getContentLength()) {
-                        Log.error("The S3 output file size of " + om.getContentLength() + " and the input file size of " + this.inputSize
+                        LOGGER.error("ProvisionFilesUtil.putToS3 The S3 output file size of " + om.getContentLength() + " and the input file size of " + this.inputSize
                                 + " do not match so the file provisioning failed!");
                         tm.shutdownNow();
                         return (false);
                     }
                 } catch (Exception e) {
-                    Log.error("Can't get metadata on key: " + key + " bucket: " + bucket);
+                    LOGGER.error("ProvisionFilesUtil.putToS3 Can't get metadata on key: " + key + " bucket: " + bucket);
                 }
 
             } else {
@@ -575,7 +577,7 @@ public class ProvisionFilesUtil {
                 boolean uploadStatus = waitForS3Upload(myUpload);
                 if (!uploadStatus) {
                     tm.shutdownNow();
-                    Log.error("S3 Upload failed:" + myUpload);
+                    LOGGER.error("ProvisionFilesUtil.putToS3 S3 Upload failed:" + myUpload);
                     return (false);
                 }
 
@@ -588,7 +590,7 @@ public class ProvisionFilesUtil {
             // s3.putObject(bucket, key, reader, new ObjectMetadata());
 
         } else {
-            Log.error("Unable to parse a bucket and file name from " + stringURL
+            LOGGER.error("ProvisionFilesUtil.putToS3 Unable to parse a bucket and file name from " + stringURL
                     + " it should be in the form s3://<bucket>/<key>/ or s3://<bucket>/");
             return false;
         }
@@ -605,13 +607,13 @@ public class ProvisionFilesUtil {
                     float percent = (myUpload.getProgress().getBytesTransferred() * 100.0f) / this.inputSize;
                     System.out.printf("  + completed: %.2f", percent);
                     System.out.print("%\r");
-                    Log.info("Transfer: " + myUpload.getDescription());
-                    Log.info("  - State:    " + myUpload.getState());
-                    Log.info("  - Progress: " + myUpload.getProgress().getBytesTransferred() + " of " + this.inputSize);
+                    LOGGER.info("ProvisionFilesUtil.waitForS3Upload Transfer: " + myUpload.getDescription());
+                    LOGGER.info("ProvisionFilesUtil.waitForS3Upload   - State:    " + myUpload.getState());
+                    LOGGER.info("ProvisionFilesUtil.waitForS3Upload   - Progress: " + myUpload.getProgress().getBytesTransferred() + " of " + this.inputSize);
                 }
                 // Do work while we wait for our upload to complete...
                 if (myUpload.getState() == TransferState.Failed) {
-                    Log.error("Failure Uploading: " + myUpload.getDescription());
+                    LOGGER.error("ProvisionFilesUtil.waitForS3Upload Failure Uploading: " + myUpload.getDescription());
                     return false;
                 }
                 Thread.sleep(2000);
@@ -621,7 +623,7 @@ public class ProvisionFilesUtil {
             }
 
         } catch (InterruptedException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.waitForS3Upload "+e.getMessage(),e);
             return false;
         }
         return (success);
@@ -674,10 +676,10 @@ public class ProvisionFilesUtil {
             reader.skip(startPosition);
 
         } catch (FileNotFoundException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getFileInputStream" + e.getMessage(),e);
             return null;
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getFileInputStream" + e.getMessage(),e);
             return null;
         }
         return reader;
@@ -735,14 +737,14 @@ public class ProvisionFilesUtil {
                 this.inputSize = urlConn.getContentLength();
                 reader = new BufferedInputStream(urlConn.getInputStream(), bufLen);
             } else {
-                Log.error("getHttpInputStream doesn't know how to deal with URL: " + stringURL);
+                LOGGER.error("ProvisionFilesUtil.getHttpInputStream doesn't know how to deal with URL: " + stringURL);
                 return null;
             }
         } catch (MalformedURLException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getHttpInputStream "+e.getMessage(),e);
             return null;
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("ProvisionFilesUtil.getHttpInputStream "+e.getMessage(),e);
             return null;
         }
         return reader;
@@ -794,14 +796,14 @@ public class ProvisionFilesUtil {
                 object = s3.getObject(gor);
                 reader = new BufferedInputStream(object.getObjectContent(), bufLen);
             } catch (AmazonServiceException e) {
-                Log.error(e.getMessage());
+                LOGGER.error("ProvisionFilesUtil.getS3InputStream " +e.getMessage(),e);
                 return null;
             } catch (AmazonClientException e) {
-                Log.error(e.getMessage());
+                LOGGER.error("ProvisionFilesUtil.getS3InputStream " +e.getMessage(),e);
                 return null;
             }
         } else {
-            Log.error("Couldn't figure out the bucket and key from the URL provided: " + input);
+            LOGGER.error("ProvisionFilesUtil.getS3InputStream Couldn't figure out the bucket and key from the URL provided: " + input);
             return null;
         }
         return reader;
@@ -845,13 +847,13 @@ public class ProvisionFilesUtil {
                 accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                 secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
             } catch (Exception e) {
-                Log.error(e.getMessage());
+                LOGGER.error("ProvisionFilesUtil.getS3InputStream "+e.getMessage(),e);
                 return null;
             }
         }
 
         if (accessKey == null || secretKey == null) {
-            Log.error("Couldn't continue because missing S3 access key and/or secret key");
+            LOGGER.error("ProvisionFilesUtil.getS3InputStream Couldn't continue because missing S3 access key and/or secret key");
             return null;
         }
 
@@ -958,7 +960,7 @@ public class ProvisionFilesUtil {
 
     public static void calculateInputMetadata(String input, FileMetadata metadata) throws RuntimeException {
         if (metadata == null) {
-            Log.error("Could not calculate md5sum or size, no metadata provided");
+            LOGGER.error("ProvisionFilesUtil.calculateInputMetadata Could not calculate md5sum or size, no metadata provided");
             return;
         }
         // calculate and store source metadata information about input file
@@ -973,7 +975,7 @@ public class ProvisionFilesUtil {
         HashCode hc;
         try {
             hc = com.google.common.io.Files.hash(inputPath.toFile(), Hashing.md5());
-            Log.info("MD5: " + hc.toString());
+            LOGGER.info("ProvisionFilesUtil.calculateInputMetadata MD5: " + hc.toString());
             metadata.setMd5sum(hc.toString());
         } catch (IOException ex) {
             throw new RuntimeException("Could not calculate md5sum for input file", ex);

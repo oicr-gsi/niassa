@@ -13,19 +13,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowAction;
 import org.apache.oozie.client.WorkflowJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkflowRuns {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowRuns.class);
 
     public static void submitCancel(int... workflowRunAccessions) {
         multithreadTransition(Transition.CANCEL, workflowRunAccessions);
@@ -89,7 +89,7 @@ public class WorkflowRuns {
             try {
                 future.get();
             } catch (InterruptedException | ExecutionException ex) {
-                Log.fatal(ex);
+                LOGGER.error("WorkflowRuns.multithreadTransition InterruptedException", ex);
             }
         }
         pool.shutdown();
@@ -148,7 +148,7 @@ public class WorkflowRuns {
             for (int i = 0;; i++) {
                 int rangeStart = i * 10;
                 int rangeEnd = i * 10 + 10;
-                Log.debug("Requesting " + rangeStart + " " + rangeEnd);
+                LOGGER.debug("Requesting " + rangeStart + " " + rangeEnd);
                 List<WorkflowJob> jobsInfo = oc.getJobsInfo("", rangeStart, rangeEnd);
                 if (jobsInfo.isEmpty()) {
                     break;
@@ -163,7 +163,7 @@ public class WorkflowRuns {
                 }
             }
         } catch (OozieClientException ex) {
-            Logger.getLogger(WorkflowRuns.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error("WorkflowRuns.getAccessionByActionExternalID OozieClientException", ex);
             throw new RuntimeException(ex);
         }
         return null;

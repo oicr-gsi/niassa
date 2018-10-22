@@ -20,6 +20,8 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ServiceProvider(service = PluginInterface.class)
 public class OozieXML2Dot extends Plugin {
@@ -27,6 +29,7 @@ public class OozieXML2Dot extends Plugin {
     private static final Namespace NAMESPACE = Namespace.getNamespace("uri:oozie:workflow:0.2");
     private String input;
     private String output;
+    private final Logger logger = LoggerFactory.getLogger(OozieXML2Dot.class);
 
     private final ReturnValue ret = new ReturnValue(ReturnValue.SUCCESS);
 
@@ -56,10 +59,10 @@ public class OozieXML2Dot extends Plugin {
         try {
             this.parseOozie(input, output);
         } catch (JDOMException e) {
-            e.printStackTrace();
+            logger.error("OozieXML2Dot.do_run JDOM exception", e);
             ret.setReturnValue(ReturnValue.FAILURE);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("OozieXML2Dot.do_run I/O exception", e);
             ret.setReturnValue(ReturnValue.FAILURE);
         }
         return ret;

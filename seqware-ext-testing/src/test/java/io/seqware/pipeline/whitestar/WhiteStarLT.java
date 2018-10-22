@@ -18,7 +18,7 @@ package io.seqware.pipeline.whitestar;
 
 import io.seqware.cli.Main;
 import io.seqware.pipeline.Utility;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ExtendedTestDatabaseCreator;
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
@@ -38,6 +38,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Run a helloworld using whitestar.
@@ -45,6 +47,7 @@ import java.util.Map;
  * @author dyuen
  */
 public class WhiteStarLT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhiteStarLT.class);
 
     @Rule
     public final ExpectedSystemExit exit = ExpectedSystemExit.none();
@@ -78,7 +81,7 @@ public class WhiteStarLT {
         PluginRunner it = new PluginRunner();
         String SEQWARE_VERSION = it.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        LOGGER.info("SeqWare version detected as: " + SEQWARE_VERSION);
         String archetype = "java-workflow";
         String workflow = "seqware-archetype-" + archetype;
         String workflowName = workflow.replace("-", "");
@@ -92,7 +95,7 @@ public class WhiteStarLT {
                 + " -Dworkflow-name="
                 + workflowName + " -B -Dgoals=install";
         String genOutput = ITUtility.runArbitraryCommand(command, 0, tempDir.toFile());
-        Log.info(genOutput);
+        LOGGER.info(genOutput);
         // install the workflows to the database and record their information
         File workflowDir = new File(tempDir.toFile(), workflow);
         File targetDir = new File(workflowDir, "target");

@@ -17,19 +17,18 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -49,7 +48,7 @@ public class S3ListFiles extends Module {
     protected String accessKey = null;
     protected String secretKey = null;
     private static final String[] Q = new String[] { "", "K", "M", "G", "T", "P", "E" };
-
+    private final Logger logger = LoggerFactory.getLogger(S3ListFiles.class);
     /**
      * <p>
      * getOptionParser.
@@ -90,7 +89,7 @@ public class S3ListFiles extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("S3ListFiles.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -125,7 +124,7 @@ public class S3ListFiles extends Module {
         } catch (OptionException e) {
             ret.setStderr(e.getMessage() + System.getProperty("line.separator") + this.get_syntax());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
-            e.printStackTrace();
+            logger.error("S3ListFiles.do_verify_parameters Option exception:",e);
             return ret;
         }
 
@@ -171,7 +170,7 @@ public class S3ListFiles extends Module {
                 accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                 secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_verify_input exception:",e);
                 return null;
             }
         }
@@ -209,8 +208,7 @@ public class S3ListFiles extends Module {
             try {
                 tabWriter = new BufferedWriter(new FileWriter(tabOutFile));
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_run I/O exception:",e);
             }
         }
 
@@ -223,7 +221,7 @@ public class S3ListFiles extends Module {
             for (Bucket bucket : s3.listBuckets()) {
                 if (first) {
                     first = false;
-                    Log.stdout("\nMY BUCKETS:\n");
+                    logger.info("\nMY BUCKETS:\n");
                 }
                 System.out.print(" - " + bucket.getName());
                 ObjectListing objectListing = s3.listObjects(new ListObjectsRequest().withBucketName(bucket.getName()));
@@ -235,9 +233,9 @@ public class S3ListFiles extends Module {
                     }
                     objectListing = s3.listNextBatchOfObjects(objectListing);
                 } while (objectListing.isTruncated());
-                Log.stdout(" size=" + getAsString(totalSize));
+                logger.info(" size=" + getAsString(totalSize));
             }
-            Log.stdout("\nTOTAL SIZE: " + getAsString(allSize) + "\n");
+            logger.info("\nTOTAL SIZE: " + getAsString(allSize) + "\n");
 
         }
 
@@ -276,7 +274,7 @@ public class S3ListFiles extends Module {
                         accessKey = settings.get(SqwKeys.AWS_ACCESS_KEY.getSettingKey());
                         secretKey = settings.get(SqwKeys.AWS_SECRET_KEY.getSettingKey());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error("S3ListFiles.do_run exception:",e);
                         return null;
                     }
                 }
@@ -303,7 +301,7 @@ public class S3ListFiles extends Module {
                     /* sample code */
                     if (options.has("reset-owner-permissions")) {
                         bucketOwner = s3.getBucketAcl(bucket).getOwner().getDisplayName();
-                        Log.stdout("Bucket Owner: " + bucketOwner);
+                        logger.info("Bucket Owner: " + bucketOwner);
                     }
 
                     ObjectListing objectListing = s3.listObjects(new ListObjectsRequest().withBucketName(bucket).withPrefix(key));
@@ -314,14 +312,14 @@ public class S3ListFiles extends Module {
                             if (first) {
                                 first = false;
                                 if (key == null || "".equals(key)) {
-                                    Log.stdout("\nLISTING BUCKET: " + bucket + "\n");
+                                    logger.info("\nLISTING BUCKET: " + bucket + "\n");
                                 } else {
-                                    Log.stdout("\nLISTING BUCKET: " + bucket + " AND KEY PREFIX: " + key + "\n");
+                                    logger.info("\nLISTING BUCKET: " + bucket + " AND KEY PREFIX: " + key + "\n");
                                 }
                             }
                             totalSize += objectSummary.getSize();
                             allSize += objectSummary.getSize();
-                            Log.stdout(" * " + objectSummary.getKey() + " " + "size=" + getAsString(objectSummary.getSize())
+                            logger.info(" * " + objectSummary.getKey() + " " + "size=" + getAsString(objectSummary.getSize())
                             // " last_modified=" + objectSummary.getLastModified() +
                             // " owner=" + objectSummary.getOwner().getDisplayName()
                             );
@@ -336,8 +334,7 @@ public class S3ListFiles extends Module {
                                     }
                                     bucketMap.put(objectSummary.getKey(), objectSummary.getSize());
                                 } catch (Exception e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                    logger.error("S3ListFiles.do_run exception 2:",e);
                                 }
                             }
 
@@ -346,7 +343,7 @@ public class S3ListFiles extends Module {
                                 for (String localDir : localFiles.keySet()) {
                                     HashMap<String, Long> currHash = localFiles.get(localDir);
                                     if (currHash.containsKey(objectSummary.getKey())) {
-                                        Log.stdout("    -> matches local file " + localDir + "/" + objectSummary.getKey());
+                                        logger.info("    -> matches local file " + localDir + "/" + objectSummary.getKey());
                                         break;
                                     }
                                 }
@@ -354,18 +351,18 @@ public class S3ListFiles extends Module {
 
                             if (options.has("reset-owner-permissions")) {
                                 try {
-                                    Log.stdout("   resetting bucket owner (" + bucketOwner + ") permissions for file owned by "
+                                    logger.info("   resetting bucket owner (" + bucketOwner + ") permissions for file owned by "
                                             + objectSummary.getOwner().getDisplayName());
                                     s3.setObjectAcl(bucket, objectSummary.getKey(), CannedAccessControlList.BucketOwnerFullControl);
                                 } catch (Exception e) {
-                                    Log.error("     unable to reset permissions", e);
+                                    logger.error("     unable to reset permissions", e);
                                 }
                             }
                         }
                         objectListing = s3.listNextBatchOfObjects(objectListing);
                     } while (objectListing.isTruncated());
 
-                    Log.stdout("\nBUCKET SIZE: " + getAsString(totalSize) + "\n");
+                    logger.info("\nBUCKET SIZE: " + getAsString(totalSize) + "\n");
 
                 } else {
                     ret.setExitStatus(ReturnValue.FAILURE);
@@ -379,7 +376,7 @@ public class S3ListFiles extends Module {
             }
         }
         if (allSize > 0 && inputs.size() > 1) {
-            Log.stdout("TOTAL SIZE: " + getAsString(allSize) + "\n");
+            logger.info("TOTAL SIZE: " + getAsString(allSize) + "\n");
         }
 
         // now print everything out to local file if specified
@@ -433,8 +430,7 @@ public class S3ListFiles extends Module {
                 }
                 tabWriter.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("S3ListFiles.do_run I/O exception 2: ",e);
             }
         }
 
@@ -457,7 +453,7 @@ public class S3ListFiles extends Module {
                 if (path.startsWith("/")) {
                     path = path.substring(1);
                 }
-                // Log.info(path);
+                // logger.info(path);
                 fileMap.put(path, size);
             }
         }
@@ -497,8 +493,6 @@ public class S3ListFiles extends Module {
     public ReturnValue init() {
         ReturnValue ret = new ReturnValue();
         ret.setReturnValue(ReturnValue.SUCCESS);
-        Logger logger = Logger.getLogger("com.amazonaws");
-        logger.setLevel(Level.SEVERE);
         return ret;
     }
 

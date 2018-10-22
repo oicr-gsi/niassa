@@ -8,6 +8,8 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.ProcessingExperiments;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor=Exception.class)
 public class ProcessingExperimentsDAOHibernate extends HibernateDaoSupport implements ProcessingExperimentsDAO {
+    private final Logger logger = LoggerFactory.getLogger(ProcessingExperimentsDAOHibernate.class);
 
     /** {@inheritDoc} */
     @Override
@@ -64,7 +67,7 @@ public class ProcessingExperimentsDAOHibernate extends HibernateDaoSupport imple
             beanUtils.copyProperties(dbObject, processingExperiments);
             return this.getHibernateTemplate().merge(dbObject);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("ProcessingExperimentsDAOHibernate.updateDetached IllegalAccessException or InvocationTargetException exception:",e);
         }
         return null;
     }

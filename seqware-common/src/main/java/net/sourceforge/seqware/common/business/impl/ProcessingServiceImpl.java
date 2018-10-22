@@ -20,9 +20,10 @@ import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  * <p>
@@ -37,7 +38,8 @@ public class ProcessingServiceImpl implements ProcessingService {
 
     private ProcessingDAO processingDAO = null;
     private FileDAO fileDAO = null;
-    private static final Log LOG = LogFactory.getLog(ProcessingServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingServiceImpl.class);
+
 
     /**
      * <p>
@@ -260,8 +262,7 @@ public class ProcessingServiceImpl implements ProcessingService {
             try {
                 processing = processingDAO.findByID(id);
             } catch (Exception exception) {
-                LOG.error("Cannot find Processing by ID " + id);
-                LOG.error(exception.getMessage());
+                LOGGER.error("ProcessingServiceImpl.findByID: Cannot find Processing by ID " + id,exception.getMessage(),exception);
             }
         }
         return processing;
@@ -291,8 +292,7 @@ public class ProcessingServiceImpl implements ProcessingService {
             try {
                 processing = processingDAO.findBySWAccession(swAccession);
             } catch (Exception exception) {
-                LOG.error("Cannot find Processing by swAccession " + swAccession);
-                LOG.error(exception.getMessage());
+                LOGGER.error("ProcessingServiceImpl.findBySWAccession: Cannot find Processing by swAccession " + swAccession, exception.getMessage(), exception);
             }
         }
         return processing;
@@ -306,8 +306,7 @@ public class ProcessingServiceImpl implements ProcessingService {
             try {
                 processings = processingDAO.findByOwnerID(registrationId);
             } catch (Exception exception) {
-                LOG.error("Cannot find Processings by registrationId " + registrationId);
-                LOG.error(exception.getMessage());
+                LOGGER.error("ProcessingServiceImpl.findByOwnerID: Cannot find Processings by registrationId " + registrationId,exception.getMessage(),exception);
             }
         }
         return processings;

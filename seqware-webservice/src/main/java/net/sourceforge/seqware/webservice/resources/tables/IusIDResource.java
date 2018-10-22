@@ -43,9 +43,10 @@ import net.sourceforge.seqware.common.model.Processing;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -56,6 +57,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class IusIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(IusIDResource.class);
 
     /**
      * <p>
@@ -113,7 +115,7 @@ public class IusIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newIUS = (IUS) XmlTools.unMarshal(jo, IUS.class, text);
         } catch (SAXException | IOException ex) {
-            ex.printStackTrace();
+            logger.error("IusIDResource.put SAX/IO exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex);
         }
         try {
@@ -151,7 +153,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newSample != null && newSample.givesPermission(registration)) {
                     ius.setSample(newSample);
                 } else if (newSample == null) {
-                    Log.info("Could not be found " + sample);
+                    logger.info("Could not be found " + sample);
                 }
             }
 
@@ -165,7 +167,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newLane != null) {
                     ius.setLane(newLane);
                 } else if (newLane == null) {
-                    Log.info("Could not be found " + lane);
+                    logger.info("Could not be found " + lane);
                 }
             }
 
@@ -179,7 +181,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newLimsKey != null) {
                     ius.setLimsKey(newLimsKey);
                 } else if (newLimsKey == null) {
-                    Log.info("Could not be found " + limsKey);
+                    logger.info("Could not be found " + limsKey);
                 }
             }
 
@@ -189,7 +191,7 @@ public class IusIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     ius.setOwner(newReg);
                 } else {
-                    Log.info("newReg cannot be found: " + owner.getEmailAddress());
+                    logger.info("newReg cannot be found: " + owner.getEmailAddress());
                 }
             } else if (ius.getOwner() == null) {
                 ius.setOwner(registration);
@@ -212,7 +214,7 @@ public class IusIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("IusIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 
@@ -230,6 +232,7 @@ public class IusIDResource extends DatabaseIDResource {
             service.delete(ius);
             getResponse().setStatus(Status.SUCCESS_OK);
         } catch (DataIntegrityException ex) {
+            logger.error("IusIDResource.delete",ex);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, ex);
         }
         return rep;

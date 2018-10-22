@@ -21,13 +21,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import net.sourceforge.seqware.common.model.Attribute;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.webservice.resources.BasicResource;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Put;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -38,6 +40,7 @@ import org.restlet.resource.Put;
  * @version $Id: $Id
  */
 public class DatabaseIDResource extends BasicResource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseIDResource.class);
 
     private int id;
 
@@ -138,12 +141,12 @@ public class DatabaseIDResource extends BasicResource {
      * @param parent
      */
     protected static <S, T extends Attribute> void mergeAttributes(Set<T> existingAttributeSet, Set<T> newAttributeSet, S parent) {
-        Log.debug("before merge");
+        LOGGER.debug("before merge");
         for (T attribute : existingAttributeSet) {
-            Log.debug("existing: " + attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
+            LOGGER.debug("existing: " + attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
         }
         for (T attribute : newAttributeSet) {
-            Log.debug("new: " + attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
+            LOGGER.debug("new: " + attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
         }
 
         // extract keys
@@ -157,7 +160,7 @@ public class DatabaseIDResource extends BasicResource {
                 T oldDuplicate = keyMap.get(newAttr.getTag());
                 // seqware-1945, check to see if we have a complete key and value duplicate, if so just ignore it
                 if (Objects.equals(oldDuplicate, newAttr)) {
-                    Log.info("Ignoring duplicate attribute" + newAttr.getTag() + "=" + newAttr.getValue());
+                    LOGGER.debug("Ignoring duplicate attribute" + newAttr.getTag() + "=" + newAttr.getValue());
                     continue;
                 }
                 keyMap.remove(newAttr.getTag());
@@ -170,9 +173,9 @@ public class DatabaseIDResource extends BasicResource {
             newAttr.setAttributeParent(parent);
         }
 
-        Log.debug("after merge");
+        LOGGER.debug("after merge");
         for (T attribute : existingAttributeSet) {
-            Log.debug(attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
+            LOGGER.debug(attribute.toString() + " " + attribute.getTag() + " " + attribute.getValue());
         }
     }
 }

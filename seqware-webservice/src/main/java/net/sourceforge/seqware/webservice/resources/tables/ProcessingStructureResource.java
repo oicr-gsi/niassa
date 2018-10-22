@@ -26,8 +26,11 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProcessingStructureResource extends BasicRestlet {
+    private final Logger logger = LoggerFactory.getLogger(ProcessingStructureResource.class);
 
     public ProcessingStructureResource(Context context) {
         super(context);
@@ -64,7 +67,7 @@ public class ProcessingStructureResource extends BasicRestlet {
             try {
                 root = this.buildDotTree(i);
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("ProcessingStructureResource.handle SQL exception:",e);
             }
             if (root == null) {
                 response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid swAccession");

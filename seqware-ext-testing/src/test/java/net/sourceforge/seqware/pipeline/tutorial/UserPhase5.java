@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.pipeline.plugins.ITUtility;
 import net.sourceforge.seqware.pipeline.plugins.PluginRunnerET;
 import net.sourceforge.seqware.pipeline.runner.PluginRunner;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Build and install a bundle, used by both the User tutorial and the Developer tutorial
@@ -34,6 +36,7 @@ import org.junit.Test;
  * @author dyuen
  */
 public class UserPhase5 {
+    private final Logger logger = LoggerFactory.getLogger(UserPhase5.class);
 
     public static final String WORKFLOW = "Workflow";
 
@@ -44,7 +47,7 @@ public class UserPhase5 {
         PluginRunner it = new PluginRunner();
         String SEQWARE_VERSION = it.getClass().getPackage().getImplementationVersion();
         Assert.assertTrue("unable to detect seqware version", SEQWARE_VERSION != null);
-        Log.info("SeqWare version detected as: " + SEQWARE_VERSION);
+        logger.info("SeqWare version detected as: " + SEQWARE_VERSION);
 
         // for all tests, we're going to need to create and install our basic archetypes
         String[] archetypes = { "java-workflow" };
@@ -58,13 +61,13 @@ public class UserPhase5 {
         File exportINIFile = exportINI(pit, accessions);
 
         String localhost = ITUtility.getLocalhost();
-        Log.info("Attempting to launch with wait");
+        logger.info("Attempting to launch with wait");
         // launch, slightly unlike the tutorial, I'm going to wait to ensure that we have results to export in the next phase
         String listCommand = "-p io.seqware.pipeline.plugins.WorkflowLifecycle -- --ini-files " + exportINIFile.getAbsolutePath()
                 + " --workflow-accession " + accessions.get(0) + " --parent-accessions " + AccessionMap.accessionMap.get(UserPhase4.FILE)
                 + " --wait";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
-        Log.info(listOutput);
+        logger.info(listOutput);
     }
 
     protected File exportINI(PluginRunnerET pit, List<Integer> accessions) throws IOException {

@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -17,6 +18,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public class LockingFileTools {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockingFileTools.class);
 
     private static final int RETRIES = 100;
 
@@ -44,19 +46,19 @@ public class LockingFileTools {
                             fw.append(output);
                             fl.release();
                         }
-                        // Log.info("Locked, appended, and released for file: "+file.getAbsolutePath()+" value: "+output);
+                        // LOGGER.info("LockingFileTools.lockAndWrite Locked, appended, and released for file: "+file.getAbsolutePath()+" value: "+output);
                         return true;
                     } else {
-                        Log.info("Can't get lock for " + file.getAbsolutePath() + " try number " + i + " of " + RETRIES);
+                        LOGGER.info("LockingFileTools.lockAndWrite Can't get lock for " + file.getAbsolutePath() + " try number " + i + " of " + RETRIES);
                         // sleep for 2 seconds before trying again
                         Thread.sleep(2000);
                     }
                 }
             } catch (IOException | InterruptedException e) {
-                Log.fatal("Attempt " + i + " Exception with LockingFileTools: " + e.getMessage(), e);
+                LOGGER.error("LockingFileTools.lockAndWrite Attempt " + i + " Exception with LockingFileTools: " + e.getMessage(), e);
             }
         }
-        Log.fatal("Unable to get lock for " + file.getAbsolutePath() + " gave up after " + RETRIES + " tries");
+        LOGGER.error("LockingFileTools.lockAndWrite Unable to get lock for " + file.getAbsolutePath() + " gave up after " + RETRIES + " tries");
         return false;
     }
 }

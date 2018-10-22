@@ -20,7 +20,6 @@ import static io.seqware.common.model.WorkflowRunStatus.submitted_cancel;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,17 +58,21 @@ import io.seqware.Engines;
 import io.seqware.common.model.WorkflowRunStatus;
 import io.seqware.pipeline.SqwKeys;
 import io.seqware.util.XMLChar;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.common.util.filetools.FileTools.LocalhostPair;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import net.sourceforge.seqware.pipeline.tools.RunLock;
 import net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object.OozieJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This plugin lets you monitor the status of running workflows and updates the
@@ -80,6 +83,8 @@ import net.sourceforge.seqware.pipeline.workflowV2.engine.oozie.object.OozieJob;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowStatusChecker extends Plugin {
+        private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowStatusChecker.class);
+
 	public static final String WORKFLOW_RUN_ACCESSION = "workflow-run-accession";
 	private static final String METADATA_SYNC = "synch_for_metadata";
 	public static final String SEQWARE_SGE_NAME_ID_MAP = "SEQWARE_SGE_NAME_ID_MAP";
@@ -135,7 +140,7 @@ public class WorkflowStatusChecker extends Plugin {
 		// figure out the username
 		if (this.config.get(SqwKeys.SW_REST_USER.getSettingKey()) == null
 				|| "".equals(this.config.get(SqwKeys.SW_REST_USER.getSettingKey()))) {
-			Log.error("You must define " + SqwKeys.SW_REST_USER.getSettingKey() + " in your SeqWare settings file!");
+			LOGGER.error("You must define " + SqwKeys.SW_REST_USER.getSettingKey() + " in your SeqWare settings file!");
 			return new ReturnValue(ExitStatus.FAILURE);
 		}
 		this.username = this.config.get(SqwKeys.SW_REST_USER.getSettingKey());
@@ -192,7 +197,7 @@ public class WorkflowStatusChecker extends Plugin {
 		if (options.has("threads-in-thread-pool")) {
 			int threads = (Integer) options.valueOf("threads-in-thread-pool");
 			if (threads <= 0) {
-				Log.fatal("Inappropriate number of threads selected");
+				LOGGER.error("Inappropriate number of threads selected");
 				ret = new ReturnValue(ReturnValue.FAILURE);
 				return ret;
 			}
@@ -210,7 +215,7 @@ public class WorkflowStatusChecker extends Plugin {
 			try {
 				future.get();
 			} catch (InterruptedException | ExecutionException ex) {
-				Log.fatal(ex);
+				LOGGER.error("WorkflowStatusChecker.do_run", ex);
 			}
 		}
 
@@ -259,9 +264,9 @@ public class WorkflowStatusChecker extends Plugin {
 		@Override
 		public void run() {
 
-			Log.info("ownerUserName: " + wr.getOwnerUserName());
-			Log.info("workflowAccession: " + wr.getWorkflowAccession());
-			Log.info("workflowRunID: " + wr.getWorkflowRunId());
+			LOGGER.info("ownerUserName: " + wr.getOwnerUserName());
+			LOGGER.info("workflowAccession: " + wr.getWorkflowAccession());
+			LOGGER.info("workflowRunID: " + wr.getWorkflowRunId());
 
 			// check that this workflow run matches the specified workflow if provided
 			if (options.has("workflow-accession") && options.valueOf("workflow-accession") != null
@@ -365,7 +370,7 @@ public class WorkflowStatusChecker extends Plugin {
 								// WorkflowJob jobInfo = oc.getJobInfo(jobId);
 								// StringBuilder nodesToSkip = new StringBuilder();
 								// for (WorkflowAction action : jobInfo.getActions()) {
-								// Log.debug("examining node: " + action.getName());
+								// logger.debug("examining node: " + action.getName());
 								// if (JobStatus.SUCCESSFUL.name().equals(action.getExternalStatus())) {
 								// if (nodesToSkip.length() != 0) {
 								// nodesToSkip.append(",");
@@ -373,7 +378,7 @@ public class WorkflowStatusChecker extends Plugin {
 								// nodesToSkip.append(action.getName());
 								// }
 								// }
-								// Log.info("skipping nodes: " + nodesToSkip.toString());
+								// logger.info("skipping nodes: " + nodesToSkip.toString());
 								// conf.setProperty(OozieClient.RERUN_SKIP_NODES, nodesToSkip.toString());
 								oc.reRun(jobId, conf);
 								nextSqwStatus = WorkflowRunStatus.pending;
@@ -463,35 +468,39 @@ public class WorkflowStatusChecker extends Plugin {
 
 		@SuppressWarnings("deprecation")
 		private Properties getCurrentConf(WorkflowJob wfJob) {
-			/*
-			 * Why this method is needed:
-			 * 
-			 * To rerun an oozie job, one must pass in a Properties instance.
-			 * 
-			 * The current conf of a WorkflowJob is only exposed via getConf() which does
-			 * not return a Properties instance, but rather a String of XML.
-			 * 
-			 * The XML is not of a Properties, but rather of a hadoop Configuration!
-			 * 
-			 * A hadoop Configuration instance cannot be loaded from a String, but only from
-			 * resources or an input stream.
-			 * 
-			 * Further, a hadoop Configuration instance does not expose a public method for
-			 * obtaining a Properties representation.
-			 * 
-			 * It does expose an iterator of Map.Entry objects (which is internally obtained
-			 * from a Properties instance!).
-			 * 
-			 * It'd be swell if these guys could just pick one representation, or at least
-			 * an easy way to convert between them.
-			 */
-			Configuration conf = new Configuration(false);
-			conf.addResource(new StringBufferInputStream(wfJob.getConf()));
-			Properties props = new Properties();
-			for (Map.Entry<String, String> e : conf) {
-				props.setProperty(e.getKey(), e.getValue());
-			}
-			return props;
+                    Properties props = new Properties();
+                    try {
+                        /*
+                        * Why this method is needed:
+                        *
+                        * To rerun an oozie job, one must pass in a Properties instance.
+                        *
+                        * The current conf of a WorkflowJob is only exposed via getConf() which does
+                        * not return a Properties instance, but rather a String of XML.
+                        *
+                        * The XML is not of a Properties, but rather of a hadoop Configuration!
+                        *
+                        * A hadoop Configuration instance cannot be loaded from a String, but only from
+                        * resources or an input stream.
+                        *
+                        * Further, a hadoop Configuration instance does not expose a public method for
+                        * obtaining a Properties representation.
+                        *
+                        * It does expose an iterator of Map.Entry objects (which is internally obtained
+                        * from a Properties instance!).
+                        *
+                        * It'd be swell if these guys could just pick one representation, or at least
+                        * an easy way to convert between them.
+                        */
+                        Configuration conf = new Configuration(false);
+                        conf.addResource(new ByteArrayInputStream(wfJob.getConf().getBytes("UTF-8")));
+                        for (Map.Entry<String, String> e : conf) {
+                            props.setProperty(e.getKey(), e.getValue());
+                        }
+                    } catch (UnsupportedEncodingException ex) {
+                        LOGGER.error("Incorrect encoding on configuration file (assumed utf-8 but it's not)",ex);
+                    }
+                    return props;
 		}
 
 		private WorkflowRunStatus convertOozieToSeqware(WorkflowJob.Status oozieStatus) {
@@ -605,7 +614,7 @@ public class WorkflowStatusChecker extends Plugin {
 		final LinkedHashMap<String, String> extIds = new LinkedHashMap<>();
 		for (WorkflowAction a : actions) {
 			if (a == null) {
-				Log.fatal("Null action in Oozie provided list of actions in " + wf.toString());
+				LOGGER.error("WorkflowStatusChecker Null action in Oozie provided list of actions in " + wf.toString());
 				continue;
 			}
 			if (a.getExternalId().equals("-")) {
@@ -621,7 +630,7 @@ public class WorkflowStatusChecker extends Plugin {
 		final Set<String> extIds = new HashSet<>();
 		for (WorkflowAction a : actions) {
 			if (a == null) {
-				Log.fatal("Null action in Oozie provided list of actions in " + wf.toString());
+				LOGGER.error("WorkflowStatusChecker Null action in Oozie provided list of actions in " + wf.toString());
 				continue;
 			}
 			String extId = a.getExternalId();

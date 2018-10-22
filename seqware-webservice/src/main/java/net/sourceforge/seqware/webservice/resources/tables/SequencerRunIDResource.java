@@ -40,9 +40,11 @@ import net.sourceforge.seqware.common.model.Platform;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.SequencerRunAttribute;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,6 +55,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class SequencerRunIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(SequencerRunIDResource.class);
 
     /**
      * <p>
@@ -89,7 +92,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 }
                 dto.setLanes(laneList);
             } else {
-                Log.info("Could not be found: lanes");
+                logger.info("Could not be found: lanes");
             }
         }
 
@@ -114,10 +117,10 @@ public class SequencerRunIDResource extends DatabaseIDResource {
             String text = entity.getText();
             newSequencerRun = (SequencerRun) XmlTools.unMarshal(jo, SequencerRun.class, text);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            logger.error("SequencerRunIDResource.put SAX exception:",ex);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, ex.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("SequencerRunIDResource.put IO exception:",e);
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
         }
         try {
@@ -145,7 +148,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 if (newReg != null) {
                     sequencerRun.setOwner(newReg);
                 } else {
-                    Log.info("Could not be found " + owner);
+                    logger.info("Could not be found " + owner);
                 }
             } else {
                 sequencerRun.setOwner(registration);
@@ -156,7 +159,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
                 if (p != null) {
                     sequencerRun.setPlatform(p);
                 } else {
-                    Log.info("Could not be found " + platform);
+                    logger.info("Could not be found " + platform);
                 }
             }
 
@@ -166,7 +169,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
             }
             srs.update(registration, sequencerRun);
 
-            Log.debug("Skip is " + sequencerRun.getSkip());
+            logger.debug("Skip is " + sequencerRun.getSkip());
 
             Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
             SequencerRun detachedSequencerRun = copier.hibernate2dto(SequencerRun.class, sequencerRun);
@@ -179,7 +182,7 @@ public class SequencerRunIDResource extends DatabaseIDResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SequencerRunIDResource.put exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
 

@@ -1,6 +1,5 @@
 package net.sourceforge.seqware.common.util.maptools;
 
-import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -19,13 +18,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.io.IOUtils;
-
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
-import net.sourceforge.seqware.common.util.Log;
+import static net.sourceforge.seqware.common.util.Rethrow.rethrow;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -36,6 +34,7 @@ import net.sourceforge.seqware.common.util.Log;
  * @version $Id: $Id
  */
 public class MapTools {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapTools.class);
 
 	/**
 	 * <p>
@@ -119,13 +118,13 @@ public class MapTools {
 	 */
 	public static void cli2Map(String[] args, Map<String, String> hm) {
 		if (args == null || hm == null) {
-			Log.info("cliMap input NULL");
+                        LOGGER.info("MapTools.cli2Map cliMap input NULL");
 			return;
 		}
 		// Parse command line arguments for --key=value
 		String currKey = "";
 		for (String arg : args) {
-			Log.info("CURR KEY: " + arg);
+                        LOGGER.info("MapTools.cli2Map CURR KEY: " + arg);
 			// If it starts with --, try to split on =
 			if (arg.startsWith("--")) {
 				String[] split = arg.split("\\=");
@@ -135,12 +134,12 @@ public class MapTools {
 					hm.put(split[0].substring(2), split[1]);
 					currKey = "";
 				} else {
-					Log.info("FOUND KEY " + currKey);
+                                        LOGGER.info("MapTools.cli2Map FOUND KEY " + currKey);
 					currKey = arg.substring(2);
 				}
 			} else {
 				if (!"".equals(currKey)) {
-					Log.info("PUTTING KEY VALUE " + currKey + " " + arg);
+                                        LOGGER.info("MapTools.cli2Map PUTTING KEY VALUE " + currKey + " " + arg);
 					hm.put(currKey, arg);
 				}
 			}
@@ -217,12 +216,11 @@ public class MapTools {
 			return UUID.randomUUID().toString();
 
 		if (key.equals(LEGACY_VAR_RANDOM)) {
-			Log.warn(String.format("Variable '%s' is deprecated. Please use '%s' instead.", LEGACY_VAR_RANDOM,
-					VAR_RANDOM));
+                        LOGGER.warn(String.format("MapTools.generatedValue Variable '%s' is deprecated. Please use '%s' instead.", LEGACY_VAR_RANDOM, VAR_RANDOM));
 			return String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
 		}
 		if (key.equals(LEGACY_VAR_DATE)) {
-			Log.warn(String.format("Variable '%s' is deprecated. Please use '%s' instead.", LEGACY_VAR_DATE, VAR_DATE));
+                        LOGGER.warn(String.format("MapTools.generatedValue Variable '%s' is deprecated. Please use '%s' instead.", LEGACY_VAR_DATE, VAR_DATE));
 			return DatatypeConverter.printDate(Calendar.getInstance());
 		}
 
@@ -330,7 +328,7 @@ public class MapTools {
 		SortedSet<WorkflowRunParam> runParams = new TreeSet<>();
 		for (String str : map.keySet()) {
 			if (map.get(str) != null) {
-				Log.info(str + " " + map.get(str));
+                                LOGGER.info("MapTools.createWorkflowRunParameters "+ str + " " + map.get(str));
 				if (str.equals(ReservedIniKeys.PARENT_UNDERSCORE_ACCESSIONS.getKey())
 						|| str.equals(ReservedIniKeys.PARENT_ACCESSION.getKey())
 						|| str.equals(ReservedIniKeys.PARENT_DASH_ACCESSIONS.getKey())) {
@@ -354,7 +352,7 @@ public class MapTools {
 					runParams.add(wrp);
 				}
 			} else {
-				Log.info("Null: " + str + " " + map.get(str));
+                                LOGGER.info("MapTools.createWorkflowRunParameters Null: " + str + " " + map.get(str));
 			}
 		}
 		return runParams;

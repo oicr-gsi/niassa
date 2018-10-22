@@ -14,7 +14,8 @@ import net.sourceforge.seqware.common.dao.SequencerRunDAO;
 import net.sourceforge.seqware.common.model.Lane;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -26,6 +27,8 @@ import net.sourceforge.seqware.common.util.Log;
  */
 @Transactional(rollbackFor=Exception.class)
 public class SequencerRunServiceImpl implements SequencerRunService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequencerRunServiceImpl.class);
+
     private SequencerRunDAO sequencerRunDAO = null;
     private LaneDAO laneDAO = null;
     private FileDAO fileDAO = null;
@@ -196,7 +199,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
             try {
                 sequencerRun = sequencerRunDAO.findByName(name.trim());
             } catch (Exception exception) {
-                Log.debug("Cannot find SequencerRun by name " + name);
+                LOGGER.debug("SequencerRunServiceImpl.findByName: Cannot find SequencerRun by name " + name, exception.getMessage(), exception);
             }
         }
         return sequencerRun;
@@ -211,8 +214,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
                 sequencerRun = sequencerRunDAO.findByID(expID);
                 // fillInLanes(sequencerRun);
             } catch (Exception exception) {
-                Log.error("Cannot find SequencerRun by expID " + expID);
-                Log.error(exception.getMessage());
+                LOGGER.error("SequencerRunServiceImpl.findByIDL: Cannot find SequencerRun by expID " + expID,exception.getMessage(), exception);
             }
         }
         return sequencerRun;
@@ -226,8 +228,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
             try {
                 sequencerRun = sequencerRunDAO.findBySWAccession(swAccession);
             } catch (Exception exception) {
-                Log.error("Cannot find SequencerRun by swAccession " + swAccession);
-                Log.error(exception.getMessage());
+                LOGGER.error("SequencerRunServiceImpl.findBySWAccession: Cannot find SequencerRun by swAccession " + swAccession,exception.getMessage(), exception);
             }
         }
         return sequencerRun;
@@ -241,8 +242,7 @@ public class SequencerRunServiceImpl implements SequencerRunService {
             try {
                 sequencerRuns = sequencerRunDAO.findByOwnerID(registrationId);
             } catch (Exception exception) {
-                Log.error("Cannot find SequencerRun by registrationId " + registrationId);
-                Log.error(exception.getMessage());
+                LOGGER.error("SequencerRunServiceImpl.findByOwnerID: Cannot find SequencerRun by registrationId " + registrationId,exception.getMessage(), exception);
             }
         }
         return sequencerRuns;

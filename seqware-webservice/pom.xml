@@ -367,11 +367,14 @@
             <scope>compile</scope>
         </dependency>
 -->
-		<!-- slf4j-log4j -->
+        <!-- slf4j-log4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>runtime</scope>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -573,11 +576,6 @@
         <dependency>
             <artifactId>org.restlet</artifactId>
             <groupId>org.restlet.jee</groupId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <artifactId>log4j</artifactId>
-            <groupId>log4j</groupId>
             <type>jar</type>
         </dependency>
         <dependency>

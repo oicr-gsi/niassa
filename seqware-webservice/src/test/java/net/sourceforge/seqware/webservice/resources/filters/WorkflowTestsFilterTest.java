@@ -17,12 +17,15 @@
 package net.sourceforge.seqware.webservice.resources.filters;
 
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class WorkflowTestsFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowTestsFilterTest.class);
 
     String workflowId;
 
@@ -38,7 +41,7 @@ public class WorkflowTestsFilterTest extends AbstractResourceTest {
         // Assert.assertTrue(resource.get().getText().contains("GET all tests from " + workflowId));
         // } catch (Exception e) {
         // Assert.fail(e.getMessage());
-        // e.printStackTrace();
+        // logger.error("WorkflowTestsFilterTest.testGet exception:",e);
         // }
     }
 
@@ -61,7 +64,7 @@ public class WorkflowTestsFilterTest extends AbstractResourceTest {
         // Assert.assertTrue(resource.post(myString).getText().contains("POST test Test test test"));
         // } catch (Exception e) {
         // Assert.fail(e.getMessage());
-        // e.printStackTrace();
+        // logger.error("WorkflowTestsFilterTest.testPost exception:",e);
         // }
     }
 

@@ -20,13 +20,15 @@ import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import org.junit.Assert;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public abstract class DatabaseResourceTest extends AbstractResourceTest {
-
+    private final Logger logger = LoggerFactory.getLogger(DatabaseResourceTest.class);
     public DatabaseResourceTest(String relativeURI) {
         super(relativeURI);
     }
@@ -45,8 +47,7 @@ public abstract class DatabaseResourceTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
-        }
+            logger.error("DatabaseResourceTest.testGet exception:",e);        }
     }
 
     // /**
@@ -65,7 +66,7 @@ public abstract class DatabaseResourceTest extends AbstractResourceTest {
     // Assert.assertTrue(result.contains("Test test test"));
     // } catch (Exception e) {
     // Assert.fail(e.getMessage());
-    // e.printStackTrace();
+    // logger.error("DatabaseResourceTest.testPost:",e);
     // }
     // }
 

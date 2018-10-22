@@ -17,7 +17,7 @@ import joptsimple.ArgumentAcceptingOptionSpec;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.TabExpansionUtil;
 import net.sourceforge.seqware.common.util.workflowtools.WorkflowInfo;
 import net.sourceforge.seqware.pipeline.bundle.Bundle;
@@ -26,6 +26,8 @@ import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.apache.commons.io.FileUtils;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -39,6 +41,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class BundleManager extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(BundleManager.class);
 
 	ReturnValue ret = new ReturnValue();
 	private final ArgumentAcceptingOptionSpec<String> outFile;
@@ -231,7 +234,7 @@ public class BundleManager extends Plugin {
 							+ "!");
 				}
 			} else {
-				Log.error("Attempting to install a workflow bundle zip file but the bundle does not end in .zip! "
+				logger.error("Attempting to install a workflow bundle zip file but the bundle does not end in .zip! "
 						+ bundleFile);
 				ret.setExitStatus(ReturnValue.FAILURE);
 			}
@@ -252,7 +255,7 @@ public class BundleManager extends Plugin {
 							+ "!");
 				}
 			} else {
-				Log.error(
+				logger.error(
 						"Attempting to install a workflow bundle from an unzipped bundle directory but the bundle does not exit or point to a directory! "
 								+ bundleFile);
 				ret.setExitStatus(ReturnValue.FAILURE);
@@ -354,7 +357,7 @@ public class BundleManager extends Plugin {
 
 	private boolean killIfDirectDB() {
 		if (this.metadata instanceof MetadataDB) {
-			Log.stdout("Bundle installation is not supported using a database connection to the MetaDB");
+			logger.warn("Bundle installation is not supported using a database connection to the MetaDB");
 			ret = new ReturnValue(ReturnValue.RUNTIMEEXCEPTION);
 			return true;
 		}

@@ -6,7 +6,6 @@ import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.model.ProcessingAttribute;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.pipeline.module.Module;
 import net.sourceforge.seqware.pipeline.module.ModuleInterface;
@@ -21,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a very simple module is used to save both a processing event and 0 or more files to the metadb. It does absolutely no computation
@@ -45,10 +46,10 @@ import java.util.Set;
  */
 @ServiceProvider(service = ModuleInterface.class)
 public class GenericMetadataSaver extends Module {
+    private final Logger logger = LoggerFactory.getLogger(GenericMetadataSaver.class);
 
     private OptionSet options = null;
     private ArrayList<String> cmdParameters = null;
-
     /**
      * getOptionParser is an internal method to parse command line args.
      * 
@@ -86,7 +87,7 @@ public class GenericMetadataSaver extends Module {
             parser.printHelpOn(output);
             return (output.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("GenericMetadataSaver.get_syntax I/O exception:",e);
             return (e.getMessage());
         }
     }
@@ -155,7 +156,7 @@ public class GenericMetadataSaver extends Module {
             // ret.setStdout(ret.getStdout()+"Output: "+(String)options.valueOf("output-file")+"\n");
 
         } catch (OptionException e) {
-            e.printStackTrace();
+            logger.error("GenericMetadataSaver.init Options exception:",e);
             ret.setStderr(e.getMessage());
             ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
         }
@@ -213,7 +214,7 @@ public class GenericMetadataSaver extends Module {
             for (String file : files) {
                 String[] tokens = file.split("::");
                 if (FileTools.fileExistsAndReadable(new File(tokens[2])).getExitStatus() != ReturnValue.SUCCESS) {
-                    Log.error("File does not exist or is not readable: " + tokens[2]);
+                    logger.error("File does not exist or is not readable: " + tokens[2]);
                     ret.setExitStatus(ReturnValue.FILENOTREADABLE);
                     return ret;
                 }
@@ -275,7 +276,7 @@ public class GenericMetadataSaver extends Module {
                 }
             }
         } else {
-            Log.info(get_syntax());
+            logger.info(get_syntax());
         }
 
         // note the time do_run finishes

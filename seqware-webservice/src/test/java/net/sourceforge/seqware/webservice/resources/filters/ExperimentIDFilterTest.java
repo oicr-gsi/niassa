@@ -26,17 +26,20 @@ import org.restlet.resource.ResourceException;
 
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.lists.ExperimentList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
 import net.sourceforge.seqware.webservice.resources.ClientResourceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class ExperimentIDFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(ExperimentIDFilterTest.class);
 
     String studyAcc;
 
@@ -81,7 +84,7 @@ public class ExperimentIDFilterTest extends AbstractResourceTest {
 
     private List<Experiment> getExperiments(String relativeURI) throws ResourceException, Exception {
         resource = ClientResourceInstance.getChild(relativeURI);
-        Log.stdout(getRelativeURI() + " GET");
+        logger.info(getRelativeURI() + " GET");
         ExperimentList parent = new ExperimentList();
         JaxbObject<ExperimentList> jaxb = new JaxbObject<>();
         try {
@@ -91,10 +94,10 @@ public class ExperimentIDFilterTest extends AbstractResourceTest {
             rep.exhaust();
             rep.release();
         } catch (ResourceException e) {
-            e.printStackTrace();
+            logger.error("ExperimentIDFilterTest.getExperiments resource exception:",e);
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("ExperimentIDFilterTest.getExperiments exception:",e);
             throw e;
         }
         return parent.getList();

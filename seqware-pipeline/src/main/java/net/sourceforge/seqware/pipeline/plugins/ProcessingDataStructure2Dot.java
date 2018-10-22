@@ -9,16 +9,20 @@ import java.util.List;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openide.util.lookup.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ServiceProvider(service = PluginInterface.class)
 public class ProcessingDataStructure2Dot extends Plugin {
+    private final Logger logger = LoggerFactory.getLogger(ProcessingDataStructure2Dot.class);
+
     private final ArgumentAcceptingOptionSpec<String> processingSWIDSpec;
     private final ArgumentAcceptingOptionSpec<String> outputFileSpec;
 
@@ -47,10 +51,10 @@ public class ProcessingDataStructure2Dot extends Plugin {
         String outputFile = options.valueOf(outputFileSpec);
         String output = metadata.getProcessingRelations(swAccession);
         if (output == null) {
-            Log.stderr("Could not find processing event, please check that this is a valid processing SWID");
+            logger.error("Could not find processing event, please check that this is a valid processing SWID");
             return new ReturnValue(ExitStatus.INVALIDPARAMETERS);
         }
-        Log.stdout("Writing dot file to " + outputFile);
+        logger.info("Writing dot file to " + outputFile);
         try (Writer writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(output);
         } catch (IOException e) {

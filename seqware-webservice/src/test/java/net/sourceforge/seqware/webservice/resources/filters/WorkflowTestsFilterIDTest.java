@@ -17,12 +17,15 @@
 package net.sourceforge.seqware.webservice.resources.filters;
 
 import net.sourceforge.seqware.webservice.resources.AbstractResourceTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class WorkflowTestsFilterIDTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowTestsFilterIDTest.class);
 
     String workflowId;
     String testId;
@@ -53,7 +56,7 @@ public class WorkflowTestsFilterIDTest extends AbstractResourceTest {
         // Assert.assertTrue("testId is not in representation:" + result, result.contains(testId));
         // } catch (Exception e) {
         // Assert.fail(e.getMessage());
-        // e.printStackTrace();
+        // logger.error("WorkflowTestsFilterIDTest.testGet exception:",e);
         // }
     }
 

@@ -4,7 +4,6 @@ import net.sourceforge.seqware.common.dao.WorkflowDAO;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Workflow;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.hibernate.Query;
@@ -160,7 +159,7 @@ public class WorkflowDAOHibernate extends HibernateDaoSupport implements Workflo
         if (list.size() > 0) {
             workflow = list.get(0);
         } else {
-            Log.error("Could not find workflow of swaccession = " + swAccession);
+            localLogger.error("Could not find workflow of swaccession = " + swAccession);
         }
         return workflow;
     }

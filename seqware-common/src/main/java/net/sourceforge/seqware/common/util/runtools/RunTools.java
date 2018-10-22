@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.iotools.BufferedReaderThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import net.sourceforge.seqware.common.util.iotools.BufferedReaderThread;
  * @version $Id: $Id
  */
 public class RunTools {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunTools.class);
 
     /**
      * <p>
@@ -75,13 +77,13 @@ public class RunTools {
         ReturnValue ret = new ReturnValue();
 
         Process p = null;
-        // Log.debug("Env:"+env);
-        // Log.debug("Command:");
+        // LOGGER.debug("Env:"+env);
+        // LOGGER.debug("Command:");
         // for (String s: command)
         // {
-        // Log.debug(s);
+        // LOGGER.debug(s);
         // }
-        // Log.debug("End Command");
+        // LOGGER.debug("End Command");
         try {
             p = startCommand(env, command);
         } catch (Exception e) {
@@ -89,16 +91,16 @@ public class RunTools {
             if (p != null) {
                 ret.setProcessExitStatus(p.exitValue());
             } else {
-                Log.error("The result of the process was null - env:" + env + " cmd:" + Arrays.toString(command), e);
+                LOGGER.error("The result of the process was null - env:" + env + " cmd:" + Arrays.toString(command), e);
                 ret.setProcessExitStatus(ReturnValue.PROGRAMFAILED);
             }
 
             if (ret.getExitStatus() == ReturnValue.SUCCESS) {
-                Log.error("An exception was thrown but the return code was 0 - success", e);
+                LOGGER.error("An exception was thrown but the return code was 0 - success", e);
                 ret.setExitStatus(ReturnValue.PROGRAMFAILED);
             }
 
-            e.printStackTrace();
+            LOGGER.error("RunTools.runCommand exception:",e);
             ret.setStderr(e.getMessage());
             return ret;
         }
@@ -151,9 +153,9 @@ public class RunTools {
 
             // Check for errors
             if (p.exitValue() != 0) {
-                Log.stdout(stdOutThread.getOutput());
-                Log.stderr(stdErrThread.getOutput());
-                Log.error("The exit value was " + p.exitValue());
+                System.out.println(stdOutThread.getOutput());
+                System.err.println(stdErrThread.getOutput());
+                LOGGER.error("The exit value was " + p.exitValue());
                 ret.setExitStatus(ReturnValue.PROGRAMFAILED);
             }
             if (stdOutThread.getError() != null) {
@@ -170,14 +172,14 @@ public class RunTools {
             if (p != null) {
                 ret.setProcessExitStatus(p.exitValue());
             } else {
-                Log.error("The result of the process was null", e);
+                LOGGER.error("The result of the process was null", e);
                 ret.setProcessExitStatus(ReturnValue.PROGRAMFAILED);
             }
             if (ret.getExitStatus() == ReturnValue.SUCCESS) {
-                Log.error("An exception was thrown but the return code was 0 - success", e);
+                LOGGER.error("An exception was thrown but the return code was 0 - success", e);
                 ret.setExitStatus(ReturnValue.PROGRAMFAILED);
             }
-            e.printStackTrace();
+            LOGGER.error("RunTools.waitAndGetReturn exception:",e);
             ret.getStderr().concat(e.getMessage());
         }
 
@@ -228,10 +230,10 @@ public class RunTools {
             sb.append(token).append(" ");
         }
         ReturnValue rv = RunTools.runCommand(sb.toString().trim());
-        Log.info("Process status: " + rv.getProcessExitStatus());
-        Log.info("My status: " + rv.getExitStatus());
-        Log.info("Error status: " + rv.getStderr());
-        Log.info("Output:\n" + rv.getStdout());
+        LOGGER.info("Process status: " + rv.getProcessExitStatus());
+        LOGGER.info("My status: " + rv.getExitStatus());
+        LOGGER.info("Error status: " + rv.getStderr());
+        LOGGER.info("Output:\n" + rv.getStdout());
 
     }
 

@@ -9,7 +9,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -26,6 +27,7 @@ public abstract class Plugin implements PluginInterface {
     protected String[] params = null;
     protected Metadata metadata = null;
     protected Map<String, String> config = null;
+    private final Logger logger = LoggerFactory.getLogger(Plugin.class);
 
     /**
      * <p>
@@ -45,10 +47,10 @@ public abstract class Plugin implements PluginInterface {
     @Override
     public void setConfig(Map<String, String> config) {
         this.config = config;
-        Log.info("Setting Config");
-        Log.info("Config File Contents:");
+        logger.info("Setting Config");
+        logger.info("Config File Contents:");
         for (String key : config.keySet()) {
-            Log.info("  " + key + " " + config.get(key));
+            logger.info("  " + key + " " + config.get(key));
         }
     }
 
@@ -60,7 +62,7 @@ public abstract class Plugin implements PluginInterface {
     /** {@inheritDoc} */
     @Override
     public void setParams(List<String> params) {
-        Log.info("Setting Params: " + params);
+        logger.info("Setting Params: " + params);
         this.params = params.toArray(new String[params.size()]);
     }
 
@@ -72,7 +74,7 @@ public abstract class Plugin implements PluginInterface {
     /** {@inheritDoc} */
     @Override
     public void setMetadata(Metadata metadata) {
-        Log.info("Setting Metadata: " + metadata);
+        logger.info("Setting Metadata: " + metadata);
         this.metadata = metadata;
     }
 
@@ -89,8 +91,7 @@ public abstract class Plugin implements PluginInterface {
             parser.formatHelpWith(new BuiltinHelpFormatter(160, 2));
             parser.printHelpOn(System.out);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Plugin.get_syntax I/O exception:",e);
         }
         return ("");
     }
@@ -144,10 +145,7 @@ public abstract class Plugin implements PluginInterface {
      *            a {@link java.lang.String} object.
      */
     public void println(String output) {
-
-        // FIXME: Yong, do something cleaver here, for now I'm using System.out
-        Log.stdout(output);
-
+        logger.info(output);
     }
 
 	@Override

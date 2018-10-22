@@ -10,7 +10,6 @@ import joptsimple.OptionSpecBuilder;
 import net.sourceforge.seqware.common.model.File;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 import org.apache.commons.io.FileUtils;
@@ -22,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Workflow Scheduler is only responsible for scheduling workflows.
@@ -34,6 +35,7 @@ import java.util.Set;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class WorkflowScheduler extends Plugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowScheduler.class);
 
     public static final String INPUT_FILES = "input-files";
     private final ArgumentAcceptingOptionSpec<String> workflowEngineSpec;
@@ -134,7 +136,7 @@ public class WorkflowScheduler extends Plugin {
 
     public static ReturnValue validateEngineString(String engine) {
         if (!Engines.ENGINES.contains(engine)) {
-            Log.error("Invalid workflow-engine value. Must be one of: " + Engines.ENGINES_LIST);
+            LOGGER.error("Invalid workflow-engine value. Must be one of: " + Engines.ENGINES_LIST);
             return new ReturnValue(ExitStatus.INVALIDARGUMENT);
         }
         return new ReturnValue(ExitStatus.SUCCESS);
@@ -164,11 +166,11 @@ public class WorkflowScheduler extends Plugin {
         try {
             inputFiles = collectInputFiles();
             if (options.has(inputFilesSpec) && (inputFiles == null || inputFiles.isEmpty())) {
-                Log.error("Error parsing provided input files");
+                LOGGER.error("Error parsing provided input files");
                 return new ReturnValue(ExitStatus.INVALIDARGUMENT);
             }
         } catch (Exception e) {
-            Log.error("Error checking provided input files");
+            LOGGER.error("Error checking provided input files");
             return new ReturnValue(ExitStatus.INVALIDARGUMENT);
         }
 
@@ -178,20 +180,20 @@ public class WorkflowScheduler extends Plugin {
         // and want to pass in arguments on the command line rather than ini
         // file
         List<String> nonOptions = options.valuesOf(nonOptionSpec);
-        Log.info("EXTRA OPTIONS: " + nonOptions.size());
+        LOGGER.info("EXTRA OPTIONS: " + nonOptions.size());
 
         // THE MAIN ACTION HAPPENS HERE
         if (options.has(workflowAccessionSpec)) {
 
             // then you're scheduling a workflow that has been installed
             if (!options.has(hostSpec)) {
-                Log.error("host parameter is required when scheduling");
-                Log.info(this.get_syntax());
+                LOGGER.error("host parameter is required when scheduling");
+                LOGGER.info(this.get_syntax());
                 return new ReturnValue(ExitStatus.INVALIDARGUMENT);
             }
             String host = options.valueOf(hostSpec);
             String engine = getEngineParam();
-            Log.info("You are scheduling a workflow to run on " + host + " by adding it to the metadb.");
+            LOGGER.info("You are scheduling a workflow to run on " + host + " by adding it to the metadb.");
             ReturnValue ret = w.scheduleInstalledBundle(options.valueOf(workflowAccessionSpec), options.valuesOf(iniFilesSpec),
                     !options.has(metadataWriteBackOffSpec), options.valuesOf(parentAccessionsSpec),
                     options.valuesOf(linkWorkflowRunToParentsSpec), options.valuesOf(nonOptionSpec), host, engine, inputFiles);
@@ -207,8 +209,8 @@ public class WorkflowScheduler extends Plugin {
             return ret;
 
         } else {
-            Log.error("I don't understand the combination of arguments you gave!");
-            Log.info(this.get_syntax());
+            LOGGER.error("I don't understand the combination of arguments you gave!");
+            LOGGER.info(this.get_syntax());
             return new ReturnValue(ExitStatus.INVALIDARGUMENT);
         }
     }
@@ -222,7 +224,7 @@ public class WorkflowScheduler extends Plugin {
                 File file1 = metadata.getFile(fileAccession.intValue());
                 if (file1 == null) {
                     inputFiles = null;
-                    Log.error("Input file not found, please check your sw_accession " + fileAccession);
+                    LOGGER.error("Input file not found, please check your sw_accession " + fileAccession);
                     break;
                 }
                 inputFiles.add(file1.getSwAccession());

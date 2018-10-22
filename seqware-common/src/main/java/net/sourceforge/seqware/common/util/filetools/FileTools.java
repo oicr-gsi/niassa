@@ -2,7 +2,6 @@ package net.sourceforge.seqware.common.util.filetools;
 
 import joptsimple.OptionSet;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.runtools.RunTools;
 import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -29,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -39,6 +40,7 @@ import java.util.UUID;
  * @version $Id: $Id
  */
 public class FileTools {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileTools.class);
 
     public static final String FORCE_HOST = "force-host";
 
@@ -317,7 +319,7 @@ public class FileTools {
             }
             writer.close();
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("FileTools.zipDirectoryRecursive: "+e.getMessage(),e);
             return false;
         }
         return true;
@@ -356,7 +358,7 @@ public class FileTools {
                 outFile.setReadable(true);
             }
         } catch (IOException e) {
-            Log.error("Unhandled exception:", e);
+            LOGGER.error("FileTools.unzipFile: Unhandled exception:", e);
             return false;
         }
         return true;
@@ -376,8 +378,7 @@ public class FileTools {
         if (path.exists()) {
             File[] files = path.listFiles();
             if (files == null) {
-                Log.fatal("Could not list file " + path.toString() + " you may not have read permissions, skipping it");
-                Log.stderr("Could not list file " + path.toString() + " you may not have read permissions, skipping it");
+                LOGGER.error("FileTools.listFilesRecursive Could not list file " + path.toString() + " you may not have read permissions, skipping it");
             }
             for (int i = 0; files != null && i < files.length; i++) {
                 if (files[i].isDirectory()) {
@@ -413,7 +414,7 @@ public class FileTools {
             }
             freader.close();
         } catch (IOException e) {
-            Log.error(e.getMessage());
+            LOGGER.error("FileTools.getKeyValueFromFile "+e.getMessage(),e);
         }
         return ret;
     }
@@ -433,7 +434,7 @@ public class FileTools {
             boolean isFileOwner = owner.getName().equals(programRunner);
             return isFileOwner;
         } catch (IOException ex) {
-            Log.error("Can't figure out the file ownership");
+            LOGGER.error("FileTools.isFileOwner Can't figure out the file ownership",ex);
             return false;
         }
     }
@@ -456,7 +457,7 @@ public class FileTools {
             stdout = stdout.trim();
             return (stdout);
         } else {
-            Log.error("Can't figure out the username using 'whoami' " + ret.getStderr());
+            LOGGER.error("FileTools.whoAmI Can't figure out the username using 'whoami' " + ret.getStderr());
             return null;
         }
     }
@@ -502,7 +503,7 @@ public class FileTools {
             try {
                 hostname = InetAddress.getLocalHost().getCanonicalHostName();
             } catch (UnknownHostException e) {
-                Log.error("Can't figure out the hostname: " + e.getMessage());
+                LOGGER.error("FileTools.getLocalHost Can't figure out the hostname: " + e.getMessage());
                 return new LocalhostPair(hostname, returnValue);
             }
         }

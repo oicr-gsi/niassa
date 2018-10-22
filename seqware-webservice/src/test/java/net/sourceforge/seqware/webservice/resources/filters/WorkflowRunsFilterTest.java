@@ -22,12 +22,15 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author mtaschuk
  */
 public class WorkflowRunsFilterTest extends AbstractResourceTest {
+    private final Logger logger = LoggerFactory.getLogger(WorkflowRunsFilterTest.class);
 
     String workflowId;
 
@@ -46,7 +49,7 @@ public class WorkflowRunsFilterTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("WorkflowRunsFilterTest.testGet exception:",e);
         }
     }
 
@@ -89,7 +92,7 @@ public class WorkflowRunsFilterTest extends AbstractResourceTest {
             rep.release();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-            e.printStackTrace();
+            logger.error("WorkflowRunsFilterTest.testPost exception:",e);
         }
     }
 

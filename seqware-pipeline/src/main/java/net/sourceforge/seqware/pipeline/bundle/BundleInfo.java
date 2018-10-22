@@ -7,6 +7,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import net.sourceforge.seqware.common.util.workflowtools.WorkflowInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,6 +27,8 @@ public class BundleInfo {
 
     private ArrayList<WorkflowInfo> workflows = new ArrayList<>();
     private File metadata = null;
+    private final Logger logger = LoggerFactory.getLogger(BundleInfo.class);
+
 
     /**
      * <p>
@@ -110,8 +114,7 @@ public class BundleInfo {
             }
 
         } catch (SAXException | IOException | ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("BundleInfo.parseFromFile exception raised:",e);
         }
 
     }

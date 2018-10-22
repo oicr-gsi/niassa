@@ -25,8 +25,9 @@ import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_PORT;
 import static io.seqware.pipeline.SqwKeys.BASIC_TEST_DB_USER;
 import java.util.HashMap;
 import java.util.Map;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class controls configuration of the database used for integration tests.
@@ -37,6 +38,7 @@ import net.sourceforge.seqware.common.util.configtools.ConfigTools;
  * @author dyuen
  */
 public class BasicTestDatabaseCreator extends TestDatabaseCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicTestDatabaseCreator.class);
 
     private Map<String, String> settings = null;
 
@@ -44,7 +46,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         try {
             settings = ConfigTools.getSettings();
         } catch (Exception e) {
-            Log.fatal("Could not read .seqware/settings, this will likely crash basic integration tests", e);
+            LOGGER.error("BasicTestDatabaseCreator.constructor Could not read .seqware/settings, this will likely crash basic integration tests", e);
         }
     }
     
@@ -72,7 +74,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_NAME.getSettingKey())) {
             return settings.get(SqwKeys.BASIC_TEST_DB_NAME.getSettingKey());
         }
-        Log.debug("Could not retrieve basic test db, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getSEQWARE_DB Could not retrieve basic test db, using default from unit tests");
         return super.getSEQWARE_DB();
     }
 
@@ -84,7 +86,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_USER.getSettingKey())) {
             return settings.get(SqwKeys.BASIC_TEST_DB_USER.getSettingKey());
         }
-        Log.debug("Could not retrieve basic test db username, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getSEQWARE_USER Could not retrieve basic test db username, using default from unit tests");
         return super.getSEQWARE_USER();
     }
 
@@ -96,7 +98,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_PASSWORD.getSettingKey())) {
             return settings.get(SqwKeys.BASIC_TEST_DB_PASSWORD.getSettingKey());
         }
-        Log.debug("Could not retrieve basic test db password, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getSEQWARE_PASSWORD Could not retrieve basic test db password, using default from unit tests");
         return super.getSEQWARE_PASSWORD();
     }
 
@@ -108,7 +110,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey())) {
             return settings.get(SqwKeys.BASIC_TEST_DB_HOST.getSettingKey());
         }
-        Log.debug("Could not retrieve basic test db host, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getDEFAULT_DB_HOST Could not retrieve basic test db host, using default from unit tests");
         return super.getDEFAULT_DB_HOST();
     }
     
@@ -120,7 +122,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey(SqwKeys.BASIC_TEST_DB_PORT.getSettingKey())) {
             return settings.get(SqwKeys.BASIC_TEST_DB_PORT.getSettingKey());
         }
-        Log.debug("Could not retrieve basic test db port, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getDEFAULT_DB_PORT Could not retrieve basic test db port, using default from unit tests");
         return super.getDEFAULT_DB_PORT();
     }
     
@@ -132,7 +134,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey("POSTGRE_USER")) {
             return settings.get("POSTGRE_USER");
         }
-        Log.debug("Could not retrieve postgres user name, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getPOSTGRE_USER Could not retrieve postgres user name, using default from unit tests");
         return super.getPOSTGRE_USER();
     }
 
@@ -144,7 +146,7 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         if (settings.containsKey("POSTGRE_PASSWORD")) {
             return settings.get("POSTGRE_PASSWORD");
         }
-        Log.debug("Could not retrieve postgres password, using default from unit tests");
+        LOGGER.debug("BasicTestDatabaseCreator.getPOSTGRE_PASSWORD Could not retrieve postgres password, using default from unit tests");
         return super.getPOSTGRE_PASSWORD();
     }
 

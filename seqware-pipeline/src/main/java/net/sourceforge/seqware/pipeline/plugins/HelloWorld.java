@@ -14,6 +14,8 @@ import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.pipeline.plugin.Plugin;
 import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -27,7 +29,7 @@ import net.sourceforge.seqware.pipeline.plugin.PluginInterface;
 public class HelloWorld extends Plugin {
 
     ReturnValue ret = new ReturnValue();
-
+    private final Logger logger = LoggerFactory.getLogger(HelloWorld.class);
     /**
      * <p>
      * Constructor for HelloWorld.
@@ -106,8 +108,7 @@ public class HelloWorld extends Plugin {
         try {
             parser.printHelpOn(System.err);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("HelloWorld.get_syntax I/O exception:",e);
         }
         return ("");
     }

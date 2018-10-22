@@ -58,9 +58,11 @@ import net.sourceforge.seqware.common.model.SequencerRun;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -71,6 +73,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class ProcessIDResource extends DatabaseIDResource {
+    private final Logger logger = LoggerFactory.getLogger(ProcessIDResource.class);
 
     /**
      * <p>
@@ -105,7 +108,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                 WorkflowRun copyWR = copier.hibernate2dto(WorkflowRun.class, wr);
                 dto.setWorkflowRun(copyWR);
             } else {
-                Log.info("Could not be found : workflow run");
+                logger.info("Could not be found : workflow run");
             }
         }
 
@@ -130,15 +133,15 @@ public class ProcessIDResource extends DatabaseIDResource {
                 String text = rep.getText();
                 p = (Processing) XmlTools.unMarshal(jo, Processing.class, text);
             } catch (IOException e) {
-                Log.error(e, e);
+                logger.error("ProcessIDResource.put", e);
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
             } catch (SAXException ex) {
-                Log.error(ex, ex);
+                logger.error("ProcessIDResource.put", ex);
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, ex);
             }
             try {
 
-                Log.info("Updating Processing " + p.getSwAccession());
+                logger.info("Updating Processing " + p.getSwAccession());
                 // SEQWARE-1679 see HHH-3030 Hibernate assumes that version columns are not null and fails if they are
                 // let's try setting it if it is not set first, should fix this systematically in the database
                 MetadataDB mdb0 = DBAccess.get();
@@ -156,7 +159,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                 // the authentication of this user is checked by the Hibernate layer
                 ProcessingService ps = BeanFactory.getProcessingServiceBean();
                 Processing processing = testIfNull(ps.findBySWAccession(p.getSwAccession()));
-                Log.debug("Checking processing permission for " + registration.getEmailAddress());
+                logger.debug("Checking processing permission for " + registration.getEmailAddress());
                 processing.givesPermission(registration);
 
                 if (p.getOwner() != null) {
@@ -187,7 +190,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newI != null && newI.givesPermission(registration)) {
                             set.add(newI);
                         } else if (newI == null) {
-                            Log.info("Could not be found " + i);
+                            logger.info("Could not be found " + i);
                         }
                     }
                     if (processing.getIUS() == null) {
@@ -204,7 +207,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newL != null && newL.givesPermission(registration)) {
                             set.add(newL);
                         } else if (newL == null) {
-                            Log.info("Could not be found " + l);
+                            logger.info("Could not be found " + l);
                         }
                     }
                     if (processing.getLanes() == null) {
@@ -221,7 +224,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newS != null && newS.givesPermission(registration)) {
                             set.add(newS);
                         } else if (newS == null) {
-                            Log.info("Could not be found " + s);
+                            logger.info("Could not be found " + s);
                         }
                     }
                     if (processing.getSamples() == null) {
@@ -239,7 +242,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newSR != null && newSR.givesPermission(registration)) {
                             set.add(newSR);
                         } else if (newSR == null) {
-                            Log.info("Could not be found " + sr);
+                            logger.info("Could not be found " + sr);
                         }
                     }
                     if (processing.getSequencerRuns() == null) {
@@ -256,7 +259,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newS != null && newS.givesPermission(registration)) {
                             set.add(newS);
                         } else if (newS == null) {
-                            Log.info("Could not be found " + sr);
+                            logger.info("Could not be found " + sr);
                         }
                     }
                     if (processing.getSequencerRuns() == null) {
@@ -273,7 +276,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newProc != null && newProc.givesPermission(registration)) {
                             childSet.add(newProc);
                         } else if (newProc == null) {
-                            Log.info("Could not be found " + proc);
+                            logger.info("Could not be found " + proc);
                         }
                     }
                     if (processing.getChildren() == null) {
@@ -287,7 +290,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                         if (newProc != null && newProc.givesPermission(registration)) {
                             parentSet.add(newProc);
                         } else if (newProc == null) {
-                            Log.info("Could not be found " + proc);
+                            logger.info("Could not be found " + proc);
                         }
                     }
                     if (processing.getParents() == null) {
@@ -305,7 +308,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                     if (newWr != null && newWr.givesPermission(registration)) {
                         processing.setWorkflowRun(newWr);
                     } else if (newWr == null) {
-                        Log.info("Could not be found " + p.getWorkflowRun());
+                        logger.info("Could not be found " + p.getWorkflowRun());
                     }
                 }
 
@@ -318,7 +321,7 @@ public class ProcessIDResource extends DatabaseIDResource {
                     if (newWr != null && newWr.givesPermission(registration)) {
                         processing.setWorkflowRunByAncestorWorkflowRunId(newWr);
                     } else if (newWr == null) {
-                        Log.info("Could not be found " + p.getWorkflowRunByAncestorWorkflowRunId());
+                        logger.info("Could not be found " + p.getWorkflowRunByAncestorWorkflowRunId());
                     }
                 }
 
@@ -400,7 +403,7 @@ public class ProcessIDResource extends DatabaseIDResource {
             } catch (SecurityException e) {
                 getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
             } catch (Exception e) {
-                Log.error(e, e);
+                logger.error("ProcessIDResource.put", e);
                 getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
             } finally {
                 DBAccess.close();
@@ -429,18 +432,18 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewFiles(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewFiles() with " + p.toString());
+        logger.debug("Starting addNewFiles() with " + p.toString());
         Set<Integer> newFiles = new HashSet<>();
         for (File file : p.getFiles()) {
             newFiles.add(file.getFileId());
         }
-        Log.debug("Adding " + newFiles.size() + " files");
+        logger.debug("Adding " + newFiles.size() + " files");
 
         MetadataDB mdb;
         try {
 
             String query = "SELECT file_id " + "FROM processing_files " + "WHERE processing_id = " + p.getProcessingId();
-            Log.debug("Executing query: " + query);
+            logger.debug("Executing query: " + query);
             mdb = DBAccess.get();
             List<Integer> fileIDs = mdb.executeQuery(query, new IntListByName("file_id"));
 
@@ -451,13 +454,13 @@ public class ProcessIDResource extends DatabaseIDResource {
             DBAccess.close();
         }
         for (int fileID : newFiles) {
-            Log.debug("Linking " + fileID + " to " + p.getSwAccession());
+            logger.debug("Linking " + fileID + " to " + p.getSwAccession());
             DBAccess.get().linkProcessingAndFile(p.getProcessingId(), fileID);
         }
     }
 
     private void addNewIUSes(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewIUS() with " + p.toString());
+        logger.debug("Starting addNewIUS() with " + p.toString());
         Set<Integer> newIUSswa = new HashSet<>();
         for (IUS ius : p.getIUS()) {
             newIUSswa.add(ius.getSwAccession());
@@ -487,7 +490,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewLanes(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewLanes() with " + p.toString());
+        logger.debug("Starting addNewLanes() with " + p.toString());
         Set<Integer> newLane = new HashSet<>();
         for (Lane lane : p.getLanes()) {
             newLane.add(lane.getSwAccession());
@@ -514,7 +517,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewSequencerRuns(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewSequencerRuns() with " + p.toString());
+        logger.debug("Starting addNewSequencerRuns() with " + p.toString());
         Set<Integer> newObj = new HashSet<>();
         for (SequencerRun obj : p.getSequencerRuns()) {
             newObj.add(obj.getSwAccession());
@@ -542,7 +545,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewStudies(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewStudies() with " + p.toString());
+        logger.debug("Starting addNewStudies() with " + p.toString());
         Set<Integer> newObj = new HashSet<>();
         for (Study obj : p.getStudies()) {
             newObj.add(obj.getSwAccession());
@@ -570,7 +573,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewExperiments(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewExperiments() with " + p.toString());
+        logger.debug("Starting addNewExperiments() with " + p.toString());
         Set<Integer> newObj = new HashSet<>();
         for (Experiment obj : p.getExperiments()) {
             newObj.add(obj.getSwAccession());
@@ -598,7 +601,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewSamples(Processing p) throws SQLException, ResourceException {
-        Log.debug("Starting addNewSamples() with " + p.toString());
+        logger.debug("Starting addNewSamples() with " + p.toString());
         Set<Integer> newObj = new HashSet<>();
         for (Sample obj : p.getSamples()) {
             newObj.add(obj.getSwAccession());
@@ -626,7 +629,7 @@ public class ProcessIDResource extends DatabaseIDResource {
     }
 
     private void addNewRelationships(Processing p) throws SQLException {
-        Log.debug("Starting addNewRelationships() with " + p.toString());
+        logger.debug("Starting addNewRelationships() with " + p.toString());
         Set<Processing> children = p.getChildren();
         Set<Processing> parents = p.getParents();
 

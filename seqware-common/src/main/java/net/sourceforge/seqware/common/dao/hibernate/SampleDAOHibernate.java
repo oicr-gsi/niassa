@@ -22,7 +22,6 @@ import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.WorkflowRun;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.NullBeanUtils;
 
 /**
@@ -732,11 +731,11 @@ public class SampleDAOHibernate extends HibernateDaoSupport implements SampleDAO
         String query = "from Sample as sample";
         Object[] parameters = {};
         list = (List<Sample>) this.getHibernateTemplate().find(query, parameters);
-        Log.stderr("The list: " + list);
+        localLogger.error("The list: " + list);
         for (Sample sample : list) {
-            Log.stderr("Curr sample: " + sample);
-            Log.stderr("sample lanes: " + sample.getLanes());
-            Log.stderr("sample expected num runs: " + sample.getExpectedNumRuns());
+            localLogger.error("Curr sample: " + sample);
+            localLogger.error("sample lanes: " + sample.getLanes());
+            localLogger.error("sample expected num runs: " + sample.getExpectedNumRuns());
             if (sample.getLanes() != null && sample.getExpectedNumRuns() != null && sample.getLanes().size() >= sample.getExpectedNumRuns()) {
                 filteredList.add(sample);
             }

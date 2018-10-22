@@ -38,9 +38,11 @@ import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Experiment;
 import net.sourceforge.seqware.common.model.Sample;
 import net.sourceforge.seqware.common.model.lists.SampleList;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -51,6 +53,7 @@ import net.sourceforge.seqware.common.util.xmltools.XmlTools;
  * @version $Id: $Id
  */
 public class SampleResource extends DatabaseResource {
+    private final Logger logger = LoggerFactory.getLogger(SampleResource.class);
 
     /**
      * <p>
@@ -80,7 +83,7 @@ public class SampleResource extends DatabaseResource {
         Hibernate3DtoCopier copier = new Hibernate3DtoCopier();
 
         for (String key : queryValues.keySet()) {
-            Log.debug("key: " + key + " -> " + queryValues.get(key));
+            logger.debug("key: " + key + " -> " + queryValues.get(key));
         }
 
         SampleService ss = BeanFactory.getSampleServiceBean();
@@ -164,7 +167,7 @@ public class SampleResource extends DatabaseResource {
                 if (newExp != null) {
                     o.setExperiment(newExp);
                 } else {
-                    Log.info("Could not be found " + o.getExperiment());
+                    logger.info("Could not be found " + o.getExperiment());
                 }
             }
 
@@ -203,7 +206,7 @@ public class SampleResource extends DatabaseResource {
 
             // explicitly create root sample if needed
             if (createExplicitRootSample) {
-                Log.info("Found null parent in sample object, creating explicit root sample in sample_hierarchy");
+                logger.info("Found null parent in sample object, creating explicit root sample in sample_hierarchy");
 
                 Session openSession = BeanFactory.getSessionFactoryBean().openSession();
                 try {
@@ -235,7 +238,7 @@ public class SampleResource extends DatabaseResource {
         } catch (SecurityException e) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN, e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("SampleResource.postJaxb exception:",e);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e);
         }
 

@@ -126,17 +126,19 @@ import net.sourceforge.seqware.common.model.lists.WorkflowList;
 import net.sourceforge.seqware.common.model.lists.WorkflowRunList2;
 import net.sourceforge.seqware.common.module.FileMetadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.Rethrow;
 import net.sourceforge.seqware.common.util.maptools.MapTools;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @version $Id: $Id
  */
 public class MetadataWS implements Metadata {
+        private final Logger logger = LoggerFactory.getLogger(MetadataWS.class);
 
 	static {
 		// deal with restlet's annoying logging implementation details
@@ -183,14 +185,14 @@ public class MetadataWS implements Metadata {
 
 		workflow.setParameterDefaults(MapTools.readProvisionedConfig(configFile, provisionDir));
 
-		Log.info("Posting workflow");
+		logger.info("MetadataWS.addWorkflow: Posting workflow");
 		try {
 			workflow = ll.addWorkflow(workflow);
-			Log.stdout("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
+			logger.info("MetadataWS.addWorkflow: Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
 			ret.setAttribute("sw_accession", workflow.getSwAccession().toString());
 			ret.setReturnValue(workflow.getWorkflowId());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addWorkflow exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -267,12 +269,12 @@ public class MetadataWS implements Metadata {
 		study.setCenterProjectName(centerProjectName);
 		study.setCreateTimestamp(new Date());
 
-		Log.info("Posting workflow");
+		logger.info("MetadataWS.addStudy: Posting workflow");
 		try {
 			study = ll.addStudy(study);
 			ret.setAttribute("sw_accession", study.getSwAccession().toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addStudy exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -308,7 +310,7 @@ public class MetadataWS implements Metadata {
 
 			Study s = ll.findStudy("/" + studySwAccession.toString());
 
-			Log.debug("Study: " + s);
+			logger.debug("MetadataWS.addExperiment: Study: " + s);
 
 			Experiment e = new Experiment();
 			e.setStudy(s);
@@ -336,14 +338,14 @@ public class MetadataWS implements Metadata {
 				e.setExperimentSpotDesign(esd);
 			}
 
-			Log.info("Posting new experiment");
+			logger.info("MetadataWS.addExperiment: Posting new experiment");
 
 			e = ll.addExperiment(e);
 
 			ret.setAttribute("sw_accession", e.getSwAccession().toString());
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addExperiment exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -396,18 +398,18 @@ public class MetadataWS implements Metadata {
 			s.setDescription(description);
 			s.setCreateTimestamp(new Date());
 
-			Log.info("Adding new sample");
+			logger.info("MetadataWS.addSample: Adding new sample");
 
 			s = ll.addSample(s);
 
 			ret.setAttribute("sw_accession", s.getSwAccession().toString());
 
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException", e);
+			logger.error("MetadataWS.addSample: NotFoundException", e);
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			Log.fatal("Exception", e);
+			logger.error("MetadataWS.addSample: Exception", e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -453,18 +455,18 @@ public class MetadataWS implements Metadata {
 			sr.setFilePath(filePath);
 			sr.setStatus(status);
 
-			Log.info("Posting new sequencer_run");
+			logger.info("MetadataWS.addSequencerRun: Posting new sequencer_run");
 
 			sr = ll.addSequencerRun(sr);
 
 			ret.setAttribute("sw_accession", sr.getSwAccession().toString());
 
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException, e");
+			logger.error("MetadataWS.addSequencerRun: NotFoundException, e");
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addSequencerRun exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -511,18 +513,18 @@ public class MetadataWS implements Metadata {
 			l.setSkip(skip);
 			l.setLaneIndex(laneNumber - 1);
 
-			Log.info("Posting new lane");
+			logger.info("MetadataWS.addLane: Posting new lane");
 
 			l = ll.addLane(l);
 
 			ret.setAttribute("sw_accession", l.getSwAccession().toString());
 
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException, e");
+			logger.error("MetadataWS.addLane: NotFoundException, e");
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addLane exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -548,18 +550,18 @@ public class MetadataWS implements Metadata {
 			i.setTag(barcode);
 			i.setSkip(skip);
 
-			Log.info("Posting new IUS");
+			logger.info("MetadataWS.addIUS: Posting new IUS");
 
 			i = ll.addIUS(i);
 
 			ret.setAttribute("sw_accession", i.getSwAccession().toString());
 
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException, e");
+			logger.error("MetadataWS.addIUS: NotFoundException, e");
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addIUS exception:",e);
 			ret.setExitStatus(ReturnValue.FAILURE);
 			return ret;
 		}
@@ -579,15 +581,15 @@ public class MetadataWS implements Metadata {
 			i.setSkip(skip);
 			i.setLimsKey(limsKey);
 
-			Log.info("Posting new IUS");
+			logger.info("MetadataWS.addIUS: Posting new IUS");
 			i = ll.addIUS(i);
 
 			return i.getSwAccession();
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException, e");
+			logger.error("MetadataWS.addIUS: NotFoundException, e");
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addIUS exception:",e);
 			return null;
 		}
 	}
@@ -604,15 +606,15 @@ public class MetadataWS implements Metadata {
 			limsKey.setVersion(version);
 			limsKey.setLastModified(lastModified);
 
-			Log.info("Posting new LimsKey");
+			logger.info("MetadataWS.addLimsKey: Posting new LimsKey");
 			limsKey = ll.addLimsKey(limsKey);
 
 			return limsKey.getSwAccession();
 		} catch (NotFoundException e) {
-			Log.fatal("NotFoundException, e");
+			logger.error("MetadataWS.addLimsKey: NotFoundException, e");
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addLimsKey exception:",e);
 			return null;
 		}
 	}
@@ -625,7 +627,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLimsKey("/" + limsKeyAccession);
 		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getLimsKey: ",ex);
 		}
 		return null;
 	}
@@ -639,7 +641,7 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.updateIUS("/" + iusSwid, ius);
 		} catch (IOException | JAXBException | ResourceException ex) {
-			Log.error("Error while updating IUS swid=[" + iusSwid + "] " + ex.getMessage());
+			logger.error("MetadataWS.updateIUS: Error while updating IUS swid=[" + iusSwid + "] " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -653,7 +655,7 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.updateLimsKey("/" + limsKeySwid, limsKey);
 		} catch (IOException | JAXBException | ResourceException ex) {
-			Log.error("Error while updating IUS swid=[" + limsKeySwid + "] " + ex.getMessage());
+			logger.error("MetadataWS.updateLimsKey: Error while updating IUS swid=[" + limsKeySwid + "] " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -666,7 +668,7 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.deleteIUS("/" + iusSwid.toString());
 		} catch (IOException | JAXBException | ResourceException ex) {
-			Log.error("Error while deleting IUS swid=[" + iusSwid + "] " + ex.getMessage());
+			logger.error("MetadataWS.deleteIUS: Error while deleting IUS swid=[" + iusSwid + "] " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -679,7 +681,7 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.deleteLimsKey("/" + limsKeySwid.toString());
 		} catch (IOException | JAXBException | ResourceException ex) {
-			Log.error("Error while deleting Lims Key swid=[" + limsKeySwid + "] " + ex.getMessage());
+			logger.error("MetadataWS.deleteLimsKey: Error while deleting Lims Key swid=[" + limsKeySwid + "] " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -689,7 +691,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findPlatforms();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getPlatforms exception:",ex);
 		}
 		return null;
 	}
@@ -699,7 +701,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findOrganisms();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getOrganisms exception:",ex);
 		}
 		return null;
 	}
@@ -709,7 +711,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findStudyTypes();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getStudyTypes exception:",ex);
 		}
 		return null;
 	}
@@ -719,7 +721,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibraryStrategies();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibraryStrategies exception:",ex);
 		}
 		return null;
 	}
@@ -729,7 +731,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibrarySelections();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibrarySelections exception:",ex);
 		}
 		return null;
 	}
@@ -739,7 +741,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findLibrarySources();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getLibrarySource exception:",ex);
 		}
 		return null;
 	}
@@ -777,13 +779,13 @@ public class MetadataWS implements Metadata {
 			Workflow w;
 			File f;
 			if ((wr = ll.existsWorkflowRun(searchString)) != null) {
-				Log.debug("Adding workflow run " + wr.getSwAccession());
+				logger.debug("MetadataWS.resolveSWA: Adding workflow run " + wr.getSwAccession());
 				return wr;
 			} else if ((f = ll.existsFile(searchString)) != null) {
-				Log.debug("Adding file " + f.getSwAccession());
+				logger.debug("MetadataWS.resolveSWA: Adding file " + f.getSwAccession());
 				return f;
 			} else if ((w = ll.existsWorkflow(searchString)) != null) {
-				Log.debug("Adding workflow " + w.getSwAccession());
+				logger.debug("MetadataWS.resolveSWA: Adding workflow " + w.getSwAccession());
 				return w;
 			}
 		}
@@ -806,25 +808,25 @@ public class MetadataWS implements Metadata {
 		Sample samp;
 
 		if ((pr = ll.existsProcessing(searchString)) != null) {
-			Log.debug("Adding parent processing " + pr.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent processing " + pr.getSwAccession());
 			return pr;
 		} else if ((l = ll.existsLane(searchString)) != null) {
-			Log.debug("Adding parent lane " + l.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent lane " + l.getSwAccession());
 			return l;
 		} else if ((i = ll.existsIUS(searchString)) != null) {
-			Log.debug("Adding parent ius " + i.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent ius " + i.getSwAccession());
 			return i;
 		} else if ((sr = ll.existsSequencerRun(searchString)) != null) {
-			Log.debug("Adding parent sequencer_run " + sr.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent sequencer_run " + sr.getSwAccession());
 			return sr;
 		} else if ((study = ll.existsStudy(searchString)) != null) {
-			Log.debug("Adding parent study " + study.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent study " + study.getSwAccession());
 			return study;
 		} else if ((exp = ll.existsExperiment(searchString)) != null) {
-			Log.debug("Adding parent experiment " + exp.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent experiment " + exp.getSwAccession());
 			return exp;
 		} else if ((samp = ll.existsSample(searchString)) != null) {
-			Log.debug("Adding parent sample " + samp.getSwAccession());
+			logger.debug("MetadataWS.resolveParentAccession: Adding parent sample " + samp.getSwAccession());
 			return samp;
 		} else {
 			return null;
@@ -879,7 +881,7 @@ public class MetadataWS implements Metadata {
 			for (String childID : childIds) {
 				Processing child = ll.findProcessing(childID);
 				if (child != null) {
-					Log.debug("Adding child processing " + child.getSwAccession());
+					logger.debug("MetadataWS.addParentsAndChildren: Adding child processing " + child.getSwAccession());
 					p.getChildren().add(child);
 				} else {
 					throw new IOException("This child ID is invalid: " + childID);
@@ -932,13 +934,12 @@ public class MetadataWS implements Metadata {
 		ReturnValue ret = new ReturnValue();
 		try {
 			Processing p = ll.addProcessing(processing);
-			Log.debug("~~~~~~~~~~~~Processing id: " + p.getProcessingId() + " swa:" + p.getSwAccession());
 			addParentsAndChildren(p, parentIds, childIds);
 
 			ret.setReturnValue(p.getProcessingId());
 			ret.setExitStatus(ReturnValue.SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.addProcessingEventWithParentsAndChildren exception:",e);
 			return new ReturnValue(ReturnValue.FAILURE);
 		}
 		return ret;
@@ -976,7 +977,7 @@ public class MetadataWS implements Metadata {
 			wr = ll.addWorkflowRun(wr);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.add_workflow_run exception:",e);
 			return 0;
 		}
 		return (wr.getWorkflowRunId());
@@ -990,7 +991,7 @@ public class MetadataWS implements Metadata {
 		try {
 			WorkflowRun wr = ll.findWorkflowRun("/" + workflowRunAccession);
 			if (wr == null) {
-				Log.error("add_workflow_run_ancestor: workflow_run not found with SWID " + workflowRunAccession);
+				logger.error("MetadataWS.add_workflow_run_ancestor: workflow_run not found with SWID " + workflowRunAccession);
 			}
 			Processing processing = ll.findProcessing("?id=" + processingId);
 
@@ -999,7 +1000,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processingId, processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.add_workflow_run_ancestor exception:",e);
 		}
 	}
 
@@ -1014,10 +1015,10 @@ public class MetadataWS implements Metadata {
 			Processing p = ll.findProcessing("?id=" + processingID);
 			addParentsAndChildren(p, convertIDs(parentIDs, "?id="), convertIDs(childIDs, "?id="));
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.associate_processing_event_with_parents_and_child IO exception:",ex);
 			ret.setExitStatus(ReturnValue.INVALIDFILE);
 		} catch (JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.associate_processing_event_with_parents_and_child JAXB exception:",ex);
 			ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
 		}
 		return ret;
@@ -1046,7 +1047,7 @@ public class MetadataWS implements Metadata {
 			map = convertWorkflowToMap(workflow);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_info exception:",e);
 		}
 		return map;
 	}
@@ -1073,8 +1074,8 @@ public class MetadataWS implements Metadata {
 
 	private <T> T testNull(T object, Class<T> clazz, Object searchParameters) throws NotFoundException {
 		if (object == null) {
-			String text = "The " + clazz + " cannot be found with search parameters: " + searchParameters;
-			Log.debug(text);
+			String text = "MetadataWS.testNull: The " + clazz + " cannot be found with search parameters: " + searchParameters;
+			logger.debug(text);
 			throw new NotFoundException(text);
 		}
 		return object;
@@ -1090,7 +1091,7 @@ public class MetadataWS implements Metadata {
 			WorkflowRun wr = ll.findWorkflowRun("?id=" + workflowRunId);
 			accession = wr.getSwAccession();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_run_accession exception:",e);
 		}
 		return accession;
 
@@ -1105,7 +1106,7 @@ public class MetadataWS implements Metadata {
 		try {
 			wf = ll.findWorkflow("/" + Integer.toString(workflowAccession));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.getWorkflow exception:",e);
 		}
 		return (wf);
 	}
@@ -1119,7 +1120,7 @@ public class MetadataWS implements Metadata {
 		try {
 			wr = ll.findWorkflowRun("/" + workflowRunAccession);
 		} catch (Exception e) {
-			Log.info("Could not find workflow run by accession", e);
+			logger.info("MetadataWS.getWorkflowRun: Could not find workflow run by accession", e);
 		}
 		return wr;
 	}
@@ -1133,7 +1134,7 @@ public class MetadataWS implements Metadata {
 		try {
 			wr = ll.findWorkflowRun("/" + workflowRunAccession + "?show=ius");
 		} catch (Exception e) {
-			Log.info("Could not find workflow run by accession", e);
+			logger.info("MetadataWS.getWorkflowRunWithIuses: Could not find workflow run by accession", e);
 		}
 		return wr;
 	}
@@ -1144,7 +1145,7 @@ public class MetadataWS implements Metadata {
 		try {
 			wrs = ll.findWorkflowRuns("?statusCmd=" + statusCmd);
 		} catch (Exception e) {
-			Log.info("Could not find workflow run by statuscmd", e);
+			logger.info("MetadataWS.getWorkflowRunsByStatusCmd: Could not find workflow run by statuscmd", e);
 		}
 		return wrs;
 	}
@@ -1160,7 +1161,7 @@ public class MetadataWS implements Metadata {
 			id = wr.getWorkflowRunId();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.get_workflow_run_id exception:",e);
 		}
 		return id;
 	}
@@ -1201,14 +1202,14 @@ public class MetadataWS implements Metadata {
 					ll.updateWorkflowRun("/" + accession, wrWithLanesAndIUS);
 
 				} else {
-					Log.error("ERROR: SW Accession is neither a lane nor an IUS: " + parentAccession);
+					logger.error("MetadataWS.linkWorkflowRunAndParent: ERROR: SW Accession is neither a lane nor an IUS: " + parentAccession);
 					success = false;
 				}
 				ll.updateWorkflowRun("/" + accession, wrWithLanesAndIUS);
 			}
 			return success;
 		} catch (JAXBException | IOException e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.linkWorkflowRunAndParent JAXB/IO exception:",e);
 			return false;
 		}
 	}
@@ -1223,7 +1224,7 @@ public class MetadataWS implements Metadata {
 			Processing processing = ll.findProcessing("?id=" + processingId);
 			accession = processing.getSwAccession();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.mapProcessingIdToAccession exception:",e);
 		}
 		return accession;
 	}
@@ -1247,7 +1248,7 @@ public class MetadataWS implements Metadata {
 			addParentsAndChildren(processing, convertIDs(parentIDs, "?id="), convertIDs(childIDs, "?id="));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.processing_event_to_task_group exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1264,10 +1265,10 @@ public class MetadataWS implements Metadata {
 	 */
 	@Override
 	public ReturnValue update_processing_event(int processingID, ReturnValue retval) {
-		Log.debug("In update_processing_event");
+		logger.debug("MetadataWS.update_processing_event: In update_processing_event");
 		try {
 			Processing processing = ll.findProcessing("?id=" + processingID + "&show=files");
-			Log.debug("Received processing event from WS");
+			logger.debug("MetadataWS.update_processing_event: Received processing event from WS");
 
 			processing.setExitStatus(retval.getExitStatus());
 			processing.setProcessExitStatus(retval.getProcessExitStatus());
@@ -1292,12 +1293,12 @@ public class MetadataWS implements Metadata {
 				for (FileMetadata file : retval.getFiles()) {
 					// If the file path is empty, warn and skip
 					if (file.getFilePath().compareTo("") == 0) {
-						Log.error("WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
+						logger.error("MetadataWS.update_processing_event: WARNING: Skipping empty FilePath for ProcessingID entry: " + processingID);
 						continue;
 					}
 					// If the meta type is empty, warn and skip
 					if (file.getMetaType().compareTo("") == 0) {
-						Log.error("WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
+						logger.error("MetadataWS.update_processing_event: WARNING: Skipping empty MetaType for ProcessingID entry: " + processingID);
 						continue;
 					}
 					File modelFile = new File();
@@ -1319,12 +1320,12 @@ public class MetadataWS implements Metadata {
 			}
 			processing.getFiles().addAll(modelFiles);
 
-			Log.debug("Completed updating client copy of processing");
+			logger.debug("MetadataWS.update_processing_event: Completed updating client copy of processing");
 			ll.updateProcessing("/" + processing.getSwAccession(), processing);
-			Log.debug("Completed update to web service");
+			logger.debug("MetadataWS.update_processing_event: Completed update to web service");
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_event exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1349,7 +1350,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processing.getSwAccession(), processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_status exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1378,7 +1379,7 @@ public class MetadataWS implements Metadata {
 			ll.updateProcessing("/" + processing.getSwAccession(), processing);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_processing_workflow_run exception:",e);
 			return new ReturnValue(null, "Exception: " + e.getMessage(), ReturnValue.SQLQUERYFAILED);
 		}
 
@@ -1411,7 +1412,7 @@ public class MetadataWS implements Metadata {
 
 			ll.updateWorkflowRun("/" + accession, wr);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("MetadataWS.update_workflow_run exception:",e);
 		}
 		ReturnValue ret = new ReturnValue();
 		ret.setReturnValue(accession);
@@ -1486,9 +1487,9 @@ public class MetadataWS implements Metadata {
 			rv.setReturnValue(workflow.getSwAccession());
 
 		} catch (IOException ex) {
-			Log.error("IOException updating Workflow PK " + workflowId + " " + ex.getMessage());
+			logger.error("MetadataWS.updateWorkflow: IOException updating Workflow PK " + workflowId + " " + ex.getMessage());
 		} catch (JAXBException ex) {
-			Log.error("JAXBException updating Workflow PK " + workflowId + " " + ex.getMessage());
+			logger.error("MetadataWS.updateWorkflow: JAXBException updating Workflow PK " + workflowId + " " + ex.getMessage());
 		}
 		return rv;
 	}
@@ -1516,7 +1517,7 @@ public class MetadataWS implements Metadata {
 			}
 
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.listInstalledWorkflows JAXB/IO exception:",ex);
 		}
 		return (sb.toString());
 
@@ -1526,6 +1527,7 @@ public class MetadataWS implements Metadata {
 	 * {@inheritDoc}
 	 */
 	@Override
+
 	public int getWorkflowAccession(String name, String version) {
 
 		int workflowAccession = -1;
@@ -1533,9 +1535,9 @@ public class MetadataWS implements Metadata {
 			Workflow workflow = ll.findWorkflow("?name=" + name + "&version=" + version);
 			workflowAccession = workflow.getSwAccession();
 		} catch (IOException ex) {
-			Log.error("IOException in getWorkflowAccession for " + name + version, ex);
+			logger.error("MetadataWS.getWorkflowAccession: IOException in getWorkflowAccession for " + name + version, ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException in getWorkflowAccession for " + name + version, ex);
+			logger.error("MetadataWS.getWorkflowAccession: JAXBException in getWorkflowAccession for " + name + version, ex);
 		}
 		return workflowAccession;
 	}
@@ -1549,7 +1551,7 @@ public class MetadataWS implements Metadata {
 			String searchString = "?status=" + status.name() + "";
 			return ll.findWorkflowRuns(searchString);
 		} catch (IOException | JAXBException ex) {
-			Log.error("", ex);
+			logger.error("MetadataWS.getWorkflowRunsByStatus: ", ex);
 		}
 		return new ArrayList<>();
 	}
@@ -1566,7 +1568,7 @@ public class MetadataWS implements Metadata {
 			wr.setWorkflow(w);
 			return (wr);
 		} catch (IOException | JAXBException ex) {
-			Log.error("", ex);
+			logger.error("MetadataWS.getWorkflowRunWithWorkflow: ", ex);
 		}
 		return null;
 	}
@@ -1583,7 +1585,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findStudies();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getAllStudies IO/JAXB exception:",ex);
 		}
 		return null;
 	}
@@ -1600,7 +1602,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findSequencerRuns();
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getAllSequencerRuns exception:",ex);
 		}
 		return null;
 	}
@@ -1624,7 +1626,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateLane(int laneSWID, LaneAttribute laneAtt, Boolean skip) {
 		try {
-			Log.debug("Annotating Lane " + laneSWID + " with skip=" + skip + ", laneAtt = " + laneAtt);
+			logger.debug("MetadataWS.annotateLane: Annotating Lane " + laneSWID + " with skip=" + skip + ", laneAtt = " + laneAtt);
 			Lane lane = ll.findLane("/" + laneSWID);
 			if (skip != null) {
 				lane.setSkip(skip);
@@ -1636,13 +1638,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateLane("/" + laneSWID, lane);
 		} catch (IOException ex) {
-			Log.error("IOException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: IOException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: JAXBException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: ResourceException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1655,7 +1657,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateIUS(int iusSWID, IUSAttribute iusAtt, Boolean skip) {
 		try {
-			Log.debug("Annotating IUS " + iusSWID + " with skip=" + skip + ", iusAtt = " + iusAtt);
+			logger.debug("MetadataWS.annotateIUS: Annotating IUS " + iusSWID + " with skip=" + skip + ", iusAtt = " + iusAtt);
 			IUS lane = ll.findIUS("/" + iusSWID);
 			if (skip != null) {
 				lane.setSkip(skip);
@@ -1667,13 +1669,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateIUS("/" + iusSWID, lane);
 		} catch (IOException ex) {
-			Log.error("IOException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: IOException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: JAXBException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: ResourceException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1684,7 +1686,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateSequencerRun(int sequencerRunSWID, SequencerRunAttribute sequencerRunAtt, Boolean skip) {
 		try {
-			Log.debug("Annotating SequencerRun " + sequencerRunSWID + " with skip=" + skip + ", sequencerRunAtt = "
+			logger.debug("MetadataWS.annotateSequencerRun: Annotating SequencerRun " + sequencerRunSWID + " with skip=" + skip + ", sequencerRunAtt = "
 					+ sequencerRunAtt);
 			SequencerRun sequencerRun = ll.findSequencerRun("/" + sequencerRunSWID);
 			if (skip != null) {
@@ -1697,13 +1699,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateSequencerRun("/" + sequencerRunSWID, sequencerRun);
 		} catch (IOException ex) {
-			Log.error("IOException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: IOException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: JAXBException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: ResourceException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1714,11 +1716,11 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateExperiment(int experimentSWID, ExperimentAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating Experiment " + experimentSWID + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateExperiment: Annotating Experiment " + experimentSWID + " with skip=" + skip + ", Att = " + att);
 			Experiment obj = ll.findExperiment("/" + experimentSWID);
 			if (skip != null) {
 				// obj.setSkip(skip);
-				Log.info("Experiment does not have a skip column!");
+				logger.info("MetadataWS.annotateExperiment: Experiment does not have a skip column!");
 			}
 			if (att != null) {
 				Set<ExperimentAttribute> atts = new HashSet<>();
@@ -1727,13 +1729,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateExperiment("/" + experimentSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: IOException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: JAXBException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: ResourceException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1746,11 +1748,11 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateProcessing(int swid, ProcessingAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating Processing " + swid + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateProcessing: Annotating Processing " + swid + " with skip=" + skip + ", Att = " + att);
 			Processing obj = ll.findProcessing("/" + swid);
 			if (skip != null) {
 				// obj.setSkip(skip);
-				Log.info("Processing does not have a skip column!");
+				logger.info("MetadataWS.annotateProcessing: Processing does not have a skip column!");
 			}
 			if (att != null) {
 				Set<ProcessingAttribute> atts = new HashSet<>();
@@ -1759,13 +1761,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateProcessing("/" + swid, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating processing " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: IOException while updating processing " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating processing " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: JAXBException while updating processing " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating processing " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: ResourceException while updating processing " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1778,7 +1780,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateSample(int swid, SampleAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating Sample " + swid + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateSample: Annotating Sample " + swid + " with skip=" + skip + ", Att = " + att);
 			Sample obj = ll.findSample("/" + swid);
 			if (skip != null) {
 				obj.setSkip(skip);
@@ -1790,13 +1792,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateSample("/" + swid, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating sample " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: IOException while updating sample " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating sample " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: JAXBException while updating sample " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating sample " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: ResourceException while updating sample " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1809,11 +1811,11 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateStudy(int swid, StudyAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating Study " + swid + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateStudy: Annotating Study " + swid + " with skip=" + skip + ", Att = " + att);
 			Study obj = ll.findStudy("/" + swid);
 			if (skip != null) {
 				// obj.setSkip(skip);
-				Log.info("Processing does not have a skip column!");
+				logger.info("MetadataWS.annotateStudy: Processing does not have a skip column!");
 			}
 			if (att != null) {
 				Set<StudyAttribute> atts = new HashSet<>();
@@ -1822,13 +1824,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateStudy("/" + swid, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating study " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: IOException while updating study " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating study " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: JAXBException while updating study " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating study " + swid + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: ResourceException while updating study " + swid + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -1929,7 +1931,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findFile("/" + swAccession);
 		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getFile: ",ex);
 		}
 		return null;
 	}
@@ -1948,11 +1950,11 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateWorkflow(int workflowSWID, WorkflowAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating WorkflowRun " + workflowSWID + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateWorkflow: Annotating WorkflowRun " + workflowSWID + " with skip=" + skip + ", Att = " + att);
 			Workflow obj = ll.findWorkflow("/" + workflowSWID);
 			if (skip != null) {
 				// obj.setSkip(skip);
-				Log.info("Processing does not have a skip column!");
+				logger.info("MetadataWS.annotateWorkflow: Processing does not have a skip column!");
 			}
 			if (att != null) {
 				Set<WorkflowAttribute> atts = new HashSet<>();
@@ -1962,13 +1964,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateWorkflow("/" + workflowSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating study " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: IOException while updating study " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating study " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: JAXBException while updating study " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating study " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: ResourceException while updating study " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -1980,10 +1982,10 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateWorkflowRun(int workflowrunSWID, WorkflowRunAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating WorkflowRun " + workflowrunSWID + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateWorkflowRun: Annotating WorkflowRun " + workflowrunSWID + " with skip=" + skip + ", Att = " + att);
 			WorkflowRun obj = ll.findWorkflowRun("/" + workflowrunSWID);
 			if (skip != null) {
-				Log.info("Processing does not have a skip column!");
+				logger.info("MetadataWS.annotateWorkflowRun: Processing does not have a skip column!");
 			}
 			if (att != null) {
 				Set<WorkflowRunAttribute> atts = new HashSet<>();
@@ -1992,13 +1994,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateWorkflowRun("/" + workflowrunSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating study " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: IOException while updating study " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating study " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: JAXBException while updating study " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating study " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: ResourceException while updating study " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2011,7 +2013,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateIUS(int iusSWID, Set<IUSAttribute> iusAtts) {
 		try {
-			Log.debug("Annotating IUS ");
+			logger.debug("MetadataWS.annotateIUS: Annotating IUS ");
 			IUS ius = ll.findIUS("/" + iusSWID);
 			ius.getIusAttributes().clear();
 			for (IUSAttribute ia : iusAtts) {
@@ -2021,13 +2023,13 @@ public class MetadataWS implements Metadata {
 
 			ll.updateIUS("/" + iusSWID, ius);
 		} catch (IOException ex) {
-			Log.error("IOException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: IOException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: JAXBException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating ius " + iusSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateIUS: ResourceException while updating ius " + iusSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2038,7 +2040,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateLane(int laneSWID, Set<LaneAttribute> laneAtts) {
 		try {
-			Log.debug("Annotating Lane " + laneSWID);
+			logger.debug("MetadataWS.annotateLane: Annotating Lane " + laneSWID);
 			Lane lane = ll.findLane("/" + laneSWID);
 			lane.getLaneAttributes().clear();
 			for (LaneAttribute la : laneAtts) {
@@ -2047,13 +2049,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateLane("/" + laneSWID, lane);
 		} catch (IOException ex) {
-			Log.error("IOException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: IOException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: JAXBException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating lane " + laneSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateLane: ResourceException while updating lane " + laneSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -2065,7 +2067,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateSequencerRun(int sequencerRunSWID, Set<SequencerRunAttribute> sequencerRunAtts) {
 		try {
-			Log.debug("Annotating SequencerRun " + sequencerRunSWID);
+			logger.debug("MetadataWS.annotateSequencerRun: Annotating SequencerRun " + sequencerRunSWID);
 			SequencerRun sequencerRun = ll.findSequencerRun("/" + sequencerRunSWID);
 			sequencerRun.getSequencerRunAttributes().clear();
 			for (SequencerRunAttribute sa : sequencerRunAtts) {
@@ -2073,13 +2075,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateSequencerRun("/" + sequencerRunSWID, sequencerRun);
 		} catch (IOException ex) {
-			Log.error("IOException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: IOException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: JAXBException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSequencerRun: ResourceException while updating sequencerRun " + sequencerRunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -2091,7 +2093,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateExperiment(int experimentSWID, Set<ExperimentAttribute> atts) {
 		try {
-			Log.debug("Annotating Experiment " + experimentSWID);
+			logger.debug("MetadataWS.annotateExperiment: Annotating Experiment " + experimentSWID);
 			Experiment obj = ll.findExperiment("/" + experimentSWID);
 			obj.getExperimentAttributes().clear();
 			for (ExperimentAttribute ea : atts) {
@@ -2100,13 +2102,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateExperiment("/" + experimentSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: IOException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: JAXBException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating experiment " + experimentSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateExperiment: ResourceException while updating experiment " + experimentSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2119,7 +2121,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateFile(int fileSWID, Set<FileAttribute> atts) {
 		try {
-			Log.debug("Annotating File " + fileSWID);
+			logger.debug("MetadataWS.annotateFile: Annotating File " + fileSWID);
 			File obj = ll.findFile("/" + fileSWID);
 			obj.getFileAttributes().clear();
 			for (FileAttribute ea : atts) {
@@ -2128,13 +2130,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateFile("/" + fileSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: IOException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: JAXBException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: ResourceException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2148,7 +2150,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateFile(int fileSWID, FileAttribute att, Boolean skip) {
 		try {
-			Log.debug("Annotating File " + fileSWID + " with skip=" + skip + ", Att = " + att);
+			logger.debug("MetadataWS.annotateFile: Annotating File " + fileSWID + " with skip=" + skip + ", Att = " + att);
 			File obj = ll.findFile("/" + fileSWID);
 			if (skip != null) {
 				obj.setSkip(skip);
@@ -2160,13 +2162,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateFile("/" + fileSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: IOException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: JAXBException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating file " + fileSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateFile: ResourceException while updating file " + fileSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2177,7 +2179,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateProcessing(int processingSWID, Set<ProcessingAttribute> atts) {
 		try {
-			Log.debug("Annotating Processing " + processingSWID);
+			logger.debug("MetadataWS.annotateProcessing: Annotating Processing " + processingSWID);
 			Processing obj = ll.findProcessing("/" + processingSWID);
 			obj.getProcessingAttributes().clear();
 			for (ProcessingAttribute pa : atts) {
@@ -2186,13 +2188,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateProcessing("/" + processingSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating processing " + processingSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: IOException while updating processing " + processingSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating processing " + processingSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: JAXBException while updating processing " + processingSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating processing " + processingSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateProcessing: ResourceException while updating processing " + processingSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -2204,7 +2206,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateSample(int sampleSWID, Set<SampleAttribute> atts) {
 		try {
-			Log.debug("Annotating Sample " + sampleSWID);
+			logger.debug("MetadataWS.annotateSample: Annotating Sample " + sampleSWID);
 			Sample obj = ll.findSample("/" + sampleSWID);
 			obj.getSampleAttributes().clear();
 			for (SampleAttribute sa : atts) {
@@ -2213,13 +2215,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateSample("/" + sampleSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating sample " + sampleSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: IOException while updating sample " + sampleSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating sample " + sampleSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: JAXBException while updating sample " + sampleSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating sample " + sampleSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateSample: ResourceException while updating sample " + sampleSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -2231,7 +2233,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateStudy(int studySWID, Set<StudyAttribute> atts) {
 		try {
-			Log.debug("Annotating Study ");
+			logger.debug("MetadataWS.annotateStudy: Annotating Study ");
 			Study obj = ll.findStudy("/" + studySWID);
 			obj.getStudyAttributes().clear();
 			for (StudyAttribute sa : atts) {
@@ -2240,13 +2242,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateStudy("/" + studySWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating study " + studySWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: IOException while updating study " + studySWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating study " + studySWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: JAXBException while updating study " + studySWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating study " + studySWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateStudy: ResourceException while updating study " + studySWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2257,7 +2259,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateWorkflow(int workflowSWID, Set<WorkflowAttribute> atts) {
 		try {
-			Log.debug("Annotating Workflow " + workflowSWID);
+			logger.debug("MetadataWS.annotateWorkflow: Annotating Workflow " + workflowSWID);
 			Workflow obj = ll.findWorkflow("/" + workflowSWID);
 			obj.getWorkflowAttributes().clear();
 			for (WorkflowAttribute wa : atts) {
@@ -2266,13 +2268,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateWorkflow("/" + workflowSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating workflow " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: IOException while updating workflow " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating workflow " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: JAXBException while updating workflow " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating workflow " + workflowSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflow: ResourceException while updating workflow " + workflowSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 	}
@@ -2285,7 +2287,7 @@ public class MetadataWS implements Metadata {
 	@Override
 	public void annotateWorkflowRun(int workflowrunSWID, Set<WorkflowRunAttribute> atts) {
 		try {
-			Log.debug("Annotating WorkflowRun ");
+			logger.debug("MetadataWS.annotateWorkflowRun: Annotating WorkflowRun ");
 			WorkflowRun obj = ll.findWorkflowRun("/" + workflowrunSWID);
 			obj.getWorkflowRunAttributes().clear();
 			for (WorkflowRunAttribute wa : atts) {
@@ -2294,13 +2296,13 @@ public class MetadataWS implements Metadata {
 			}
 			ll.updateWorkflowRun("/" + workflowrunSWID, obj);
 		} catch (IOException ex) {
-			Log.error("IOException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: IOException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: JAXBException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		} catch (ResourceException ex) {
-			Log.error("ResourceException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
+			logger.error("MetadataWS.annotateWorkflowRun: ResourceException while updating workflow run " + workflowrunSWID + " " + ex.getMessage());
 			wrapAsRuntimeException(ex);
 		}
 
@@ -2316,7 +2318,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving lanes from sequencer run", ex);
+			logger.error("MetadataWS.getLanesFrom: JAXBException while retrieving lanes from sequencer run", ex);
 		}
 		return null;
 	}
@@ -2330,7 +2332,7 @@ public class MetadataWS implements Metadata {
 		} else if (ll.existsSample("/" + laneOrSampleAccession) != null) {
 			sb.append("/samples/");
 		} else {
-			Log.error("There is no Lane or Sample with this sw_accession: " + laneOrSampleAccession);
+			logger.error("MetadataWS.getIUSFrom: There is no Lane or Sample with this sw_accession: " + laneOrSampleAccession);
 			return null;
 		}
 		try {
@@ -2341,7 +2343,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving IUSes (barcodes) from lane or sample", ex);
+			logger.error("MetadataWS.getIUSFrom: JAXBException while retrieving IUSes (barcodes) from lane or sample", ex);
 		}
 		return null;
 	}
@@ -2354,7 +2356,7 @@ public class MetadataWS implements Metadata {
 			JaxbObject<LimsKey> jaxb = new JaxbObject<>();
 			return (LimsKey) ll.existsObject(sb.toString(), "", jaxb, new LimsKey(), LimsKey.class);
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving LimsKey for IUS", ex);
+			logger.error("MetadataWS.getLimsKeyFrom: JAXBException while retrieving LimsKey for IUS", ex);
 		}
 		return null;
 	}
@@ -2369,7 +2371,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving experiments from study", ex);
+			logger.error("MetadataWS.getExperimentsFrom: JAXBException while retrieving experiments from study", ex);
 		}
 		return null;
 	}
@@ -2384,7 +2386,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving samples from experiment", ex);
+			logger.error("MetadataWS.getSamplesFrom: JAXBException while retrieving samples from experiment", ex);
 		}
 		return null;
 	}
@@ -2399,7 +2401,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving child samples from parent sample", ex);
+			logger.error("MetadataWS.getChildSamplesFrom: JAXBException while retrieving child samples from parent sample", ex);
 		}
 		return null;
 	}
@@ -2414,7 +2416,7 @@ public class MetadataWS implements Metadata {
 				return list.getList();
 			}
 		} catch (JAXBException ex) {
-			Log.error("JAXBException while retrieving parent samples from child sample", ex);
+			logger.error("MetadataWS.getParentSamplesFrom: JAXBException while retrieving parent samples from child sample", ex);
 		}
 		return null;
 	}
@@ -2434,10 +2436,10 @@ public class MetadataWS implements Metadata {
 				return new ArrayList<>();
 			}
 		} catch (IOException ex) {
-			Log.fatal("IOException", ex);
+			logger.error("MetadataWS.getWorkflowRunsAssociatedWithInputFiles: IOException", ex);
 			throw new RuntimeException(ex);
 		} catch (JAXBException ex) {
-			Log.fatal("JAXBException", ex);
+			logger.error("MetadataWS.getWorkflowRunsAssociatedWithInputFiles: JAXBException", ex);
 			throw new RuntimeException(ex);
 		}
 	}
@@ -2447,7 +2449,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findWorkflowRunsByFiles(fileAccessions, search_type);
 		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
+			logger.error("MetadataWS.getWorkflowRunsAssociatedWithFiles IO/JAXB exception:",ex);
 		}
 		return null;
 	}
@@ -2521,7 +2523,7 @@ public class MetadataWS implements Metadata {
 			List<Study> studies = ll.matchStudyTitle(name);
 			return studies;
 		} catch (Exception e) {
-			Log.error("Problem finding studies with this name: " + name, e);
+			logger.error("MetadataWS.getStudyByName: Problem finding studies with this name: " + name, e);
 		}
 		throw new RuntimeException();
 	}
@@ -2532,7 +2534,7 @@ public class MetadataWS implements Metadata {
 			List<Sample> samples = ll.matchSampleName(sampleName);
 			return samples;
 		} catch (Exception e) {
-			Log.error("Problem finding samples with this name: " + sampleName, e);
+			logger.error("MetadataWS.getSampleByName: Problem finding samples with this name: " + sampleName, e);
 		}
 		throw new RuntimeException();
 	}
@@ -2543,7 +2545,7 @@ public class MetadataWS implements Metadata {
 			SequencerRun run = ll.findSequencerRun("?name=" + name);
 			return run;
 		} catch (Exception e) {
-			Log.error("Problem finding sequencerRuns with this name: " + name, e);
+			logger.error("MetadataWS.getSequencerRunByName: Problem finding sequencerRuns with this name: " + name, e);
 		}
 		throw new RuntimeException();
 	}
@@ -2568,7 +2570,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findIUS("/" + swAccession);
 		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getIUS: ", ex);
 		}
 		return null;
 	}
@@ -2578,7 +2580,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findSample("/" + swAccession);
 		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getSample: ",ex);
 		}
 		return null;
 	}
@@ -2588,7 +2590,7 @@ public class MetadataWS implements Metadata {
 		try {
 			return ll.findStudy("/" + swAccession);
 		} catch (IOException | JAXBException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getStudy: ",ex);
 		}
 		return null;
 	}
@@ -2612,7 +2614,7 @@ public class MetadataWS implements Metadata {
 			// request
 			ObjectMapper mapper = new ObjectMapper();
 			clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance");
-			Log.info("getObjectViaPost: " + clientResource);
+        	logger.info("MetadataWS.getAnalysisProvenance: getObjectViaPost: " + clientResource);
 			representation = clientResource.post(mapper.writeValueAsString(filters.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().name(), Entry::getValue))));
 
 			// response
@@ -2621,14 +2623,14 @@ public class MetadataWS implements Metadata {
 					representation.getReader());
 			return new ArrayList<>(dtoList.getAnalysisProvenanceDtos());
 		} catch (JAXBException | IOException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getAnalysisProvenance: ",ex);
 			throw Rethrow.rethrow(ex);
 		} finally {
 			if (representation != null) {
 				try {
 					representation.exhaust();
 				} catch (IOException ex) {
-					Log.error(ex);
+					logger.error("MetadataWS.getAnalysisProvenance: ",ex);
 				}
 				representation.release();
 			}
@@ -2652,7 +2654,7 @@ public class MetadataWS implements Metadata {
 					new SampleProvenanceDtoList(), SampleProvenanceDtoList.class);
 			return list.getSampleProvenanceDtos();
 		} catch (IOException | NotFoundException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getSampleProvenance: ",ex);
 		}
 		return null;
 	}
@@ -2662,7 +2664,7 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.get("/reports/sample-provenance/refresh");
 		} catch (NotFoundException | IOException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.refreshSampleProvenance: ",ex);
 		}
 	}
 
@@ -2677,7 +2679,7 @@ public class MetadataWS implements Metadata {
 					new LaneProvenanceDtoList(), LaneProvenanceDtoList.class);
 			return list.getLaneProvenanceDtos();
 		} catch (IOException | NotFoundException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.getLaneProvenance: ",ex);
 		}
 		return null;
 	}
@@ -2687,24 +2689,24 @@ public class MetadataWS implements Metadata {
 		try {
 			ll.get("/reports/lane-provenance/refresh");
 		} catch (NotFoundException | IOException ex) {
-			Log.error(ex);
+			logger.error("MetadataWS.refreshLaneProvenance: ",ex);
 		}
 	}
 
 	/*
 	 * public void annotateFile(int fileSWID, FileAttribute att, Boolean skip) { try
-	 * { Log.debug("Annotating WorkflowRun " + fileSWID + " with skip=" + skip +
+	 * { logger.debug("MetadataWS.annotateFile: Annotating WorkflowRun " + fileSWID + " with skip=" + skip +
 	 * ", Att = " + att); File obj = ll.findFile("/" + fileSWID); if (skip != null)
-	 * { // obj.setSkip(skip); Log.info("Processing does not have a skip column!");
+	 * { // obj.setSkip(skip); logger.info("MetadataWS.annotateFile: Processing does not have a skip column!");
 	 * } if (att != null) { Set<FileAttribute> atts = obj.getFileAttributes(); if
 	 * (atts == null) { atts = new HashSet<FileAttribute>(); } // att.setStudy(obj);
 	 * atts.add(att); obj.setFileAttributes(atts); } ll.updateFile("/" + fileSWID,
 	 * obj); } catch (IOException ex) {
-	 * Log.error("IOException while updating study " + fileSWID + " " +
+	 * logger.error("MetadataWS.annotateFile: IOException while updating study " + fileSWID + " " +
 	 * ex.getMessage()); } catch (JAXBException ex) {
-	 * Log.error("JAXBException while updating study " + fileSWID + " " +
+	 * logger.error("MetadataWS.annotateFile: JAXBException while updating study " + fileSWID + " " +
 	 * ex.getMessage()); } catch (ResourceException ex) {
-	 * Log.error("ResourceException while updating study " + fileSWID + " " +
+	 * logger.error("MetadataWS.annotateFile: ResourceException while updating study " + fileSWID + " " +
 	 * ex.getMessage()); }
 	 * 
 	 * }
@@ -2717,26 +2719,26 @@ public class MetadataWS implements Metadata {
 			Client client = null;
 			if (database.contains("https")) {
 				try {
-					Log.info("using HTTPS connection");
+					logger.info("MetadataWS.LowLevel.constructor: using HTTPS connection");
 					client = new Client(new Context(), Protocol.HTTPS);
 					TrustManager tm = new X509TrustManager() {
 
 						@Override
 						public void checkClientTrusted(X509Certificate[] chain, String authType)
 								throws CertificateException {
-							Log.debug("checkClientTrusted");
+							logger.debug("MetadataWS.LowLevel.constructor: checkClientTrusted");
 						}
 
 						@Override
 						public X509Certificate[] getAcceptedIssuers() {
-							Log.debug("getAcceptedIssuers");
+							logger.debug("MetadataWS.LowLevel.constructor: getAcceptedIssuers");
 							return new X509Certificate[0];
 						}
 
 						@Override
 						public void checkServerTrusted(X509Certificate[] chain, String authType)
 								throws CertificateException {
-							Log.debug("checkServerTrusted");
+							logger.debug("MetadataWS.LowLevel.constructor: checkServerTrusted");
 							// This will never throw an exception.
 							// This doesn't check anything at all: it's insecure.
 						}
@@ -2751,21 +2753,21 @@ public class MetadataWS implements Metadata {
 
 						@Override
 						public void init(Series<Parameter> parameters) {
-							Log.debug("sslcontextfactory init");
+							logger.debug("MetadataWS.LowLevel.constructor: sslcontextfactory init");
 						}
 
 						@Override
 						public SSLContext createSslContext() {
-							Log.debug("createsslcontext");
+							logger.debug("MetadataWS.LowLevel.constructor: createsslcontext");
 							return sslContext;
 						}
 					});
 				} catch (KeyManagementException | NoSuchAlgorithmException ex) {
-					Log.fatal(ex);
+					logger.error("MetadataWS.LowLevel.constructor: ",ex);
 				}
 
 			} else {
-				Log.info("using HTTP connection");
+				logger.info("MetadataWS.LowLevel.constructor: using HTTP connection");
 				client = new Client(new Context(), Protocol.HTTP);
 			}
 			client.getContext().getParameters().add("useForwardedForHeader", "false");
@@ -2790,9 +2792,9 @@ public class MetadataWS implements Metadata {
 
 			// version = (pathElements.length > 3 ? "/" +
 			// pathElements[pathElements.length - 1] : "");
-			Log.debug("Database string is " + database);
-			Log.debug("root is " + resource);
-			Log.debug("Version is " + version);
+			logger.debug("MetadataWS.LowLevel.constructor: Database string is " + database);
+			logger.debug("MetadataWS.LowLevel.constructor: root is " + resource);
+			logger.debug("MetadataWS.LowLevel.constructor: Version is " + version);
 		}
 
 		public WorkflowRun existsWorkflowRun(String searchString) {
@@ -2800,9 +2802,9 @@ public class MetadataWS implements Metadata {
 			try {
 				workflowRun = findWorkflowRun(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("WorkflowRun does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsWorkflowRun: WorkflowRun does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsWorkflowRun: ",ex);
 			}
 			return workflowRun;
 		}
@@ -2812,9 +2814,9 @@ public class MetadataWS implements Metadata {
 			try {
 				workflow = findWorkflow(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Workflow does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsWorkflow: Workflow does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsWorkflow: ",ex);
 			}
 			return workflow;
 		}
@@ -2824,9 +2826,9 @@ public class MetadataWS implements Metadata {
 			try {
 				file = findFile(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("File does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsFile: File does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsFile: ",ex);
 			}
 			return file;
 		}
@@ -2836,9 +2838,9 @@ public class MetadataWS implements Metadata {
 			try {
 				processing = findProcessing(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Workflow does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsProcessing: Workflow does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsProcessing: ",ex);
 			}
 			return processing;
 		}
@@ -2848,9 +2850,9 @@ public class MetadataWS implements Metadata {
 			try {
 				lane = findLane(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Lane does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsLane: Lane does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsLane: ",ex);
 			}
 			return lane;
 		}
@@ -2860,9 +2862,9 @@ public class MetadataWS implements Metadata {
 			try {
 				ius = findIUS(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("IUS does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsIUS: IUS does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsIUS: ",ex);
 			}
 			return ius;
 		}
@@ -2872,9 +2874,9 @@ public class MetadataWS implements Metadata {
 			try {
 				sr = findSequencerRun(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("SequencerRun does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsSequencerRun: SequencerRun does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsSequencerRun: ",ex);
 			}
 			return sr;
 		}
@@ -2884,9 +2886,9 @@ public class MetadataWS implements Metadata {
 			try {
 				study = findStudy(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Study does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsStudy: Study does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsStudy: ",ex);
 			}
 			return study;
 		}
@@ -2896,9 +2898,9 @@ public class MetadataWS implements Metadata {
 			try {
 				experiment = findExperiment(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Experiment does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsExperiment: Experiment does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsExperiment: ",ex);
 			}
 			return experiment;
 		}
@@ -2908,9 +2910,9 @@ public class MetadataWS implements Metadata {
 			try {
 				sample = findSample(searchString);
 			} catch (IOException | NotFoundException ex) {
-				Log.debug("Sample does not exist. Continuing.");
+				logger.debug("MetadataWS.LowLevel.existsSample: Sample does not exist. Continuing.");
 			} catch (JAXBException ex) {
-				Log.error(ex);
+				logger.error("MetadataWS.LowLevel.existsSample: ",ex);
 			}
 			return sample;
 		}
@@ -2921,9 +2923,9 @@ public class MetadataWS implements Metadata {
 			try {
 				object = getObject(uri, searchString, jaxbObject, type);
 			} catch (SAXException ex) {
-				Log.error("Error decoding message from server for query: " + uri + searchString, ex);
+				logger.error("MetadataWS.LowLevel.existsObject: Error decoding message from server for query: " + uri + searchString, ex);
 			} catch (IOException | ResourceException ex) {
-				Log.debug("Resource at " + uri + searchString + " does not exist. Continuing.", ex);
+				logger.debug("MetadataWS.LowLevel.existsObject: Resource at " + uri + searchString + " does not exist. Continuing.", ex);
 			}
 			return object;
 		}
@@ -3056,7 +3058,7 @@ public class MetadataWS implements Metadata {
 		}
 
 		private Processing findProcessing(String searchString) throws IOException, JAXBException {
-			Log.debug("In findProcessing: " + searchString);
+			logger.debug("MetadataWS.LowLevel.findProcessing: In findProcessing: " + searchString);
 			Processing parent = new Processing();
 			JaxbObject<Processing> jaxbProcess = new JaxbObject<>();
 			return (Processing) findObject("/processes", searchString, jaxbProcess, parent, Processing.class);
@@ -3185,14 +3187,14 @@ public class MetadataWS implements Metadata {
 				text = result.getText();
 
 			} catch (Exception ex) {
-				Log.warn("MetadataWS.getString " + ex.getMessage());
+				logger.warn("MetadataWS.LowLevel.getString: MetadataWS.getString " + ex.getMessage());
 				throw Rethrow.rethrow(ex);
 			} finally {
 				if (result != null) {
 					try {
 						result.exhaust();
 					} catch (IOException ex) {
-						Log.error(ex);
+						logger.error("MetadataWS.LowLevel.getString: ",ex);
 					}
 					result.release();
 				}
@@ -3259,14 +3261,14 @@ public class MetadataWS implements Metadata {
 
 		private <T> T findObject(String uri, String searchString, JaxbObject<T> jaxb, T parent, Class<T> clazz)
 				throws IOException, NotFoundException {
-			Log.debug("findObject");
+			logger.debug("MetadataWS.LowLevel.findObject");
 			try {
 				parent = getObject(uri, searchString, jaxb, clazz);
 			} catch (SAXException e) {
-				Log.error("Error parsing response from server with query:" + uri + searchString, e);
+				logger.error("MetadataWS.LowLevel.findObject: Error parsing response from server with query:" + uri + searchString, e);
 			} catch (ResourceException e) {
 				if (!e.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND)) {
-					Log.error("Server error with query:" + uri + searchString, e);
+					logger.error("MetadataWS.LowLevel.findObject: Server error with query:" + uri + searchString, e);
 					throw e;
 				} else {
 					parent = null;
@@ -3274,7 +3276,7 @@ public class MetadataWS implements Metadata {
 			}
 			// SEQWARE-1331, this was commented out for some reason, but that causes the
 			// checking of incorrect accessions to fail
-			Log.debug("findObject -- testing null");
+			logger.debug("MetadataWS.LowLevel.findObject -- testing null");
 			testNull(parent, clazz, searchString);
 			return parent;
 		}
@@ -3286,28 +3288,28 @@ public class MetadataWS implements Metadata {
 			ClientResource cResource = null;
 			try {
 				cResource = resource.getChild(version + uri + searchString);
-				Log.info("getObject: " + cResource);
+				logger.info("MetadataWS.LowLevel.getObject: " + cResource);
 				result = cResource.get();
-				Log.info("getObject completed get()");
+				logger.info("MetadataWS.LowLevel.getObject completed get()");
 				String text = result.getText();
-				Log.info("getObject got text: " + text);
+				logger.info("MetadataWS.LowLevel.getObject got text: " + text);
 				parent = XmlTools.unMarshal(jaxb, type, text);
 			} catch (SAXException ex) {
-				Log.error("MetadataWS.findObject with search string " + searchString + " encountered error "
+				logger.error("MetadataWS.LowLevel.findObject with search string " + searchString + " encountered error "
 						+ ex.getMessage());
-				ex.printStackTrace();
+				logger.error("MetadataWS.LowLevel.getObject SAX exception:",ex);
 				parent = null;
 			} catch (ResourceException e) {
 				// note: this happens ona regular basis with calls that attempt to locate the
 				// same sw_accession in either lane or IUS,
 				// making this less vocal
-				Log.info("MetadataWS.findObject with search string " + searchString + " encountered error "
+				logger.info("MetadataWS.LowLevel.getObject with search string " + searchString + " encountered error "
 						+ e.getMessage());
-				Log.info(" please check that the object you are looking for exists in the MetaDB");
+				logger.info("MetadataWS.LowLevel.getObject:  please check that the object you are looking for exists in the MetaDB");
 
 				parent = null;
 			} finally {
-				Log.info("getObject finally block: " + cResource);
+				logger.info("MetadataWS.LowLevel.getObject finally block: " + cResource);
 				if (result != null) {
 					result.exhaust();
 					result.release();
@@ -3389,15 +3391,15 @@ public class MetadataWS implements Metadata {
 		private <T> void updateObject(String uri, String searchString, JaxbObject<T> jaxb, T parent, Class<T> clazz)
 				throws IOException, JAXBException, ResourceException {
 			Representation result = null;
-			Log.debug("Updating object: " + parent.getClass().getCanonicalName() + " " + searchString);
+			logger.debug("MetadataWS.LowLevel.updateObject: Updating object: " + parent.getClass().getCanonicalName() + " " + searchString);
 			ClientResource cResource = resource.getChild(version + uri + searchString);
-			Log.debug("updateObject: " + cResource);
+			logger.debug("MetadataWS.LowLevel.updateObject: " + cResource);
 			try {
 				Document text = XmlTools.marshalToDocument(jaxb, parent, clazz);
 				result = cResource.put(XmlTools.getRepresentation(text));
-				Log.info("update object \n" + XmlTools.getRepresentation(text).getText());
+				logger.info("MetadataWS.LowLevel.updateObject: " + XmlTools.getRepresentation(text).getText());
 			} catch (ResourceException ex) {
-				Log.fatal("updateObject did not complete successfully: " + cResource);
+				logger.error("MetadataWS.LowLevel.updateObject did not complete successfully: " + cResource);
 				throw new RuntimeException(ex);
 			} finally {
 				if (result != null) {
@@ -3475,18 +3477,18 @@ public class MetadataWS implements Metadata {
 				throws IOException, JAXBException, ResourceException {
 			Representation result = null;
 			ClientResource cResource = resource.getChild(version + uri + searchString);
-			Log.debug("addObject: " + cResource);
+			logger.debug("MetadataWS.LowLevel.addObject: " + cResource);
 			Document s = XmlTools.marshalToDocument(jaxb, parent, clazz);
 			try {
 				result = cResource.post(XmlTools.getRepresentation(s));
 				if (result != null) {
 					String text = result.getText();
-					Log.info("addObject to web service: \n " + text);
+					logger.info("MetadataWS.LowLevel.addObject to web service: \n " + text);
 					if (text == null) {
-						Log.warn("WARNING: POST process returned a null value. The object may not have been created");
+						logger.warn("MetadataWS.LowLevel.addObject: WARNING: POST process returned a null value. The object may not have been created");
 					} else {
 						try {
-							Log.debug("addObject:" + text);
+							logger.debug("MetadataWS.LowLevel.addObject:" + text);
 							outParent = XmlTools.unMarshal(outJaxb, outClazz, text);
 						} catch (SAXException ex) {
 							throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
@@ -3494,8 +3496,8 @@ public class MetadataWS implements Metadata {
 					}
 				}
 			} catch (ResourceException e) {
-				Log.error("MetadataWS.addObject " + e.getMessage());
-				e.printStackTrace();
+				logger.error("MetadataWS.LowLevel.addObject " + e.getMessage());
+				logger.error("MetadataWS.LowLevel.addObject exception2:",e);
 				throw new RuntimeException(e);
 			} finally {
 				if (result != null) {
@@ -3519,12 +3521,12 @@ public class MetadataWS implements Metadata {
 				throws IOException, JAXBException, ResourceException {
 			Representation result = null;
 			ClientResource cResource = null;
-			Log.debug("deleteObject: " + cResource);
+			logger.debug("MetadataWS.LowLevel.deleteObject: " + cResource);
 			try {
 				cResource = resource.getChild(version + uri + searchString);
 				cResource.delete();
 			} catch (ResourceException ex) {
-				Log.fatal("deleteObject did not complete successfully: " + cResource);
+				logger.error("MetadataWS.LowLevel.deleteObject did not complete successfully: " + cResource);
 				throw new RuntimeException(ex);
 			} finally {
 				if (result != null) {

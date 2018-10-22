@@ -19,7 +19,7 @@ package net.sourceforge.seqware.pipeline.plugins;
 import com.google.common.io.Files;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import net.sourceforge.seqware.common.util.Log;
+
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -33,12 +33,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author dyuen
  */
 public class ITUtility {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITUtility.class);
 
     public static String runSeqwareCLI(String parameters, int expectedReturnValue, File workingDir) throws IOException {
         return runSeqwareCLI(parameters, expectedReturnValue, workingDir, null);
@@ -182,7 +185,7 @@ public class ITUtility {
      * @throws IOException
      */
     public static String runArbitraryCommand(String line, int expectedReturnValue, File dir, Map environment) throws IOException {
-        Log.info("Running " + line);
+        LOGGER.info("Running " + line);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CommandLine commandline = CommandLine.parse(line);
         DefaultExecutor exec = new DefaultExecutor();
@@ -200,8 +203,8 @@ public class ITUtility {
             String output = outputStream.toString(StandardCharsets.UTF_8);
             return output;
         } catch (ExecuteException e) {
-            Log.error("Execution failed with:");
-            Log.error(outputStream.toString(StandardCharsets.UTF_8));
+            LOGGER.error("Execution failed with:",e);
+            LOGGER.error(outputStream.toString(StandardCharsets.UTF_8),e);
             throw e;
         }
     }

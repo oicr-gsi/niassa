@@ -3,7 +3,6 @@ package net.sourceforge.seqware.pipeline.bundle;
 import io.seqware.pipeline.SqwKeys;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.module.ReturnValue;
-import net.sourceforge.seqware.common.util.Log;
 import net.sourceforge.seqware.common.util.configtools.ConfigTools;
 import net.sourceforge.seqware.common.util.filetools.FileTools;
 import net.sourceforge.seqware.common.util.filetools.ProvisionFilesUtil;
@@ -22,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a utility class that lets you manipulate a workflow bundle.
@@ -30,6 +31,7 @@ import java.util.Map;
  * @version $Id: $Id
  */
 public class Bundle {
+    private final Logger logger = LoggerFactory.getLogger(Bundle.class);
 
     protected String permanentBundleLocation = null;
     protected String bundleDir = null;
@@ -99,7 +101,7 @@ public class Bundle {
     public BundleInfo getBundleInfo(File bundle, File metadataFile) {
 
         if (bundle == null || !bundle.exists()) {
-            Log.error("ERROR: Bundle is null or doesn't exist! The bundle must be either a zip file or a directory structure.");
+            logger.error("ERROR: Bundle is null or doesn't exist! The bundle must be either a zip file or a directory structure.");
             return null;
         }
 
@@ -177,7 +179,7 @@ public class Bundle {
         bundleName = bundleName.replaceAll(".zip", "");
         File localOutputDir = new File(bundleDir + File.separator + bundleName);
         if (localOutputDir.exists()) {
-            Log.stdout("Expanded bundle directory already exists, skipping unzip.");
+            logger.info("Expanded bundle directory already exists, skipping unzip.");
         } else {
             FileTools.unzipFile(bundle, localOutputDir);
         }
@@ -226,7 +228,7 @@ public class Bundle {
             try {
                 tempDir = FileTools.createDirectoryWithUniqueName(new File(this.bundleDir), "wokflow_zip_temp");
             } catch (Exception e) {
-                Log.error("Problem creating a temp directory to use for zipping workflow " + e.getMessage());
+                logger.error("Problem creating a temp directory to use for zipping workflow " + e.getMessage());
                 ret.setExitStatus(ReturnValue.FAILURE);
                 return ret;
             }
@@ -280,7 +282,7 @@ public class Bundle {
 
         File outputZipFile = new File(bundleOutput.getAbsolutePath() + File.separator + bundlePath.getName() + ".zip");
         if (outputZipFile.exists()) {
-            Log.stdout("Overwriting " + outputZipFile.getAbsolutePath());
+            logger.info("Overwriting " + outputZipFile.getAbsolutePath());
         }
 
         boolean compression = true;
@@ -326,7 +328,7 @@ public class Bundle {
         try {
             tempDir = FileTools.createDirectoryWithUniqueName(new File(this.bundleDir), "wokflow_zip_temp");
         } catch (Exception e) {
-            Log.error("Problem creating a temp directory to use for zipping workflow " + e.getMessage());
+            logger.error("Problem creating a temp directory to use for zipping workflow " + e.getMessage());
             ret.setExitStatus(ReturnValue.FAILURE);
             return ret;
         }
@@ -345,12 +347,12 @@ public class Bundle {
         String zipFile = tempDir.getAbsolutePath() + File.separator + bundlePath.getName() + ".zip";
         ProvisionFilesUtil fileUtil = new ProvisionFilesUtil();
         int bufLen = 5000 * 1024;
-        Log.stdout("Copying local file " + zipFile + " to output " + bundleOutputPrefix + " this may take a long time!");
+        logger.info("Copying local file " + zipFile + " to output " + bundleOutputPrefix + " this may take a long time!");
         BufferedInputStream reader = fileUtil.getSourceReader(zipFile, bufLen, 0L);
         boolean result = fileUtil.putToS3(reader, bundleOutputPrefix, false);
 
         if (!result) {
-            Log.error("Failed to copy file to S3!");
+            logger.error("Failed to copy file to S3!");
             ret.setExitStatus(ReturnValue.FAILURE);
             return ret;
         }
@@ -363,8 +365,8 @@ public class Bundle {
         }
 
         // now delete the local zip file
-        Log.stdout("Finished copying file to S3!");
-        Log.stdout("You should delete (or archive locally) the local zip file: " + zipFile);
+        logger.info("Finished copying file to S3!");
+        logger.info("You should delete (or archive locally) the local zip file: " + zipFile);
 
         return ret;
     }
@@ -391,12 +393,12 @@ public class Bundle {
 
         ProvisionFilesUtil fileUtil = new ProvisionFilesUtil();
         int bufLen = 5000 * 1024;
-        Log.stdout("Copying local file " + bundle.getAbsolutePath() + " to output " + bundleOutputPrefix + " this may take a long time!");
+        logger.info("Copying local file " + bundle.getAbsolutePath() + " to output " + bundleOutputPrefix + " this may take a long time!");
         BufferedInputStream reader = fileUtil.getSourceReader(bundle.getAbsolutePath(), bufLen, 0L);
         boolean result = fileUtil.putToS3(reader, bundleOutputPrefix, false);
 
         if (!result) {
-            Log.error("Failed to copy file to S3!");
+            logger.error("Failed to copy file to S3!");
             ret.setExitStatus(ReturnValue.FAILURE);
             return ret;
         }
@@ -406,8 +408,8 @@ public class Bundle {
         this.outputZip = bundleOutputPrefix + File.separator + bundle.getName();
 
         // now delete the local zip file
-        Log.stdout("Finished copying file to S3!");
-        Log.stdout("You may want to delete (or archive locally) the local zip file: " + bundle.getAbsolutePath());
+        logger.info("Finished copying file to S3!");
+        logger.info("You may want to delete (or archive locally) the local zip file: " + bundle.getAbsolutePath());
 
         return ret;
     }
@@ -429,7 +431,7 @@ public class Bundle {
         String sourceName = source.getName();
         this.outputZip = targetDir + File.separator + sourceName;
         if (new File(outputZip).exists()) {
-            Log.stdout("Bundle archive already in target directory, skipping copy.");
+            logger.info("Bundle archive already in target directory, skipping copy.");
         } else {
             ProvisionFiles pf = new ProvisionFiles();
             pf.setParameters(Arrays.asList("--input-file", sourceFile, "--output-dir", targetDir, "--force-copy"));
@@ -494,7 +496,7 @@ public class Bundle {
         }
 
         if (localRet.getExitStatus() == ReturnValue.SUCCESS) {
-            Log.info("Validated Bundle: " + bundle.getAbsolutePath());
+            logger.info("Validated Bundle: " + bundle.getAbsolutePath());
         }
         return (localRet);
     }
@@ -546,11 +548,11 @@ public class Bundle {
     public ReturnValue installBundle(File bundle, File metadataFile, List<String> workflows) {
         // seqware-1933 - throw error when the provisioned or archive directories are not present
         if (this.bundleDir == null) {
-            Log.stdout("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_DIR.getSettingKey() + " is defined");
+            logger.info("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_DIR.getSettingKey() + " is defined");
             return new ReturnValue(ReturnValue.SETTINGSFILENOTFOUND);
         }
         if (this.permanentBundleLocation == null) {
-            Log.stdout("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey() + " is defined");
+            logger.info("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey() + " is defined");
             return new ReturnValue(ReturnValue.SETTINGSFILENOTFOUND);
         }
         return installBundle(bundle, metadataFile, true, true, workflows);
@@ -580,18 +582,18 @@ public class Bundle {
         if (bundle != null && bundle.isDirectory() && packageIntoZip) {
 
             if (permanentBundleLocation == null) {
-                Log.error("You tried to install a bundle and create a .zip file of the bundle without having a "
+                logger.error("You tried to install a bundle and create a .zip file of the bundle without having a "
                         + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey()
                         + " defined in your seqware settings file! This needs to be defined and pointed to a location where a .zip file can be written.");
                 return (new ReturnValue(ReturnValue.FAILURE));
             } else if (permanentBundleLocation.startsWith("s3://")) {
-                Log.stdout("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
+                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = packageBundleToS3(bundle, permanentBundleLocation);
             } else {
                 // then it's a directory
                 // now package this up
-                Log.stdout("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the directory: "
+                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the directory: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = packageBundle(bundle, new File(permanentBundleLocation));
             }
@@ -599,23 +601,23 @@ public class Bundle {
         else if (bundle != null && bundle.isFile() && bundle.getName().endsWith(".zip")) {
             // FIXME: the getBundleInfo will unzip this below, should only do that if the request is for unzip
             if (permanentBundleLocation == null) {
-                Log.error("You tried to install a bundle from a .zip file without having a "
+                logger.error("You tried to install a bundle from a .zip file without having a "
                         + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey()
                         + " defined in your seqware settings file! This needs to be defined and pointed to a location where a .zip file can be copied to.");
                 return (new ReturnValue(ReturnValue.FAILURE));
             } else if (permanentBundleLocation.startsWith("s3://")) {
-                Log.stdout("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
+                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = copyBundleToS3(bundle, permanentBundleLocation);
             } else {
-                Log.stdout("Now transferring " + bundle.getAbsolutePath() + " to the directory: " + permanentBundleLocation
+                logger.info("Now transferring " + bundle.getAbsolutePath() + " to the directory: " + permanentBundleLocation
                         + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = copyBundle(bundle.getAbsolutePath(), permanentBundleLocation);
             }
         }
 
         if (localRet.getExitStatus() != ReturnValue.SUCCESS) {
-            Log.error("The workflow install failed");
+            logger.error("The workflow install failed");
             return localRet;
         }
 
@@ -643,12 +645,12 @@ public class Bundle {
                         w.getTemplatePath(), this.outputDir, true, this.outputZip, false, w.getWorkflowClass(), w.getWorkflowType(),
                         w.getWorkflowEngine(), w.getWorkflowSqwVersion());
             } else {
-                Log.error("You need to specify an workflow bundle dir, workflow bundle zip file or both when you install a workflow.");
+                logger.error("You need to specify an workflow bundle dir, workflow bundle zip file or both when you install a workflow.");
                 localRet.setExitStatus(ReturnValue.FAILURE);
             }
 
             if (localRet.getExitStatus() == ReturnValue.FAILURE) {
-                Log.error("The workflow install failed for " + w.getName() + " version " + w.getVersion());
+                logger.error("The workflow install failed for " + w.getName() + " version " + w.getVersion());
                 return (localRet);
             } else {
                 // record the bundle
