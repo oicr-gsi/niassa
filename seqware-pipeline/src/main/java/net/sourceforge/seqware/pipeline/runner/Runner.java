@@ -219,12 +219,12 @@ public class Runner {
 	private void writeStringToFile(File file, boolean append, String output) {
 		int maxTries = (Integer) options.valueOf("metadata-tries-number");
 		for (int i = 0; i <= maxTries; i++) {
-			LOGGER.debug("On try " + i + " of " + maxTries);
 			// Break on success
 			if (LockingFileTools.lockAndWrite(file, output, append)) {
 				break;
 			} // Sleep if going to try again
 			else if (i < maxTries) {
+				LOGGER.warn("writeStringToFile try " + i + " of " + maxTries + " failed to write to " + file.getAbsolutePath());
 				ProcessTools.sleep((Integer) options.valueOf("metadata-tries-delay"));
 			} // Return error if failed on last try
 			if (maxTries == i) {
