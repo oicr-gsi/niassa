@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
-        <version>2.0.3-SNAPSHOT</version>
+        <version>2.0.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -105,10 +105,11 @@
                     <!-- try this as an integration test instead -->
                     <skipTests>true</skipTests>
                     <forkMode>pertest</forkMode>
-		            <trimStackTrace>false</trimStackTrace>
+                    <trimStackTrace>false</trimStackTrace>
                     <includes>
                         <include>**/WSResourceTestSuite.java</include>
                     </includes>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
 
@@ -142,6 +143,7 @@
                         <include>**/deciders/*.java</include>
                         <include>**/runner/*.java</include>
                     </includes>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
 
