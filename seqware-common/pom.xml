@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <version>2.0.3-SNAPSHOT</version>
+        <version>2.0.3</version>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
         <relativePath>../pom.xml</relativePath>
@@ -77,7 +77,8 @@
                         <include>**/util/**/*.java</include>
                         <include>**/dao/**/*.java</include>
                     </includes>
-		            <trimStackTrace>false</trimStackTrace>
+                    <trimStackTrace>false</trimStackTrace>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
             <plugin>
@@ -94,6 +95,7 @@
                         <seqware_meta_db_password>${seqware_meta_db_password}</seqware_meta_db_password>
                     </systemPropertyVariables>
 		            <trimStackTrace>false</trimStackTrace>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
                 <executions>
                     <execution>
