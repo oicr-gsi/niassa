@@ -71,6 +71,7 @@ public class Workflow extends PermissionsAware
 	private Set<WorkflowAttribute> workflowAttributes = new TreeSet<>();
 	private Map<String, String> parameterDefaults = new TreeMap<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger(Workflow.class);
+	private SortedSet<WorkflowParam> workflowParams;
 
 	/**
 	 * <p>
@@ -755,6 +756,14 @@ public class Workflow extends PermissionsAware
 
 	public void setParameterDefaults(Map<String, String> parameterDefaults) {
 		this.parameterDefaults = parameterDefaults;
+	}
+
+	public SortedSet<WorkflowParam> getWorkflowParams() {
+		return workflowParams;
+	}
+
+	public void setWorkflowParams(SortedSet<WorkflowParam> workflowParams) {
+		this.workflowParams = workflowParams;
 	}
 
 }
