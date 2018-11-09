@@ -17,6 +17,9 @@
 package net.sourceforge.seqware.webservice.resources.tables;
 
 import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.restlet.data.Status;
@@ -32,6 +35,7 @@ import net.sourceforge.seqware.common.business.WorkflowService;
 import net.sourceforge.seqware.common.factory.BeanFactory;
 import net.sourceforge.seqware.common.model.Registration;
 import net.sourceforge.seqware.common.model.Workflow;
+import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.util.xmltools.JaxbObject;
 import net.sourceforge.seqware.common.util.xmltools.XmlTools;
 import net.sourceforge.seqware.queryengine.webservice.controller.SeqWareWebServiceApplication;
@@ -86,6 +90,19 @@ public class WorkflowIDResource extends DatabaseIDResource {
 						new String[] { "workflowAttributes", "parameterDefaults" });
 		Workflow dto = copier.hibernate2dto(Workflow.class, workflow, ArrayUtils.EMPTY_CLASS_ARRAY,
 				createCollectionPropertyNames);
+		// TODO: Remove this when all deciders are upgraded to use getParameterDefaults
+		if (fields.contains("params")) {
+			int i = 0;
+			final SortedSet<WorkflowParam> params = new TreeSet<>();
+			for (Entry<String, String> defaultValue : workflow.getParameterDefaults().entrySet()) {
+				WorkflowParam parameter = new WorkflowParam();
+				parameter.setDefaultValue(defaultValue.getValue());
+				parameter.setKey(defaultValue.getKey());
+				parameter.setWorkflowParamId(i++);
+				params.add(parameter);
+			}
+			workflow.setWorkflowParams(params);
+		}
 		Document line = XmlTools.marshalToDocument(jaxbTool, dto, Workflow.class);
 		getResponse().setEntity(XmlTools.getRepresentation(line));
 	}

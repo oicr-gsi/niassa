@@ -66,6 +66,7 @@ import net.sourceforge.seqware.common.model.Study;
 import net.sourceforge.seqware.common.model.StudyAttribute;
 import net.sourceforge.seqware.common.model.StudyType;
 import net.sourceforge.seqware.common.model.Workflow;
+import net.sourceforge.seqware.common.model.WorkflowParam;
 import net.sourceforge.seqware.common.model.WorkflowRun;
 import net.sourceforge.seqware.common.model.WorkflowRunParam;
 import net.sourceforge.seqware.common.model.adapters.IntegerSet;
@@ -188,7 +189,8 @@ private static final Logger LOGGER = LoggerFactory.getLogger(JaxbObject.class);
 						WorkflowRunList2.class, //
 						ArrayList.class, //
 						IntegerList.class, //
-						IntegerSet.class);
+						IntegerSet.class, //
+						WorkflowParam.class);
 			}
 		} catch (JAXBException e) {
             LOGGER.error("JaxbObject constructor exception:", e);
