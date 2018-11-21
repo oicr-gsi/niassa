@@ -101,7 +101,7 @@ public class WorkflowIDResource extends DatabaseIDResource {
 				parameter.setWorkflowParamId(i++);
 				params.add(parameter);
 			}
-			workflow.setWorkflowParams(params);
+			dto.setWorkflowParams(params);
 		}
 		Document line = XmlTools.marshalToDocument(jaxbTool, dto, Workflow.class);
 		getResponse().setEntity(XmlTools.getRepresentation(line));
