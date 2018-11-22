@@ -2651,7 +2651,7 @@ ALTER TABLE public.workflow OWNER TO seqware;
 CREATE TABLE workflow_param_defaults (
     workflow_id integer NOT NULL,
     key text NOT NULL,
-    value text NOT NULL
+    value text
 );
 
 
