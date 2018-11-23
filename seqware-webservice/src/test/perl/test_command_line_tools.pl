@@ -38,6 +38,11 @@ for(my $i=0; $i<$repeat; $i++) {
   } 
 
   run("java -jar $jar -p net.sourceforge.seqware.pipeline.plugins.BundleManager -- --list-install", "list_workflows");
+
+  run("java -jar $jar -p net.sourceforge.seqware.pipeline.plugins.BundleManager -- --list-workflow-params --workflow-accession 27133 > workflow_params.txt", "list_workflow_params");
+
+  run("java -jar $jar -p net.sourceforge.seqware.pipeline.plugins.WorkflowLauncher -- --ini-files workflow_params.txt --workflow-accession 27133 --schedule --parent-accessions $prov_files_id", "sched_workflow");
+
 }
 
 print Dumper($errors);
