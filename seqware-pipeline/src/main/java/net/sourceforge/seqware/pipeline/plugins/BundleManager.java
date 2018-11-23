@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import joptsimple.ArgumentAcceptingOptionSpec;
 import net.sourceforge.seqware.common.metadata.MetadataDB;
+import net.sourceforge.seqware.common.model.Workflow;
 import net.sourceforge.seqware.common.module.ReturnValue;
 import net.sourceforge.seqware.common.module.ReturnValue.ExitStatus;
 
@@ -41,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 @ServiceProvider(service = PluginInterface.class)
 public class BundleManager extends Plugin {
-    private final Logger logger = LoggerFactory.getLogger(BundleManager.class);
+	private final Logger logger = LoggerFactory.getLogger(BundleManager.class);
 
 	ReturnValue ret = new ReturnValue();
 	private final ArgumentAcceptingOptionSpec<String> outFile;
@@ -60,6 +63,11 @@ public class BundleManager extends Plugin {
 		parser.acceptsAll(Arrays.asList("list", "l"), "Optional: List the workflows contained in this bundle.");
 		parser.acceptsAll(Arrays.asList("list-installed", "list-install"),
 				"Optional: List the workflows contained in this bundle. The database/webservice must be enabled in your .seqware/settings for this option to work.");
+		parser.acceptsAll(Arrays.asList("workflow-accession", "wa"),
+				"Optional: The sw_accession of the workflow. Specify this or the workflow, version, and bundle. Currently used in conjunction with the list-workflow-params for now.")
+				.withRequiredArg();
+		parser.acceptsAll(Arrays.asList("list-workflow-params", "list-params"),
+				"Optional: List the parameters for a given workflow and version. You need to supply a workflow accession and you need a database/webservice enabled in your .seqware/settings for this option to work.");
 		parser.acceptsAll(Arrays.asList("validate", "v"), "Optional: Run a light basic validation on this bundle.");
 		parser.acceptsAll(Arrays.asList("install", "i"),
 				"Optional: if the --bundle param points to a .zip file then the install process will first unzip into the directory specified by the directory defined by "
@@ -283,6 +291,19 @@ public class BundleManager extends Plugin {
 				println("-----------------------------------------------------");
 				println(localParams);
 				println("-----------------------------------------------------");
+			}
+		} else if (options.has("list-workflow-params") && options.has("workflow-accession")) {
+			Workflow workflow = metadata.getWorkflow(Integer.parseInt((String) options.valueOf("workflow-accession")));
+			for (Entry<String, String> wp : workflow.getParameterDefaults().entrySet()) {
+				print("#key=");
+				print(wp.getKey());
+				println(":type=text:display=F");
+				print(wp.getKey());
+				print("=");
+				if (wp.getValue() != null) {
+					print(wp.getValue());
+				}
+				println("");
 			}
 		} else if (options.has("workflow") && options.has("version") && options.has("download")) {
 			println("Downloading Bundle");
