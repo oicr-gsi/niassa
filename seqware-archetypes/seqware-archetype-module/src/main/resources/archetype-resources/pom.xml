@@ -3,18 +3,18 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
+  <groupId>\${groupId}</groupId>
+  <artifactId>\${artifactId}</artifactId>
+  <version>\${version}</version>
   <packaging>jar</packaging>
 
-  <name>${artifactId}</name>
+  <name>\${artifactId}</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <seqware-version>1.1.2-gsi</seqware-version>
+    <seqware-version>${project-version}</seqware-version>
   </properties>
 
   <build>
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.github.seqware</groupId>
       <artifactId>seqware-pipeline</artifactId>
-      <version>${seqware-version}</version>
+      <version>\${seqware-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

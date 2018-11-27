@@ -137,6 +137,7 @@ public class PluginRunnerET {
             // generate and install archetypes to local maven repo
             String command = "mvn archetype:generate -DarchetypeCatalog=local -Dpackage=com.seqware.github -DgroupId=com.github.seqware -DarchetypeArtifactId="
                     + workflow
+                    + " -DarchetypeVersion=" + SEQWARE_VERSION
                     + " -Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId="
                     + workflow
                     + " -Dworkflow-name=" + workflowName + " -B -Dgoals=install";
