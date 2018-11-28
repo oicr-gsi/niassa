@@ -21,6 +21,13 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 import io.seqware.pipeline.SqwKeys;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map.Entry;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import net.sourceforge.seqware.common.factory.DBAccess;
 import net.sourceforge.seqware.common.metadata.Metadata;
 import net.sourceforge.seqware.common.metadata.MetadataFactory;
@@ -145,6 +152,55 @@ public final class CheckDB extends Plugin {
             }
         }
 
+        try {
+            XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+            XMLStreamWriter writer;
+            File reportFile;
+            FileOutputStream fileOutputStream;
+
+            reportFile = File.createTempFile("report", ".html");
+            fileOutputStream = new FileOutputStream(reportFile);
+            writer = xmlOutputFactory.createXMLStreamWriter(fileOutputStream);
+            writer.writeStartDocument("utf-8", "1.0");
+            writer.writeStartElement("html");
+            writer.writeStartElement("head");
+            writer.writeEndElement();
+            writer.writeStartElement("body");
+            writer.writeStartElement("h1");
+            writer.writeCharacters(this.getClass().getSimpleName() + " Report");
+            writer.writeEndElement();
+            for (Entry<CheckDBPluginInterface, SortedMap<CheckDBPluginInterface.Level, Set<String>>> pluginEntry : resultMap.entrySet()) {
+                writer.writeStartElement("h2");
+                writer.writeCharacters(pluginEntry.getKey().getClass().getSimpleName());
+                writer.writeEndElement();
+                for (Entry<CheckDBPluginInterface.Level, Set<String>> warning : pluginEntry.getValue().entrySet()) {
+                    writer.writeStartElement("h3");
+                    writer.writeCharacters(warning.getKey().name());
+                    writer.writeEndElement();
+                    writer.writeStartElement("ol");
+
+                    //warning.getValue() is html that shouldn't be escaped, need to write directly to outputstream as XMLStreamWriter escapes
+                    writer.writeCharacters(""); //needed to stop text from being written into above element
+                    writer.flush();
+                    for (String entry : warning.getValue()) {
+                        fileOutputStream.write("<li>".getBytes(StandardCharsets.UTF_8));
+                        fileOutputStream.write(entry.getBytes(StandardCharsets.UTF_8));
+                        fileOutputStream.write("</li>".getBytes(StandardCharsets.UTF_8));
+                    }
+                    fileOutputStream.flush();
+
+                    writer.writeEndElement(); //ol
+                }
+            }
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            writer.flush();
+            writer.close();
+
+            System.out.println("Printed report to " + reportFile.getAbsolutePath());
+        } catch (XMLStreamException | IOException ex) {
+            throw new RuntimeException(ex);
+        }
         return ret;
     }
 
