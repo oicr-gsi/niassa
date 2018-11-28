@@ -415,14 +415,14 @@ public class ProvisionFiles extends Module {
             for (String input : inputs) {
                 FileMetadata filemetadata = input2metadataMap.get(input);
                 if (filemetadata != null) {
-                    logger.info("Found metadata for input: " + input);
+                    System.out.println("Found metadata for input: " + input);
                 }
-                logger.info("Processing input: " + input);
+                System.out.println("Processing input: " + input);
                 if (options.has(outputDirSpec)) {
-                    logger.info("      output-dir: " + options.valueOf(outputDirSpec));
+                    System.out.println("      output-dir: " + options.valueOf(outputDirSpec));
                 }
                 if (options.has(outputFileSpec)) {
-                    logger.info("     output-file: " + options.valueOf(outputFileSpec));
+                    System.out.println("     output-file: " + options.valueOf(outputFileSpec));
                 }
                 if (!input.startsWith("http") && !input.startsWith("s3") && new File(input).isDirectory()) {
                     if (options.has(recursiveSpec)) {
@@ -460,7 +460,7 @@ public class ProvisionFiles extends Module {
             }
 
         } finally{
-            logger.info("ProvisionFiles exit code: " + ret.getExitStatus() + "\n");
+            System.out.println("ProvisionFiles exit code: " + ret.getExitStatus() + "\n");
         }
 
         return ret;

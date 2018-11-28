@@ -698,7 +698,7 @@ public class MetadataInMemory implements Metadata {
         workflow.setSwAccession(nextKey);
         MetadataInMemory.getStore().put(nextKey, Workflow.class, workflow);
         ReturnValue returnValue = new ReturnValue();
-        LOGGER.info("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
+        System.out.println("Added '" + workflow.getName() + "' (SWID: " + workflow.getSwAccession() + ")");
         returnValue.setAttribute("sw_accession", String.valueOf(workflow.getSwAccession()));
         returnValue.setReturnValue(workflow.getSwAccession());
 

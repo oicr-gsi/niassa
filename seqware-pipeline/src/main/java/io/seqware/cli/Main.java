@@ -1652,7 +1652,7 @@ public class Main {
 				runnerArgs.add(cdl(ids));
 			}
 
-                        
+			System.out.println("Propagated workflow engine statuses");
                         run(runnerArgs);
 		}
 	}

@@ -148,7 +148,7 @@ public class S3UploadDirectory extends Module {
         ReturnValue ret = new ReturnValue();
         ret.setExitStatus(ReturnValue.SUCCESS);
 
-        logger.info("DIR: " + inputDir + " BUCKET: " + outputBucket + " PREFIX: " + outputPrefix);
+        System.out.println("DIR: " + inputDir + " BUCKET: " + outputBucket + " PREFIX: " + outputPrefix);
 
         File inputDirFile = new File(inputDir);
         for (File subDir : inputDirFile.listFiles()) {

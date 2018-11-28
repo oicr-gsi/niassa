@@ -131,7 +131,7 @@ public class OozieWorkflowEngine implements WorkflowEngine {
             propertiesConf.setProperty("queueName", this.dataModel.getEnv().getOOZIE_QUEUENAME());
 
             jobId = wc.run(propertiesConf);
-            logger.info("Submitted Oozie job: " + jobId);
+            System.out.println("Submitted Oozie job: " + jobId);
 
         } catch (Exception e) {
             throw rethrow(e);
@@ -160,9 +160,9 @@ public class OozieWorkflowEngine implements WorkflowEngine {
 
     private ReturnValue watchWorkflowInternal(OozieClient wc, String jobId, ReturnValue ret) throws OozieClientException,
             InterruptedException {
-        logger.info("");
-        logger.info("Polling workflow run status every 10 seconds.");
-        logger.info("Terminating this program will NOT affect the running workflow.");
+        System.out.println("");
+        System.out.println("Polling workflow run status every 10 seconds.");
+        System.out.println("Terminating this program will NOT affect the running workflow.");
         Thread.sleep(2 * 1000);
         // Ensure that we can pull the job info from oozie
         int maxwait = 5;
@@ -176,17 +176,17 @@ public class OozieWorkflowEngine implements WorkflowEngine {
                     logger.error("\nTimed out waiting for workflow job to be available.");
                     throw rethrow(e);
                 } else {
-                    logger.info("\nWorkflow job pending ...");
+                    System.out.println("\nWorkflow job pending ...");
                     Thread.sleep(5 * 1000);
                 }
             }
         }
         while (wc.getJobInfo(jobId).getStatus() == WorkflowJob.Status.RUNNING) {
-            logger.info("\nWorkflow job running ...");
+            System.out.println("\nWorkflow job running ...");
             printWorkflowInfo(wc.getJobInfo(jobId));
             Thread.sleep(10 * 1000);
         }
-        logger.info("\nWorkflow job completed ...");
+        System.out.println("\nWorkflow job completed ...");
         WorkflowJob job = wc.getJobInfo(jobId);
         printWorkflowInfo(job);
         if (job.getStatus() != Status.SUCCEEDED) {
@@ -196,12 +196,12 @@ public class OozieWorkflowEngine implements WorkflowEngine {
     }
 
     private void printWorkflowInfo(WorkflowJob wf) {
-        logger.info("Application Path   : " + wf.getAppPath());
-        logger.info("Application Name   : " + wf.getAppName());
-        logger.info("Application Status : " + wf.getStatus());
-        logger.info("Application Actions:");
+        System.out.println("Application Path   : " + wf.getAppPath());
+        System.out.println("Application Name   : " + wf.getAppName());
+        System.out.println("Application Status : " + wf.getStatus());
+        System.out.println("Application Actions:");
         for (WorkflowAction action : wf.getActions()) {
-            logger.info(MessageFormat.format("   Name: {0} Type: {1} Status: {2}", action.getName(), action.getType(), action.getStatus()));
+            System.out.println(MessageFormat.format("   Name: {0} Type: {1} Status: {2}", action.getName(), action.getType(), action.getStatus()));
         }
     }
 

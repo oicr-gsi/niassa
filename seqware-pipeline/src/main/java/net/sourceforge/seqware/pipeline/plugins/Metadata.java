@@ -724,7 +724,7 @@ public class Metadata extends Plugin {
         sb.append("\nFor more information about these options, run with the --list-fields switch.");
         sb.append("\nAlternatively, enable --interactive mode.");
         logger.error(sb.toString());
-        logger.info("You supplied:");
+        System.out.println("You supplied:");
         printFields();
     }
 
@@ -839,7 +839,7 @@ public class Metadata extends Plugin {
 
     private void printFields() {
         for (String s : fields.keySet()) {
-            logger.info(s + "=" + fields.get(s));
+            System.out.println(s + "=" + fields.get(s));
         }
     }
 
@@ -847,11 +847,11 @@ public class Metadata extends Plugin {
     // /// Interactive code
     // //////////////////////////////////////////////////////////////////////////
     protected void promptForStudy(String[] necessaryFields) {
-        logger.info("---Create a study---");
+        System.out.println("---Create a study---");
         if (!fields.containsKey("study_type")) {
             System.out.println();
             for (StudyType st : metadata.getStudyTypes()) {
-                logger.info(st.toString());
+                System.out.println(st.toString());
             }
             promptInteger("study_type", 4);
         }
@@ -862,7 +862,7 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForSample(String[] necessaryFields) {
-        logger.info("---Create a sample---");
+        System.out.println("---Create a sample---");
 
         int checkMe;
         if (!fields.containsKey("experiment_accession")) {
@@ -877,7 +877,7 @@ public class Metadata extends Plugin {
         if (!fields.containsKey("organism_id")) {
             System.out.println();
             for (Organism o : metadata.getOrganisms()) {
-                logger.info(o.toString());
+                System.out.println(o.toString());
             }
             promptInteger("organism_id", 31);
         }
@@ -897,7 +897,7 @@ public class Metadata extends Plugin {
         if (!fields.containsKey("platform_accession")) {
             System.out.println();
             for (Platform p : metadata.getPlatforms()) {
-                logger.info(p.toString());
+                System.out.println(p.toString());
             }
             promptInteger("platform_accession", 20);
         }
@@ -915,11 +915,11 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForExperiment(String[] necessaryFields) {
-        logger.info("---Create an experiment---");
+        System.out.println("---Create an experiment---");
         if (!fields.containsKey("platform_id")) {
             System.out.println();
             for (Platform p : metadata.getPlatforms()) {
-                logger.info(p.toString());
+                System.out.println(p.toString());
             }
             promptInteger("platform_id", 20);
         }
@@ -931,35 +931,35 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForLane(String[] necessaryFields) {
-        logger.info("---Create a lane---");
+        System.out.println("---Create a lane---");
         if (!fields.containsKey("sequencer_run_accession")) {
             promptInteger("sequencer_run_accession", null);
         }
         if (!fields.containsKey("study_type_accession")) {
             System.out.println();
             for (StudyType st : metadata.getStudyTypes()) {
-                logger.info(st.toString());
+                System.out.println(st.toString());
             }
             promptInteger("study_type_accession", 4);
         }
         if (!fields.containsKey("library_strategy_accession")) {
             System.out.println();
             for (LibraryStrategy st : metadata.getLibraryStrategies()) {
-                logger.info(st.toString());
+                System.out.println(st.toString());
             }
             promptInteger("library_strategy_accession", null);
         }
         if (!fields.containsKey("library_selection_accession")) {
             System.out.println();
             for (LibrarySelection st : metadata.getLibrarySelections()) {
-                logger.info(st.toString());
+                System.out.println(st.toString());
             }
             promptInteger("library_selection_accession", null);
         }
         if (!fields.containsKey("library_source_accession")) {
             System.out.println();
             for (LibrarySource st : metadata.getLibrarySource()) {
-                logger.info(st.toString());
+                System.out.println(st.toString());
             }
             promptInteger("library_source_accession", null);
         }
@@ -978,7 +978,7 @@ public class Metadata extends Plugin {
     }
 
     protected void promptForIUS(String[] necessaryFields) {
-        logger.info("---Create a IUS/barcode---");
+        System.out.println("---Create a IUS/barcode---");
         if (!fields.containsKey("lane_accession")) {
             promptInteger("lane_accession", null);
         }
@@ -1022,7 +1022,7 @@ public class Metadata extends Plugin {
 
     protected boolean fieldsConfirmed(String[] necessaryFields) {
         for (String s : necessaryFields) {
-            logger.info(s + " : " + fields.get(s));
+            System.out.println(s + " : " + fields.get(s));
         }
 
         String confirm = ConsoleAdapter.getInstance().readLine("Is this information correct? [y/n] :");

@@ -142,7 +142,7 @@ public class WorkflowRescheduler extends Plugin {
                     // this translation here is ugly, do we still need to do this?
                     int workflowRunAccessionInt = this.metadata.get_workflow_run_accession(newWorkflowRunID);
                     WorkflowRun newWorkflowRun = metadata.getWorkflowRun(workflowRunAccessionInt);
-                    LOGGER.info("Created workflow run with SWID: " + workflowRunAccessionInt);
+                    System.out.println("Created workflow run with SWID: " + workflowRunAccessionInt);
 
                     // have the old workflow run mimic the new one and upload for re-launching
                     oldWorkflowRun.setWorkflowRunId(newWorkflowRunID);

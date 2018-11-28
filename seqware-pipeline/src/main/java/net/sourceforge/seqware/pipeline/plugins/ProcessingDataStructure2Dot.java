@@ -54,7 +54,7 @@ public class ProcessingDataStructure2Dot extends Plugin {
             logger.error("Could not find processing event, please check that this is a valid processing SWID");
             return new ReturnValue(ExitStatus.INVALIDPARAMETERS);
         }
-        logger.info("Writing dot file to " + outputFile);
+        System.out.println("Writing dot file to " + outputFile);
         try (Writer writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(output);
         } catch (IOException e) {

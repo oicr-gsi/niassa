@@ -187,7 +187,6 @@ public class Scheduler {
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_UNDERSCORES.getKey(), workflowRunAccession);
         // my new preferred variable name
         map.put(ReservedIniKeys.WORKFLOW_RUN_ACCESSION_DASHED.getKey(), workflowRunAccession);
-        //tests in seqware-webservice depend on this being printed to standard out
         System.out.println("Created workflow run with SWID: " + workflowRunAccession);
         // need to link all the parents to this workflow run accession
         // this is actually linking them in the DB

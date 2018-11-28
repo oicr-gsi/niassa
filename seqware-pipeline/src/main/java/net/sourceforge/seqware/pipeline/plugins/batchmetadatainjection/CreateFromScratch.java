@@ -43,7 +43,7 @@ public class CreateFromScratch extends BatchMetadataParser {
             runInfo = this.generateRunInfo(null, null, null, null, null, null, null, null, null, -1, -1, true, null, null);
             StringBuilder sb = new StringBuilder();
             printRunInfo(runInfo, sb);
-            logger.info(sb.toString());
+            System.out.println(sb.toString());
             runDone = ConsoleAdapter.getInstance().promptBoolean("Is this correct?", true);
         }
 
@@ -58,7 +58,7 @@ public class CreateFromScratch extends BatchMetadataParser {
                     boolean done = false;
                     SampleInfo sample = null;
                     while (!done) {
-                        logger.info("-----For lane " + lane.getLaneNumber() + ", barcode #" + (j + 1) + "-----");
+                        System.out.println("-----For lane " + lane.getLaneNumber() + ", barcode #" + (j + 1) + "-----");
                         projectCode = ConsoleAdapter.getInstance().promptString("Project code (three or four letters)", projectCode);
                         String individualNumber = ConsoleAdapter.getInstance().promptString(
                                 "Individual number (should be unique per project)", null);
@@ -66,7 +66,7 @@ public class CreateFromScratch extends BatchMetadataParser {
                                 null, null, null, null, -1, null, null, null, null, null);
                         StringBuilder sb = new StringBuilder();
                         printSampleInfo(sample, sb);
-                        logger.info(sb.toString());
+                        System.out.println(sb.toString());
                         done = ConsoleAdapter.getInstance().promptBoolean("Is this correct?", true);
                     }
                     lane.getSamples().add(sample);
@@ -85,12 +85,12 @@ public class CreateFromScratch extends BatchMetadataParser {
         boolean doneLane = false;
         LaneInfo lane = null;
         while (!doneLane) {
-            logger.info("-----For lane #" + (i + 1) + "-----");
+            System.out.println("-----For lane #" + (i + 1) + "-----");
             int num = promptPositiveInteger("What is the lane number? ", (i + 1), null, 1, Integer.MAX_VALUE);
             lane = this.generateLaneInfo(String.valueOf(num), -1);
             StringBuilder sb = new StringBuilder();
             printLaneInfo(lane, sb);
-            logger.info(sb.toString());
+            System.out.println(sb.toString());
             doneLane = ConsoleAdapter.getInstance().promptBoolean("Is this correct?", true);
         }
         return lane;
