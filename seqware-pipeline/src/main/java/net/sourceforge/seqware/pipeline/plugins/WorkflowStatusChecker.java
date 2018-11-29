@@ -467,10 +467,9 @@ public class WorkflowStatusChecker extends Plugin {
 		}
 
 		@SuppressWarnings("deprecation")
-		private Properties getCurrentConf(WorkflowJob wfJob) {
+		private Properties getCurrentConf(WorkflowJob wfJob) throws UnsupportedEncodingException {
                     Properties props = new Properties();
-                    try {
-                        /*
+                    /*
                         * Why this method is needed:
                         *
                         * To rerun an oozie job, one must pass in a Properties instance.
@@ -491,14 +490,11 @@ public class WorkflowStatusChecker extends Plugin {
                         *
                         * It'd be swell if these guys could just pick one representation, or at least
                         * an easy way to convert between them.
-                        */
-                        Configuration conf = new Configuration(false);
-                        conf.addResource(new ByteArrayInputStream(wfJob.getConf().getBytes("UTF-8")));
-                        for (Map.Entry<String, String> e : conf) {
-                            props.setProperty(e.getKey(), e.getValue());
-                        }
-                    } catch (UnsupportedEncodingException ex) {
-                        LOGGER.error("Incorrect encoding on configuration file (assumed utf-8 but it's not)",ex);
+                     */
+                    Configuration conf = new Configuration(false);
+                    conf.addResource(new ByteArrayInputStream(wfJob.getConf().getBytes("UTF-8")));
+                    for (Map.Entry<String, String> e : conf) {
+                        props.setProperty(e.getKey(), e.getValue());
                     }
                     return props;
 		}
