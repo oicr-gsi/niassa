@@ -81,6 +81,15 @@
     <groupId>com.github.seqware</groupId>
     <version>2.0.4-SNAPSHOT</version>
 
+    <pluginRepositories>
+        <!-- needed for  tomcat-maven-plugin:2.2.1-oicr-gsi -->
+        <pluginRepository>
+            <id>dependencies.gsi</id>
+            <name>GSI Dependencies Maven Repository</name>
+            <url>https://artifacts.oicr.on.ca/artifactory/gsi-dependencies</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <repositories>
         <repository>
             <id>seqware.sourceforge.net</id>
@@ -1066,7 +1075,7 @@
                 <plugin>
                     <groupId>org.apache.tomcat.maven</groupId>
                     <artifactId>tomcat7-maven-plugin</artifactId>
-                    <version>2.2</version>
+                    <version>2.2.1-oicr-gsi</version>
                     <configuration>
                         <port>${tomcat_maven_port}</port>
                         <useNaming>true</useNaming>
