@@ -37,6 +37,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.commons.exec.environment.EnvironmentUtils.getProcEnvironment;
+
 /**
  * 
  * @author dyuen
@@ -68,7 +70,13 @@ public class ITUtility {
             workingDir.deleteOnExit();
         }
 
-        Map<String,String> cliEnv = new HashMap<>();
+        Map<String,String> cliEnv;
+        if(environment == null) {
+            cliEnv = getProcEnvironment();
+        } else {
+            cliEnv = new HashMap<>();
+            cliEnv.putAll(environment);
+        }
         if(System.getProperty("mavenRepository",null) != null) {
             cliEnv.put("MAVEN_REPOSITORY", System.getProperty("mavenRepository"));
         }
@@ -77,9 +85,6 @@ public class ITUtility {
         }
         if(System.getProperty("seqwareHome",null) != null) {
             cliEnv.put("SEQWARE_HOME", System.getProperty("seqwareHome"));
-        }
-        if(environment != null && !environment.isEmpty()) {
-            cliEnv.putAll(environment);
         }
 
         String line = "bash " + script.getAbsolutePath() + " " + parameters;
