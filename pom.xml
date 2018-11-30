@@ -199,8 +199,8 @@
         <module>seqware-archetypes/seqware-archetype-java-workflow</module>
         <module>seqware-archetypes/seqware-archetype-module</module>
         <module>seqware-distribution</module>
-        <module>seqware-ext-testing</module>
         <module>seqware-sanity-check</module>
+        <module>seqware-ext-testing</module>
     </modules>
 
 
