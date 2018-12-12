@@ -247,7 +247,7 @@
                         </goals>
                         <configuration>
                             <skip>\${skipITs}</skip>
-                            <executable>\${workflow-dir}/bin/jre1.6.0_29/bin/java</executable>
+                            <executable>\${workflow-dir}/bin/jre1.8.0_45/bin/java</executable>
                             <commandlineArgs>-jar \${workflow-dir}/lib/seqware-distribution-\${seqware-version}-full.jar --plugin net.sourceforge.seqware.pipeline.plugins.BundleManager -- -t -b \${project.build.directory}/\${workflow-full-name}/ </commandlineArgs>
                         </configuration>
                     </execution>
