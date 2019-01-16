@@ -133,7 +133,7 @@ public class BatchMetadataInjection extends Metadata {
     public ReturnValue do_run() {
         if (options.has("list-fields")) {
             for (BatchMetadataParser.Field field : BatchMetadataParser.Field.values()) {
-                logger.info(field.toString());
+                System.out.println(field.toString());
             }
         } else {
             RunInfo run = null;
@@ -204,15 +204,15 @@ public class BatchMetadataInjection extends Metadata {
                     ret.setExitStatus(ReturnValue.INVALIDFILE);
                     return ret;
                 }
-                logger.info("JSON sequencer run file is valid.");
+                System.out.println("JSON sequencer run file is valid.");
                 return ret;
             } else if ((options.has("export-json-sequencer-run") && instanceInteractive) && !options.has("new")) {
                 parseFields();
                 CreateFromScratch create = new CreateFromScratch(metadata, (Map<String, String>) fields.clone(), instanceInteractive);
                 run = create.getRunInfo();
             } else {
-                logger.info("Combination of parameters not recognized!");
-                logger.info(this.get_syntax());
+                System.out.println("Combination of parameters not recognized!");
+                System.out.println(this.get_syntax());
                 ret.setExitStatus(ReturnValue.INVALIDPARAMETERS);
             }
             if (options.has("record") && run != null) {
@@ -307,7 +307,7 @@ public class BatchMetadataInjection extends Metadata {
 
         logger.debug("study: " + studyAccession + " exp: " + experimentAccession + " run: " + sequencerRunAccession);
         for (LaneInfo lane : lanes) {
-            logger.info("\nCreating lane " + lane.getLaneNumber());
+            System.out.println("\nCreating lane " + lane.getLaneNumber());
             int laneAccession = createLane(lane, sequencerRunAccession);
 
             for (SampleInfo barcode : lane.getSamples()) {
@@ -400,7 +400,7 @@ public class BatchMetadataInjection extends Metadata {
     }
 
     private int createIUS(SampleInfo barcode, int laneAccession, int sampleAccession) throws Exception {
-        logger.info("\nCreating barcode " + barcode.getBarcode());
+        System.out.println("\nCreating barcode " + barcode.getBarcode());
         fields.clear();
         fields.put("lane_accession", String.valueOf(laneAccession));
         fields.put("sample_accession", String.valueOf(sampleAccession));
@@ -436,7 +436,7 @@ public class BatchMetadataInjection extends Metadata {
 
     private int createSample(String name, String description, int experimentAccession, int parentSampleAccession, String organismId,
             boolean interactive) throws Exception {
-        logger.info("\nCreating sample " + name);
+        System.out.println("\nCreating sample " + name);
         fields.clear();
         fields.put("experiment_accession", String.valueOf(experimentAccession));
         fields.put("parent_sample_accession", String.valueOf(parentSampleAccession));
@@ -494,12 +494,12 @@ public class BatchMetadataInjection extends Metadata {
 
     private int createRun(RunInfo run) throws Exception {
         Integer swAccession = null;
-        logger.info("\nRetrieving sequencer run " + run.getRunName());
+        System.out.println("\nRetrieving sequencer run " + run.getRunName());
         List<SequencerRun> runs = metadata.getAllSequencerRuns();
         if (runs != null) {
             for (SequencerRun sr : runs) {
                 if (run.getRunName().equals(sr.getName())) {
-                    logger.info("Using existing sequencer run:" + sr.getName() + " accession " + sr.getSwAccession());
+                    System.out.println("Using existing sequencer run:" + sr.getName() + " accession " + sr.getSwAccession());
                     swAccession = sr.getSwAccession();
                     break;
                 }
@@ -538,26 +538,26 @@ public class BatchMetadataInjection extends Metadata {
     }
 
     private int retrieveExperiment(RunInfo run, int studyAccession) throws Exception {
-        logger.info("\nRetrieving experiments for " + run.getStudyTitle());
+        System.out.println("\nRetrieving experiments for " + run.getStudyTitle());
         List<Experiment> experiments = metadata.getExperimentsFrom(studyAccession);
         Integer experimentAccession = null;
         if (experiments != null && !experiments.isEmpty()) {
-            logger.info("Please use one of the following experiments:");
+            System.out.println("Please use one of the following experiments:");
             for (Experiment e : experiments) {
-                logger.info("\t" + e.getTitle());
+                System.out.println("\t" + e.getTitle());
             }
         }
         if (experiments != null) {
             for (Experiment ex : experiments) {
                 if (ex.getTitle().equals(run.getExperimentName())) {
-                    logger.info("Using existing experiment:" + ex.getName() + " accession " + ex.getSwAccession());
+                    System.out.println("Using existing experiment:" + ex.getName() + " accession " + ex.getSwAccession());
                     experimentAccession = ex.getSwAccession();
                 }
             }
         }
         if (experimentAccession == null) {
             if (experiments == null || experiments.isEmpty()) {
-                logger.info("\nAdding experiment " + run.getExperimentName());
+                System.out.println("\nAdding experiment " + run.getExperimentName());
 
                 fields.clear();
                 fields.put("study_accession", String.valueOf(studyAccession));
@@ -570,9 +570,9 @@ public class BatchMetadataInjection extends Metadata {
                 ReturnValue rv = addExperiment();
                 experimentAccession = getSwAccession(rv);
             } else {
-                logger.info("This tool does not support creating new experiments when experiments already exist.");
-                logger.info("You can create a new experiment for study " + studyAccession + " using the Metadata plugin.");
-                logger.info("e.g. java -jar seqware-distribution-full.jar -p net.sourceforge.seqware.pipeline.plugins.Metadata -- --create --table experiment");
+                System.out.println("This tool does not support creating new experiments when experiments already exist.");
+                System.out.println("You can create a new experiment for study " + studyAccession + " using the Metadata plugin.");
+                System.out.println("e.g. java -jar seqware-distribution-full.jar -p net.sourceforge.seqware.pipeline.plugins.Metadata -- --create --table experiment");
                 throw new Exception("This tool does not support creating new experiments when experiments already exist.");
             }
         }
@@ -594,12 +594,12 @@ public class BatchMetadataInjection extends Metadata {
     }
 
     private int retrieveStudy(RunInfo run) throws Exception {
-        logger.info("\nRetrieving study " + run.getStudyTitle());
+        System.out.println("\nRetrieving study " + run.getStudyTitle());
         List<Study> studies = metadata.getAllStudies();
         Integer studyAccession = null;
         for (Study st : studies) {
             if (st.getTitle().equals(run.getStudyTitle())) {
-                logger.info("Using existing study:" + st.getTitle() + " accession " + st.getSwAccession());
+                System.out.println("Using existing study:" + st.getTitle() + " accession " + st.getSwAccession());
                 studyAccession = st.getSwAccession();
             }
         }

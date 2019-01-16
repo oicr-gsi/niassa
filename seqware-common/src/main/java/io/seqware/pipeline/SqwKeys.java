@@ -39,6 +39,7 @@ public enum SqwKeys {
     SW_DB_USER(null, Categories.COMMON_DB, false, "JDBC user for the seqware metadb", "seqware"),
     SW_DB_PASS(null, Categories.COMMON_DB, false, "JDBC password for the seqware metadb", "seqware"),
     SW_DB_SERVER(null, Categories.COMMON_DB, false, "Host for the metadb", "localhost"),
+    SW_DB_PORT(null, Categories.COMMON_DB, false, "Database port", "5432"),
     SW_DB(null, Categories.COMMON_DB, false, "database name", "seqware_meta_db"),
     SW_DEFAULT_WORKFLOW_ENGINE(null, Categories.SCHEDULE_LAUNCH, true,
             "the default engine to use if otherwise unspecified (one of: "+Engines.ENGINES_LIST+")", "oozie-sge"),

@@ -285,7 +285,7 @@ public class WorkflowRunReporter extends Plugin {
             writer.flush();
             writer.close();
             if (options.has("stdout")) {
-                logger.info(writer.toString());
+                System.out.println(writer.toString());
             }
 
         } catch (IOException ex) {

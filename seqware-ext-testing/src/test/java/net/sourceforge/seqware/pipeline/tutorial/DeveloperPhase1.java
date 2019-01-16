@@ -57,7 +57,7 @@ public class DeveloperPhase1 {
 
         // for all tests, we're going to need to create and install our basic archetypes
         String[] archetypes = { "java-workflow" };
-        PluginRunnerET.buildAndInstallArchetypes(archetypes, SEQWARE_VERSION, false, false);
+        PluginRunnerET.buildAndInstallArchetypes(archetypes, SEQWARE_VERSION);
 
         // list workflows and ensure that the workflow is installed
         List<Integer> accessions = new ArrayList<>();

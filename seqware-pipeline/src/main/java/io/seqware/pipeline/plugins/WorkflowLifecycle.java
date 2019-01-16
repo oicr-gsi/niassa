@@ -158,8 +158,8 @@ public class WorkflowLifecycle extends Plugin {
                 if (metadata.getWorkflowRun(workflowRunSWID).getStatus().equals(WorkflowRunStatus.failed)) {
                     String stdout = metadata.getWorkflowRunReportStdOut(workflowRunSWID);
                     String stderr = metadata.getWorkflowRunReportStdErr(workflowRunSWID);
-                    logger.info("Output for stdout due to workflow run failure: \n " + stdout);
-                    logger.error("Output for stderr due to workflow run failure: \n " + stderr);
+                    logger.warn("Output for stdout due to workflow run failure: \n " + stdout);
+                    logger.warn("Output for stderr due to workflow run failure: \n " + stderr);
                 }
             }
             if (metadata.getWorkflowRun(workflowRunSWID).getStatus().equals(WorkflowRunStatus.failed)) {
@@ -270,7 +270,7 @@ public class WorkflowLifecycle extends Plugin {
         a.add(plugin.getCanonicalName());
         a.add("--");
         a.addAll(Arrays.asList(params));
-        logger.info(Arrays.deepToString(a.toArray()));
+        System.out.println(Arrays.deepToString(a.toArray()));
         p.run(a.toArray(new String[a.size()]));
     }
 }

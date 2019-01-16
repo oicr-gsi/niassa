@@ -16,53 +16,50 @@
  */
 package net.sourceforge.seqware.pipeline.plugins;
 
-import net.sourceforge.seqware.common.module.ReturnValue;
-
-import net.sourceforge.seqware.common.util.configtools.ConfigTools;
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
+import net.sourceforge.seqware.common.module.ReturnValue;
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * These tests support command-line tools found in the SeqWare User Tutorial, in this case, ProvisionFiles
- * 
+ *
  * @author dyuen
  */
 public class ProvisionFilesET {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionFilesET.class);
-
-    public static final String SETTINGS_PREFIX_KEY = "IT_DATASTORE_PREFIX";
-    public static final String DEFAULT_DATASTORE_PREFIX = "/datastore/";
-
-    private static String getDatastorePrefix() {
-        try {
-            Map<String, String> settings = ConfigTools.getSettings();
-            if (settings.containsKey(SETTINGS_PREFIX_KEY)) {
-                return settings.get(SETTINGS_PREFIX_KEY);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Could not read .seqware/settings, this will likely crash extended integration tests", e);
-        }
-        return DEFAULT_DATASTORE_PREFIX;
-    }
+    private Path tmp;
 
     @BeforeClass
     public static void resetDatabase() {
         ExtendedTestDatabaseCreator.resetDatabaseWithUsers();
     }
 
+    @Before
+    public void initialize() {
+        try {
+            tmp = Files.createTempDirectory(null);
+            tmp.toFile().deleteOnExit();
+        } catch (IOException ex) {
+            fail("Unable to create temp directory for ProvisionFilesET tests");
+        }
+    }
+
     /**
      * This test provisions a file in with random input and checks on the accession writing
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -72,7 +69,7 @@ public class ProvisionFilesET {
 
     /**
      * Provision a file into SeqWare and then provision it back out
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -104,17 +101,17 @@ public class ProvisionFilesET {
         String random = String.valueOf(generator.nextInt());
         String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.ModuleRunner -- --module net.sourceforge.seqware.pipeline.modules.utilities.ProvisionFiles "
                 + "--metadata-output-file-prefix "
-                + getDatastorePrefix()
+                + tmp
                 + " --metadata-parent-accession "
                 + sampleAccession
                 + " --metadata-processing-accession-file  "
                 + metadataFile.getAbsolutePath()
                 + " -- -im text::text/plain::"
-                + inputFile.getAbsolutePath() + " -o " + getDatastorePrefix() + " --force-copy";
+                + inputFile.getAbsolutePath() + " -o " + tmp + " --force-copy";
         String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
         LOGGER.info(listOutput);
         // check that file was ended up being provisioned correctly
-        File provisioned = new File(getDatastorePrefix() + inputFile.getName());
+        File provisioned = new File(tmp + "/" + inputFile.getName());
         Assert.assertTrue("file did not end up in final location", provisioned.exists());
         String contents = FileUtils.readFileToString(provisioned, StandardCharsets.UTF_8).trim();
         Assert.assertTrue("file contents not as expected", contents.equals(content));

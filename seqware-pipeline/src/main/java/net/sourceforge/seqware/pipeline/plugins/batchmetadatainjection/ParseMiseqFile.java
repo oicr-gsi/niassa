@@ -108,7 +108,7 @@ public class ParseMiseqFile extends BatchMetadataParser {
             } else if (sampleInfo[2].contains("ARC")) {
                 tissueType = "P";
             } else {
-                logger.info("Cannot parse tissue type from " + prettyName);
+                System.out.println("Cannot parse tissue type from " + prettyName);
             }
 
             SampleInfo sample = generateSampleInfo(prettyName, projectName, individualNumber, librarySourceTemplateType, tissueOrigin,

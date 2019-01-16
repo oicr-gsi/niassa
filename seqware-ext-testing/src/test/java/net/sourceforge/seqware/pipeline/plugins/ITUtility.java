@@ -30,11 +30,14 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.commons.exec.environment.EnvironmentUtils.getProcEnvironment;
 
 /**
  * 
@@ -67,8 +70,25 @@ public class ITUtility {
             workingDir.deleteOnExit();
         }
 
+        Map<String,String> cliEnv;
+        if(environment == null) {
+            cliEnv = getProcEnvironment();
+        } else {
+            cliEnv = new HashMap<>();
+            cliEnv.putAll(environment);
+        }
+        if(System.getProperty("mavenRepository",null) != null) {
+            cliEnv.put("MAVEN_REPOSITORY", System.getProperty("mavenRepository"));
+        }
+        if(System.getProperty("seqwareSettings",null) != null) {
+            cliEnv.put("SEQWARE_SETTINGS", System.getProperty("seqwareSettings"));
+        }
+        if(System.getProperty("seqwareHome",null) != null) {
+            cliEnv.put("SEQWARE_HOME", System.getProperty("seqwareHome"));
+        }
+
         String line = "bash " + script.getAbsolutePath() + " " + parameters;
-        String output = runArbitraryCommand(line, expectedReturnValue, workingDir, environment);
+        String output = runArbitraryCommand(line, expectedReturnValue, workingDir, cliEnv);
         return output;
     }
 

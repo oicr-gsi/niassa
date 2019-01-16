@@ -145,7 +145,7 @@ public abstract class Plugin implements PluginInterface {
      *            a {@link java.lang.String} object.
      */
     public void println(String output) {
-        logger.info(output);
+        System.out.println(output);
     }
 
 	@Override

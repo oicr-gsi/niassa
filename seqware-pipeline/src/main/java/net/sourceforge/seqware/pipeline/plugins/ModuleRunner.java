@@ -102,7 +102,7 @@ public class ModuleRunner extends Plugin {
 
         if (params == null || params.length == 0 || contains(params, "help")) {
             doHelp();
-            logger.info("NOTE: This ModuleRunner will simply pass all parameters to the Runner object. To use one of the modules above simple execute:\n"
+            System.out.println("NOTE: This ModuleRunner will simply pass all parameters to the Runner object. To use one of the modules above simple execute:\n"
                     + "\n"
                     + "  java -jar seqware-pipeline-*.jar -p net.sourceforge.seqware.pipeline.plugins.ModuleRunner [RunnerParameters (see help message below)] --module [module from list above] -- [ModuleParameters]"
                     + "\n\nRunner Help Message:\n");
@@ -157,7 +157,7 @@ public class ModuleRunner extends Plugin {
         Collection<? extends ModuleInterface> mods;
         mods = Lookup.getDefault().lookupAll(ModuleInterface.class);
 
-        logger.info("\nAvailable Module List:");
+        System.out.println("\nAvailable Module List:");
 
         HashMap<String, ArrayList<String>> modules = new HashMap<>();
 
@@ -172,9 +172,9 @@ public class ModuleRunner extends Plugin {
         }
 
         for (String pack : modules.keySet()) {
-            logger.info("\n  Package: " + pack + "\n");
+            System.out.println("\n  Package: " + pack + "\n");
             for (String mod : modules.get(pack)) {
-                logger.info("    Module: " + mod);
+                System.out.println("    Module: " + mod);
             }
         }
 

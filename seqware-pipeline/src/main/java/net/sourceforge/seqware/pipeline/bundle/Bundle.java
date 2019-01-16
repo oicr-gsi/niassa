@@ -179,7 +179,7 @@ public class Bundle {
         bundleName = bundleName.replaceAll(".zip", "");
         File localOutputDir = new File(bundleDir + File.separator + bundleName);
         if (localOutputDir.exists()) {
-            logger.info("Expanded bundle directory already exists, skipping unzip.");
+            System.out.println("Expanded bundle directory already exists, skipping unzip.");
         } else {
             FileTools.unzipFile(bundle, localOutputDir);
         }
@@ -282,7 +282,7 @@ public class Bundle {
 
         File outputZipFile = new File(bundleOutput.getAbsolutePath() + File.separator + bundlePath.getName() + ".zip");
         if (outputZipFile.exists()) {
-            logger.info("Overwriting " + outputZipFile.getAbsolutePath());
+            System.out.println("Overwriting " + outputZipFile.getAbsolutePath());
         }
 
         boolean compression = true;
@@ -347,7 +347,7 @@ public class Bundle {
         String zipFile = tempDir.getAbsolutePath() + File.separator + bundlePath.getName() + ".zip";
         ProvisionFilesUtil fileUtil = new ProvisionFilesUtil();
         int bufLen = 5000 * 1024;
-        logger.info("Copying local file " + zipFile + " to output " + bundleOutputPrefix + " this may take a long time!");
+        System.out.println("Copying local file " + zipFile + " to output " + bundleOutputPrefix + " this may take a long time!");
         BufferedInputStream reader = fileUtil.getSourceReader(zipFile, bufLen, 0L);
         boolean result = fileUtil.putToS3(reader, bundleOutputPrefix, false);
 
@@ -365,8 +365,8 @@ public class Bundle {
         }
 
         // now delete the local zip file
-        logger.info("Finished copying file to S3!");
-        logger.info("You should delete (or archive locally) the local zip file: " + zipFile);
+        System.out.println("Finished copying file to S3!");
+        System.out.println("You should delete (or archive locally) the local zip file: " + zipFile);
 
         return ret;
     }
@@ -393,7 +393,7 @@ public class Bundle {
 
         ProvisionFilesUtil fileUtil = new ProvisionFilesUtil();
         int bufLen = 5000 * 1024;
-        logger.info("Copying local file " + bundle.getAbsolutePath() + " to output " + bundleOutputPrefix + " this may take a long time!");
+        System.out.println("Copying local file " + bundle.getAbsolutePath() + " to output " + bundleOutputPrefix + " this may take a long time!");
         BufferedInputStream reader = fileUtil.getSourceReader(bundle.getAbsolutePath(), bufLen, 0L);
         boolean result = fileUtil.putToS3(reader, bundleOutputPrefix, false);
 
@@ -408,8 +408,8 @@ public class Bundle {
         this.outputZip = bundleOutputPrefix + File.separator + bundle.getName();
 
         // now delete the local zip file
-        logger.info("Finished copying file to S3!");
-        logger.info("You may want to delete (or archive locally) the local zip file: " + bundle.getAbsolutePath());
+        System.out.println("Finished copying file to S3!");
+        System.out.println("You may want to delete (or archive locally) the local zip file: " + bundle.getAbsolutePath());
 
         return ret;
     }
@@ -431,7 +431,7 @@ public class Bundle {
         String sourceName = source.getName();
         this.outputZip = targetDir + File.separator + sourceName;
         if (new File(outputZip).exists()) {
-            logger.info("Bundle archive already in target directory, skipping copy.");
+            System.out.println("Bundle archive already in target directory, skipping copy.");
         } else {
             ProvisionFiles pf = new ProvisionFiles();
             pf.setParameters(Arrays.asList("--input-file", sourceFile, "--output-dir", targetDir, "--force-copy"));
@@ -548,11 +548,11 @@ public class Bundle {
     public ReturnValue installBundle(File bundle, File metadataFile, List<String> workflows) {
         // seqware-1933 - throw error when the provisioned or archive directories are not present
         if (this.bundleDir == null) {
-            logger.info("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_DIR.getSettingKey() + " is defined");
+            System.out.println("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_DIR.getSettingKey() + " is defined");
             return new ReturnValue(ReturnValue.SETTINGSFILENOTFOUND);
         }
         if (this.permanentBundleLocation == null) {
-            logger.info("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey() + " is defined");
+            System.out.println("Could not install bundle, please check that your " + SqwKeys.SW_BUNDLE_REPO_DIR.getSettingKey() + " is defined");
             return new ReturnValue(ReturnValue.SETTINGSFILENOTFOUND);
         }
         return installBundle(bundle, metadataFile, true, true, workflows);
@@ -587,13 +587,13 @@ public class Bundle {
                         + " defined in your seqware settings file! This needs to be defined and pointed to a location where a .zip file can be written.");
                 return (new ReturnValue(ReturnValue.FAILURE));
             } else if (permanentBundleLocation.startsWith("s3://")) {
-                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
+                System.out.println("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = packageBundleToS3(bundle, permanentBundleLocation);
             } else {
                 // then it's a directory
                 // now package this up
-                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the directory: "
+                System.out.println("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the directory: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = packageBundle(bundle, new File(permanentBundleLocation));
             }
@@ -606,11 +606,11 @@ public class Bundle {
                         + " defined in your seqware settings file! This needs to be defined and pointed to a location where a .zip file can be copied to.");
                 return (new ReturnValue(ReturnValue.FAILURE));
             } else if (permanentBundleLocation.startsWith("s3://")) {
-                logger.info("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
+                System.out.println("Now packaging " + bundle.getAbsolutePath() + " to a zip file and transferring to the S3 location: "
                         + permanentBundleLocation + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = copyBundleToS3(bundle, permanentBundleLocation);
             } else {
-                logger.info("Now transferring " + bundle.getAbsolutePath() + " to the directory: " + permanentBundleLocation
+                System.out.println("Now transferring " + bundle.getAbsolutePath() + " to the directory: " + permanentBundleLocation
                         + " Please be aware, this process can take hours if the bundle is many GB in size.");
                 localRet = copyBundle(bundle.getAbsolutePath(), permanentBundleLocation);
             }

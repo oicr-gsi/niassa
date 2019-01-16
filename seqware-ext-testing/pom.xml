@@ -164,11 +164,22 @@
           <artifactId>slf4j-api</artifactId>
           <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
+        <mavenRepository>${env.HOME}/.m2/repository</mavenRepository>
+        <seqwareHome>${project.build.directory}/seqware_home/</seqwareHome>
+        <seqwareSettings>${env.HOME}/.seqware/settings</seqwareSettings>
+
     </properties>
 
     <build>
@@ -197,7 +208,10 @@
 
                 <configuration>
                     <systemPropertyVariables>
-                        <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
+                        <cliPath>${cliPath}</cliPath>
+                        <mavenRepository>${mavenRepository}</mavenRepository>
+                        <seqwareSettings>${seqwareSettings}</seqwareSettings>
+                        <seqwareHome>${seqwareHome}</seqwareHome>
                     </systemPropertyVariables>
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
@@ -209,7 +223,10 @@
 
                 <configuration>
                     <systemPropertyVariables>
-                        <cliPath>${project.parent.basedir}/seqware-pipeline/target/seqware</cliPath>
+                        <cliPath>${cliPath}</cliPath>
+                        <mavenRepository>${mavenRepository}</mavenRepository>
+                        <seqwareSettings>${seqwareSettings}</seqwareSettings>
+                        <seqwareHome>${seqwareHome}</seqwareHome>
                     </systemPropertyVariables>
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
@@ -285,7 +302,6 @@
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
                         <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.2</version>
                         <configuration>
                             <useNaming>true</useNaming>
                             <contextFile>../seqware-webservice/target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
