@@ -313,7 +313,7 @@ public class FileChildWorkflowRunsResource extends DatabaseResource {
                 for (int workflowSWID : workflowSWIDs) {
                     WorkflowRun workflowRun = (WorkflowRun) testIfNull(ss.findBySWAccession(workflowSWID));
                     CollectionPropertyName<WorkflowRun>[] createCollectionPropertyNames = CollectionPropertyName
-                            .createCollectionPropertyNames(WorkflowRun.class, new String[] { "inputFileAccessions" });
+                            .createCollectionPropertyNames(WorkflowRun.class, new String[] { "inputFileAccessions", "workflowRunAttributes" });
                     WorkflowRun dto = copier.hibernate2dto(WorkflowRun.class, workflowRun, ArrayUtils.EMPTY_CLASS_ARRAY,
                             createCollectionPropertyNames);
                     runs.add(dto);
