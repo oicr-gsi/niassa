@@ -937,7 +937,7 @@ public class MetadataInMemory implements Metadata {
         }
         if (workflowAtt != null) {
             //not supported... workflowAtt.setWorkflowAttributeId(getNextSwAccession());
-            MetadataInMemory.getStore().put(workflowAtt.getWorkflowAttributeId(), WorkflowAttribute.class, workflowAtt);
+            MetadataInMemory.getStore().put(getNextSwAccession(), WorkflowAttribute.class, workflowAtt);
             w.getWorkflowAttributes().add(workflowAtt);
         }
     }
@@ -956,7 +956,7 @@ public class MetadataInMemory implements Metadata {
         }
         if (workflowRunAtt != null) {
             //not supported... workflowRunAtt.setWorkflowRunAttributeId(getNextSwAccession());
-            MetadataInMemory.getStore().put(workflowRunAtt.getWorkflowRunAttributeId(), WorkflowRunAttribute.class, workflowRunAtt);
+            MetadataInMemory.getStore().put(getNextSwAccession(), WorkflowRunAttribute.class, workflowRunAtt);
             wr.getWorkflowRunAttributes().add(workflowRunAtt);
         }
     }
