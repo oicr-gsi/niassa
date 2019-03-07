@@ -1307,6 +1307,8 @@ public class Main {
 			out("                             or '" + Engines.DEFAULT_ENGINE + "' if not specified.");
 			out("  --parent-accession <swid>  The SWID of a parent to the workflow run");
 			out("                             Repeat this parameter to provide multiple parents");
+			out("  --link-to-ius <swid>       The IUS SWID to link the workflow run to");
+			out("                             Repeat this parameter to provide multiple ius swids");
 			out("  --override <key=value>     Override specific parameters from the workflow.ini");
 			out("  --ini <ini-file>           An ini file to configure the workflow run ");
 			out("                             Repeat this parameter to provide multiple files");
@@ -1320,6 +1322,7 @@ public class Main {
 			List<String> inputFiles = optVals(args, "--input-file");
 			String engine = optVal(args, "--engine", null);
 			List<String> parentIds = optVals(args, "--parent-accession");
+			List<String> iusIds = optVals(args, "--link-to-ius");
 			List<String> override = optVals(args, "--override");
 
 			extras(args, "workflow schedule");
@@ -1341,6 +1344,10 @@ public class Main {
 			if (!parentIds.isEmpty()) {
 				runnerArgs.add("--parent-accessions");
 				runnerArgs.add(cdl(parentIds));
+			}
+			if (!iusIds.isEmpty()) {
+				runnerArgs.add("--link-workflow-run-to-parents");
+				runnerArgs.add(cdl(iusIds));
 			}
 			if (!inputFiles.isEmpty()) {
 				runnerArgs.add("--input-files");
