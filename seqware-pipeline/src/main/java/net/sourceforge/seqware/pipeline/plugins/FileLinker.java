@@ -102,7 +102,7 @@ public class FileLinker extends Plugin {
                 // pre-emptively check whether there are any valid files, skip workflow run creation if there are not
                 List<FileMetadata> files = removeFilesThatAlreadyExistInSeqWare(entry.getValue());
                 if (files.isEmpty()) {
-                    logger.info("No files to add for IUS " + entry.getKey() + " skipping.");
+                    System.out.println("No files to add for IUS " + entry.getKey() + " skipping.");
                     continue;
                 }
 

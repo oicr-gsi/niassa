@@ -40,6 +40,7 @@ public final class MetadataFactory {
     public static MetadataDB getDB(Map<String, String> settings) {
         String server = settings.get(SqwKeys.SW_DB_SERVER.getSettingKey());
         String dbName = settings.get(SqwKeys.SW_DB.getSettingKey());
+        String dbPort = settings.get(SqwKeys.SW_DB_PORT.getSettingKey());
         String user = settings.get(SqwKeys.SW_DB_USER.getSettingKey());
         String pass = settings.get(SqwKeys.SW_DB_PASS.getSettingKey());
 
@@ -47,7 +48,7 @@ public final class MetadataFactory {
             throw new RuntimeException(NO_DATABASE_CONFIG);
         }
 
-        String url = "jdbc:postgresql://" + server + "/" + dbName;
+        String url = "jdbc:postgresql://" + server + ":" + dbPort + "/" + dbName;
         try {
             return new MetadataDB(url, user, pass);
         } catch (SQLException e) {

@@ -60,7 +60,7 @@ public class DB_WS_ConsistencyCheck implements SanityCheckPluginInterface {
         }
     UUID randomUUID = UUID.randomUUID();
     PreparedStatement stmt = qRunner.prepare("insert into organism(code) VALUES (?)");
-    stmt.setString(0, randomUUID.toString());
+    stmt.setString(1, randomUUID.toString());
     int rowsAffected = stmt.executeUpdate();
         if (rowsAffected != 1) {
             System.err.println("Could not write to database using given database parameters");

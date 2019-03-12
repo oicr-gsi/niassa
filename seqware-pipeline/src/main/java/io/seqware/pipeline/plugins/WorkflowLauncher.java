@@ -144,18 +144,18 @@ public class WorkflowLauncher extends Plugin {
         // launch all if accession not specified
         List<WorkflowRun> scheduledWorkflows = this.metadata.getWorkflowRunsByStatus(WorkflowRunStatus.submitted);
 
-        logger.info("Number of submitted workflows: " + scheduledWorkflows.size());
+        System.out.println("Number of submitted workflows: " + scheduledWorkflows.size());
 
         for (WorkflowRun wr : scheduledWorkflows) {
-            logger.info("Working Run: " + wr.getSwAccession());
+            System.out.println("Working Run: " + wr.getSwAccession());
 
             if (scheduledAccessions.isEmpty() && !isWorkflowRunValidByLocalhost(wr)) {
-                logger.info("Skipping run due to host check: " + wr.getSwAccession());
+                System.out.println("Skipping run due to host check: " + wr.getSwAccession());
                 continue;
             }
 
             if (!scheduledAccessions.isEmpty() && !scheduledAccessions.contains(wr.getSwAccession().toString())) {
-                logger.info("Skipping run due to accession check: " + wr.getSwAccession());
+                System.out.println("Skipping run due to accession check: " + wr.getSwAccession());
                 continue;
             }
 
@@ -164,15 +164,15 @@ public class WorkflowLauncher extends Plugin {
             // let's just wrap and report these errors and fail onto the next one
             try {
 
-                logger.info("Valid run by host check: " + wr.getSwAccession());
+                System.out.println("Valid run by host check: " + wr.getSwAccession());
                 WorkflowRun wrWithWorkflow = this.metadata.getWorkflowRunWithWorkflow(wr.getSwAccession().toString());
                 boolean requiresNewLauncher = WorkflowV2Utility.requiresNewLauncher(wrWithWorkflow.getWorkflow());
                 if (!requiresNewLauncher) {
-                    logger.info("Launching via old launcher: " + wr.getSwAccession());
+                    System.out.println("Launching via old launcher: " + wr.getSwAccession());
                     WorkflowRuns.failWorkflowRuns(wr.getSwAccession());
                     throw new RuntimeException("SeqWare no longer supports running Pegasus bundles");
                 } else {
-                    logger.info("Launching via new launcher: " + wr.getSwAccession());
+                    System.out.println("Launching via new launcher: " + wr.getSwAccession());
                     launchNewWorkflow(options, config, metadata, wr.getWorkflowAccession(), wr.getSwAccession(), wr.getWorkflowEngine());
                 }
 

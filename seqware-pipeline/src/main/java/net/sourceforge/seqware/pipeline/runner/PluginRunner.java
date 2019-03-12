@@ -308,7 +308,8 @@ public class PluginRunner {
         try {
             logger.debug("  Invoking Method: " + methodName);
             newReturn = methodName.step(app);
-
+        } catch (ExitException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Module caught exception during method: " + methodName + ":" + e.getMessage(),e);
             // Exit on error

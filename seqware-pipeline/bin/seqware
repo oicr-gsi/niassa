@@ -43,6 +43,8 @@ export SEQWARE_JAR="$SEQWARE_HOME/self-installs/seqware-distribution-$SEQWARE_VE
 export SEQWARE_CHECK_JAR="$SEQWARE_HOME/self-installs/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
 export SEQWARE_SETTINGS="${SEQWARE_SETTINGS:-"$SEQWARE_HOME/settings"}"
 
+export MAVEN_REPOSITORY="${MAVEN_REPOSITORY:-${HOME}/.m2/repository}"
+
 # normalize $0 on certain BSDs
 if [ "$(dirname "$0")" = "." ]; then
     SCRIPT="$(which $(basename "$0"))"
@@ -158,14 +160,14 @@ if [ "$1" = "self-install" ]; then
 
     echo "Downloading SeqWare to $SEQWARE_JAR now..."
     mkdir -p "$(dirname "$SEQWARE_JAR")"
-    
+
     if [ $SNAPSHOT = "YES" ]; then
-        SEQWARE_URL="file:///$HOME/.m2/repository/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
-    elif [ -r "/$HOME/.m2/repository/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar" ]; then
-	# for testing, if you have a local release version, just use it
-        SEQWARE_URL="file:///$HOME/.m2/repository/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
+        SEQWARE_URL="file://${MAVEN_REPOSITORY}/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
+    elif [ -r "${MAVEN_REPOSITORY}/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar" ]; then
+	    # for testing, if you have a local release version, just use it
+        SEQWARE_URL="file://${MAVEN_REPOSITORY}/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
     else
-        SEQWARE_URL="https://seqwaremaven.oicr.on.ca/artifactory/seqware-release/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
+        SEQWARE_URL="https://artifacts.oicr.on.ca/artifactory/gsi-release/com/github/seqware/seqware-distribution/$SEQWARE_VERSION/seqware-distribution-$SEQWARE_VERSION-full.jar"
     fi
 
     $HTTP_CLIENT "$SEQWARE_JAR.pending" "$SEQWARE_URL"
@@ -188,12 +190,12 @@ elif [ "$1" = "self-check-install" ]; then
     mkdir -p "$(dirname "$SEQWARE_CHECK_JAR")"
     
     if [ $SNAPSHOT = "YES" ]; then
-        SEQWARE_URL="file:///$HOME/.m2/repository/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
-    elif [ -r "/$HOME/.m2/repository/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar" ]; then
-	# for testing, if you have a local release version, just use it
-        SEQWARE_URL="file:///$HOME/.m2/repository/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
+        SEQWARE_URL="file://${MAVEN_REPOSITORY}/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
+    elif [ -r "${MAVEN_REPOSITORY}/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar" ]; then
+	    # for testing, if you have a local release version, just use it
+        SEQWARE_URL="file://${MAVEN_REPOSITORY}/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
     else
-        SEQWARE_URL="https://seqwaremaven.oicr.on.ca/artifactory/seqware-release/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
+        SEQWARE_URL="https://artifacts.oicr.on.ca/artifactory/gsi-release/com/github/seqware/seqware-sanity-check/$SEQWARE_VERSION/seqware-sanity-check-$SEQWARE_VERSION-jar-paired-with-distribution.jar"
     fi
 
     $HTTP_CLIENT "$SEQWARE_CHECK_JAR.pending" "$SEQWARE_URL"

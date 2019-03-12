@@ -370,7 +370,7 @@ public class GenericCommandRunner extends Module {
             cmdBuff.append(token).append(" ");
         }
         theCommand.add(cmdBuff.toString());
-        logger.info("Command run: \nbash -lc " + cmdBuff.toString());
+        stdout.append("Command run: \nbash -lc ").append(cmdBuff.toString()).append("\n");
         ReturnValue result;
         if (options.has(permanentPrefixSpec)) {
             result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength,
@@ -379,7 +379,7 @@ public class GenericCommandRunner extends Module {
             result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength);
         }
 
-        logger.info("Command exit code: " + result.getExitStatus());
+        stdout.append("Command exit code: ").append(result.getExitStatus()).append("\n");
         // ReturnValue result = RunTools.runCommand(new String[] { "bash", "-c",
         // (String)options.valueOf("gcr-command"), cmdParameters.toArray(new
         // String[0])} );

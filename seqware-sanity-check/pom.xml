@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <version>2.0.3</version>
+        <version>2.0.4</version>
         <groupId>com.github.seqware</groupId>
         <artifactId>seqware</artifactId>
         <relativePath>../pom.xml</relativePath>
@@ -61,13 +61,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>seqware-ext-testing</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
         </dependency>
@@ -76,21 +69,8 @@
             <artifactId>jopt-simple</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -131,7 +111,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -270,7 +254,6 @@
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
                         <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.2</version>
                         <configuration>
                             <contextFile>../seqware-webservice/target/seqware-webservice-${project.version}/META-INF/context.xml</contextFile>
                             <webapps>

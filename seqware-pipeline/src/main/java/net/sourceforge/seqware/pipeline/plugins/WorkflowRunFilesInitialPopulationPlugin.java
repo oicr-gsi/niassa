@@ -192,11 +192,11 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
             for (int[] i : ids) {
                 int workflowSWID = i[0];
                 int workflowRunID = i[1];
-                logger.info("Working on workflow_run " + workflowSWID);
+                System.out.println("Working on workflow_run " + workflowSWID);
 
                 // populate input files
                 List<Integer> listOfFiles = this.getListOfFiles(workflowSWID);
-                logger.info("Found " + listOfFiles.size() + " input files for workflow_run " + workflowSWID);
+                System.out.println("Found " + listOfFiles.size() + " input files for workflow_run " + workflowSWID);
                 // insert into new workflow_run_input_files table
                 for (Integer fSWID : listOfFiles) {
                     Integer fileID = this.metadata.getFile(fSWID).getFileId();
@@ -205,7 +205,7 @@ public class WorkflowRunFilesInitialPopulationPlugin extends Plugin {
                     prepareStatement.executeUpdate();
                 }
             }
-            logger.info("Success!");
+            System.out.println("Success!");
             mdb.getDb().commit();
             return ret;
         } catch (SQLException ex) {

@@ -221,7 +221,7 @@ public class S3ListFiles extends Module {
             for (Bucket bucket : s3.listBuckets()) {
                 if (first) {
                     first = false;
-                    logger.info("\nMY BUCKETS:\n");
+                    System.out.println("\nMY BUCKETS:\n");
                 }
                 System.out.print(" - " + bucket.getName());
                 ObjectListing objectListing = s3.listObjects(new ListObjectsRequest().withBucketName(bucket.getName()));
@@ -233,9 +233,9 @@ public class S3ListFiles extends Module {
                     }
                     objectListing = s3.listNextBatchOfObjects(objectListing);
                 } while (objectListing.isTruncated());
-                logger.info(" size=" + getAsString(totalSize));
+                System.out.println(" size=" + getAsString(totalSize));
             }
-            logger.info("\nTOTAL SIZE: " + getAsString(allSize) + "\n");
+            System.out.println("\nTOTAL SIZE: " + getAsString(allSize) + "\n");
 
         }
 
@@ -301,7 +301,7 @@ public class S3ListFiles extends Module {
                     /* sample code */
                     if (options.has("reset-owner-permissions")) {
                         bucketOwner = s3.getBucketAcl(bucket).getOwner().getDisplayName();
-                        logger.info("Bucket Owner: " + bucketOwner);
+                        System.out.println("Bucket Owner: " + bucketOwner);
                     }
 
                     ObjectListing objectListing = s3.listObjects(new ListObjectsRequest().withBucketName(bucket).withPrefix(key));
@@ -312,14 +312,14 @@ public class S3ListFiles extends Module {
                             if (first) {
                                 first = false;
                                 if (key == null || "".equals(key)) {
-                                    logger.info("\nLISTING BUCKET: " + bucket + "\n");
+                                    System.out.println("\nLISTING BUCKET: " + bucket + "\n");
                                 } else {
-                                    logger.info("\nLISTING BUCKET: " + bucket + " AND KEY PREFIX: " + key + "\n");
+                                    System.out.println("\nLISTING BUCKET: " + bucket + " AND KEY PREFIX: " + key + "\n");
                                 }
                             }
                             totalSize += objectSummary.getSize();
                             allSize += objectSummary.getSize();
-                            logger.info(" * " + objectSummary.getKey() + " " + "size=" + getAsString(objectSummary.getSize())
+                            System.out.println(" * " + objectSummary.getKey() + " " + "size=" + getAsString(objectSummary.getSize())
                             // " last_modified=" + objectSummary.getLastModified() +
                             // " owner=" + objectSummary.getOwner().getDisplayName()
                             );
@@ -343,7 +343,7 @@ public class S3ListFiles extends Module {
                                 for (String localDir : localFiles.keySet()) {
                                     HashMap<String, Long> currHash = localFiles.get(localDir);
                                     if (currHash.containsKey(objectSummary.getKey())) {
-                                        logger.info("    -> matches local file " + localDir + "/" + objectSummary.getKey());
+                                        System.out.println("    -> matches local file " + localDir + "/" + objectSummary.getKey());
                                         break;
                                     }
                                 }
@@ -351,7 +351,7 @@ public class S3ListFiles extends Module {
 
                             if (options.has("reset-owner-permissions")) {
                                 try {
-                                    logger.info("   resetting bucket owner (" + bucketOwner + ") permissions for file owned by "
+                                    System.out.println("   resetting bucket owner (" + bucketOwner + ") permissions for file owned by "
                                             + objectSummary.getOwner().getDisplayName());
                                     s3.setObjectAcl(bucket, objectSummary.getKey(), CannedAccessControlList.BucketOwnerFullControl);
                                 } catch (Exception e) {
@@ -362,7 +362,7 @@ public class S3ListFiles extends Module {
                         objectListing = s3.listNextBatchOfObjects(objectListing);
                     } while (objectListing.isTruncated());
 
-                    logger.info("\nBUCKET SIZE: " + getAsString(totalSize) + "\n");
+                    System.out.println("\nBUCKET SIZE: " + getAsString(totalSize) + "\n");
 
                 } else {
                     ret.setExitStatus(ReturnValue.FAILURE);
@@ -376,7 +376,7 @@ public class S3ListFiles extends Module {
             }
         }
         if (allSize > 0 && inputs.size() > 1) {
-            logger.info("TOTAL SIZE: " + getAsString(allSize) + "\n");
+            System.out.println("TOTAL SIZE: " + getAsString(allSize) + "\n");
         }
 
         // now print everything out to local file if specified

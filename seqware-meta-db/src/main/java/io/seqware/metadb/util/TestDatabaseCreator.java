@@ -27,12 +27,6 @@ public class TestDatabaseCreator {
     private static final String DEFAULT_DB_PORT = "5432";
     private static final String POSTGRE_DB = "postgres";
     private static final String SEQWARE_DB = "test_seqware_meta_db";
-    // We should not have a postgres user with an easily guessable password. It
-    // is a security risk. The seqware user needs CREATEDB for this to work but
-    // it is more secure. Since we are using local database for testing it is
-    // not really security breach here.
-    private static final String POSTGRE_USER = "seqware";
-    private static final String POSTGRE_PASSWORD = "seqware";
     private static final String SEQWARE_USER = "seqware";
     private static final String SEQWARE_PASSWORD = "seqware";
     private static boolean database_changed;
@@ -107,9 +101,7 @@ public class TestDatabaseCreator {
         Connection connectionToPostgres = null;
         Connection connectionToSeqware = null;
         try {
-            // connectionToPostgres = createConnection(POSTGRE_DB, POSTGRE_USER, POSTGRE_PASSWORD);
-            // loadDatabase(connectionToPostgres);
-            connectionToSeqware = createConnection(getSEQWARE_DB(), getPOSTGRE_USER(), getPOSTGRE_PASSWORD());
+            connectionToSeqware = createConnection(getSEQWARE_DB(), getSEQWARE_USER(), getSEQWARE_PASSWORD());
             loadDBStructure(connectionToSeqware, loadTestingData);
         } catch (Exception e) {
             logger.info("TestDatabaseCreator.createDatabase " + e.getMessage());
@@ -170,7 +162,7 @@ public class TestDatabaseCreator {
         T result = null;
         Connection connectionToSeqware = null;
         try {
-            connectionToSeqware = createConnection(getSEQWARE_DB(), getPOSTGRE_USER(), getPOSTGRE_PASSWORD());
+            connectionToSeqware = createConnection(getSEQWARE_DB(), getSEQWARE_USER(), getSEQWARE_PASSWORD());
             if (update) {
                 return (T) (Integer) run.update(connectionToSeqware, query, params);
             } else {
@@ -194,7 +186,7 @@ public class TestDatabaseCreator {
      *             if any.
      */
     public void dropDatabase() throws SQLException {
-        try (Connection connectionToPostgres = createConnection(getPOSTGRE_DB(), getPOSTGRE_USER(), getPOSTGRE_PASSWORD())) {
+        try (Connection connectionToPostgres = createConnection(getPOSTGRE_DB(), getSEQWARE_USER(), getSEQWARE_PASSWORD())) {
             unLoadDatabase(connectionToPostgres);
         } catch (Exception e) {
             logger.info("TestDatabaseCreator.dropDatabase" + e.getMessage());
@@ -208,7 +200,7 @@ public class TestDatabaseCreator {
      *             if any.
      */
     public void dropDatabaseWithUsers() throws SQLException {
-        try (Connection connectionToPostgres = createConnection(getSEQWARE_DB(), getPOSTGRE_USER(), getPOSTGRE_PASSWORD())) {
+        try (Connection connectionToPostgres = createConnection(getSEQWARE_DB(), getSEQWARE_USER(), getSEQWARE_PASSWORD())) {
             connectionToPostgres.createStatement().execute("drop schema if exists public cascade;");
             connectionToPostgres.createStatement().execute("create schema public;");
         } catch (Exception e) {
@@ -302,20 +294,6 @@ public class TestDatabaseCreator {
      */
     protected String getSEQWARE_DB() {
         return SEQWARE_DB;
-    }
-
-    /**
-     * @return the POSTGRE_USER
-     */
-    protected String getPOSTGRE_USER() {
-        return POSTGRE_USER;
-    }
-
-    /**
-     * @return the POSTGRE_PASSWORD
-     */
-    protected String getPOSTGRE_PASSWORD() {
-        return POSTGRE_PASSWORD;
     }
 
     /**

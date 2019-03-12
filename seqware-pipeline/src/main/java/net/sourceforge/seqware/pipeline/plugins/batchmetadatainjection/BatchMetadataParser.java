@@ -86,9 +86,9 @@ public abstract class BatchMetadataParser {
     protected String choiceOf(String sampleName, String title, String[] choices, String deflt) {
         String choice = null;
         int choiceInt = 0;
-        logger.info("\nFor sample " + sampleName + ", choose one of the following for " + title + " or enter 0 to skip:");
+        System.out.println("\nFor sample " + sampleName + ", choose one of the following for " + title + " or enter 0 to skip:");
         for (int i = 1; i <= choices.length; i++) {
-            logger.info(i + " : " + choices[i - 1]);
+            System.out.println(i + " : " + choices[i - 1]);
             if (choices[i - 1].equals(deflt)) {
                 choiceInt = i;
             }
@@ -377,7 +377,7 @@ public abstract class BatchMetadataParser {
         if (organismId <= 0) {
             List<Organism> organisms = new ArrayList<>(metadata.getOrganisms());
             for (int i = 0; i < organisms.size(); i++) {
-                logger.info((i + 1) + " : " + organisms.get(i).getName());
+                System.out.println((i + 1) + " : " + organisms.get(i).getName());
             }
             organismId = promptPositiveInteger("Organism id", 34, Field.organism_id, 1, organisms.size());
             if (organismId > 0 && organismId <= organisms.size()) {
@@ -445,7 +445,7 @@ public abstract class BatchMetadataParser {
         } // interactively work with the user to determine the choice
         else {
             for (int i = 1; i <= values.length; i++) {
-                logger.info(i + " : " + values[i - 1].toString());
+                System.out.println(i + " : " + values[i - 1].toString());
             }
             Integer i = promptPositiveInteger(description, deflt, fieldName, 1, values.length);
             if (fieldName != null) {

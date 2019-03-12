@@ -995,7 +995,6 @@ public class Runner {
 		invokeModuleMethods();
 		// 6. postProcess
 		postProcessMetadata();
-		throw new ExitException(ReturnValue.SUCCESS);
 	}
 
 	// -----Utility Method

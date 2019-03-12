@@ -91,7 +91,7 @@ import net.sourceforge.seqware.webservice.resources.tables.WorkflowRunResource;
 public class SeqWareWebServiceApplication extends WadlApplication {
 	private static final LatencyHistogram REQUEST_TIME = new LatencyHistogram("niassa_request_time",
 			"Time to process a request in seconds.", "dispatcher");
-	
+
 	public static final ThreadLocal<String> PROMETHEUS_ENDPOINT = new ThreadLocal<>();
 
 	/**

@@ -54,7 +54,7 @@ public class GenericMetadataSaverTest extends PluginTest {
 
 	private ByteArrayOutputStream outStream = null;
 	private ByteArrayOutputStream errStream = null;
-	private Pattern swidPattern = Pattern.compile("SWID: ([\\d]+)");
+	private Pattern swidPattern = Pattern.compile("ProcessingAccession for this run is: ([\\d]+)");
 	private Pattern errorPattern = Pattern.compile("ERROR|error|Error|FATAL|fatal|Fatal|WARN|warn|Warn");
 	private PrintStream systemErr = System.err;
 
@@ -154,7 +154,9 @@ public class GenericMetadataSaverTest extends PluginTest {
 	public void testMatcher() {
 		String string = "[SeqWare Pipeline] ERROR [2012/11/01 15:53:51] | "
 				+ "MetadataWS.findObject with search string /288023 encountered error "
-				+ "Internal Server Error\nExperiment: null\nSWID: 6740";
+				+ "Internal Server Error\n"
+                                + "Experiment: null\n"
+                                + "MetaDB ProcessingAccession for this run is: 6740\n";
 		Matcher match = swidPattern.matcher(string);
 		Assert.assertTrue(match.find());
 		Assert.assertEquals("6740", match.group(1));
@@ -181,54 +183,42 @@ public class GenericMetadataSaverTest extends PluginTest {
 
 	@Test
 	public void testSaveNonExistingFile() throws IOException {
-		try {
-			launchPlugin("--module", "net.sourceforge.seqware.pipeline.modules.GenericMetadataSaver",
-					"--metadata-parent-accession", "10", "--", "--gms-output-file",
-					"text::text/plain::/tmp/abcdefghijklmnop/xyz", "--gms-algorithm", "UploadText",
-					"--gms-suppress-output-file-check");
-			String s = getOut();
-			String swid = getAndCheckSwid(s);
-			int accession = Integer.valueOf(swid);
-			// check that file records and processing were created properly
-			Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
-					"select file_path, meta_type, algorithm from file f, processing_files pf, processing p WHERE f.file_id = pf.file_id AND pf.processing_id = p.processing_id AND p.sw_accession == ?",
-					accession);
-			Assert.assertTrue("values not found", runQuery.length == 3);
-			Assert.assertTrue("file_path value incorrect", runQuery[0].equals("/tmp/abcdefghijklmnop/xyz"));
-			Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
-			Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
-		} catch (ExitException e) {
-			assertEquals(ReturnValue.SUCCESS, e.getExitCode());
-			return;
-		}
-		assertTrue(false);
+            launchPlugin("--module", "net.sourceforge.seqware.pipeline.modules.GenericMetadataSaver",
+                    "--metadata-parent-accession", "10", "--", "--gms-output-file",
+                    "text::text/plain::/tmp/abcdefghijklmnop/xyz", "--gms-algorithm", "UploadText",
+                    "--gms-suppress-output-file-check");
+            String s = getOut();
+            String swid = getAndCheckSwid(s);
+            int accession = Integer.valueOf(swid);
+            // check that file records and processing were created properly
+            Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
+                    "select file_path, meta_type, algorithm from file f, processing_files pf, processing p WHERE f.file_id = pf.file_id AND pf.processing_id = p.processing_id AND p.sw_accession = ?",
+                    accession);
+            Assert.assertTrue("values not found", runQuery.length == 3);
+            Assert.assertTrue("file_path value incorrect", runQuery[0].equals("/tmp/abcdefghijklmnop/xyz"));
+            Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
+            Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
 	}
 
 	@Test
 	public void testSaveExistingFile() throws IOException {
-		try {
-			File createTempFile = File.createTempFile("output", "txt");
-			createTempFile.createNewFile();
+            File createTempFile = File.createTempFile("output", "txt");
+            createTempFile.createNewFile();
 
-			launchPlugin("--module", "net.sourceforge.seqware.pipeline.modules.GenericMetadataSaver",
-					"--metadata-parent-accession", "10", "--", "--gms-output-file",
-					"text::text/plain::" + createTempFile.getAbsolutePath(), "--gms-algorithm", "UploadText");
-			String s = getOut();
-			String swid = getAndCheckSwid(s);
-			int accession = Integer.valueOf(swid);
-			// check that file records and processing were created properly
-			Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
-					"select file_path, meta_type, algorithm from file f, processing_files pf, processing p WHERE f.file_id = pf.file_id AND pf.processing_id = p.processing_id AND p.sw_accession == ?",
-					accession);
-			Assert.assertTrue("values not found", runQuery.length == 3);
-			Assert.assertTrue("file_path value incorrect", runQuery[0].equals(createTempFile.getAbsolutePath()));
-			Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
-			Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
-		} catch (ExitException e) {
-			assertEquals(ReturnValue.SUCCESS, e.getExitCode());
-			return;
-		}
-		assertTrue(false);
+            launchPlugin("--module", "net.sourceforge.seqware.pipeline.modules.GenericMetadataSaver",
+                    "--metadata-parent-accession", "10", "--", "--gms-output-file",
+                    "text::text/plain::" + createTempFile.getAbsolutePath(), "--gms-algorithm", "UploadText");
+            String s = getOut();
+            String swid = getAndCheckSwid(s);
+            int accession = Integer.valueOf(swid);
+            // check that file records and processing were created properly
+            Object[] runQuery = dbCreator.runQuery(new ArrayHandler(),
+                    "select file_path, meta_type, algorithm from file f, processing_files pf, processing p WHERE f.file_id = pf.file_id AND pf.processing_id = p.processing_id AND p.sw_accession = ?",
+                    accession);
+            Assert.assertTrue("values not found", runQuery.length == 3);
+            Assert.assertTrue("file_path value incorrect", runQuery[0].equals(createTempFile.getAbsolutePath()));
+            Assert.assertTrue("meta_type value incorrect", runQuery[1].equals("text/plain"));
+            Assert.assertTrue("algorithm value incorrect", runQuery[2].equals("UploadText"));
 	}
 
 	// //////////////////////////////////////////////////////////////////////////

@@ -58,8 +58,6 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         Map<String, String> settings = new HashMap<>();
         settings.put(BASIC_TEST_DB_NAME.getSettingKey(), System.getProperty("seqware_meta_db_name"));
         settings.put(BASIC_TEST_DB_PORT.getSettingKey(), System.getProperty("seqware_meta_db_port"));
-        settings.put("POSTGRE_USER", System.getProperty("seqware_meta_db_user"));
-        settings.put("POSTGRE_PASSWORD", System.getProperty("seqware_meta_db_password"));
         settings.put(BASIC_TEST_DB_USER.getSettingKey(), System.getProperty("seqware_meta_db_user"));
         settings.put(BASIC_TEST_DB_PASSWORD.getSettingKey(), System.getProperty("seqware_meta_db_password"));
         settings.put(BASIC_TEST_DB_HOST.getSettingKey(), System.getProperty("seqware_meta_db_host"));
@@ -124,30 +122,6 @@ public class BasicTestDatabaseCreator extends TestDatabaseCreator {
         }
         LOGGER.debug("BasicTestDatabaseCreator.getDEFAULT_DB_PORT Could not retrieve basic test db port, using default from unit tests");
         return super.getDEFAULT_DB_PORT();
-    }
-    
-    /**
-     * @return the POSTGRE_USER
-     */
-    @Override
-    protected String getPOSTGRE_USER() {
-        if (settings.containsKey("POSTGRE_USER")) {
-            return settings.get("POSTGRE_USER");
-        }
-        LOGGER.debug("BasicTestDatabaseCreator.getPOSTGRE_USER Could not retrieve postgres user name, using default from unit tests");
-        return super.getPOSTGRE_USER();
-    }
-
-    /**
-     * @return the POSTGRE_PASSWORD
-     */
-    @Override
-    protected String getPOSTGRE_PASSWORD() {
-        if (settings.containsKey("POSTGRE_PASSWORD")) {
-            return settings.get("POSTGRE_PASSWORD");
-        }
-        LOGGER.debug("BasicTestDatabaseCreator.getPOSTGRE_PASSWORD Could not retrieve postgres password, using default from unit tests");
-        return super.getPOSTGRE_PASSWORD();
     }
 
     /**

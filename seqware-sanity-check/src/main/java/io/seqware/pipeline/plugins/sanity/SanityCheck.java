@@ -157,8 +157,8 @@ public final class SanityCheck extends Plugin {
             };
             Collections.sort(pluginList, comp);
 
-            // removes the tests that don't need to be ran
-            removeChecks(pluginList);
+            // only keep plugins that should be run
+            pluginList = getPluginsToRun(pluginList);
 
             List<Boolean> passedTests = new ArrayList<>();
 
@@ -198,25 +198,26 @@ public final class SanityCheck extends Plugin {
     }
 
     /**
-     * Remove all checks that are not necessary
-     * 
-     * @param pluginList
-     *            the list of plugins
+     * Get list of plugins to run
+     *
+     * @param pluginList the list of plugins
+     *
+     * @return plugins to run
      */
-    private void removeChecks(List<SanityCheckPluginInterface> pluginList) {
-        for (int i = pluginList.size() - 1; i > -1; i--) {
-
-            SanityCheckPluginInterface plugin = pluginList.get(i);
-            if (!hasDBSettings && plugin.isDBTest()) {
-                pluginList.remove(i);
-
-            } else if (plugin.isTutorialTest() && !tutorialMode) {
-                pluginList.remove(i);
-            } else if (!masterMode && plugin.isMasterTest()) {
-                pluginList.remove(i);
+    private List<SanityCheckPluginInterface> getPluginsToRun(List<SanityCheckPluginInterface> pluginList) {
+        List<SanityCheckPluginInterface> pluginsToRun = new ArrayList<>();
+        for(SanityCheckPluginInterface plugin : pluginList) {
+            if (hasDBSettings && plugin.isDBTest()) {
+                pluginsToRun.add(plugin);
+            } else if (tutorialMode && plugin.isTutorialTest()) {
+                pluginsToRun.add(plugin);
+            } else if (masterMode && plugin.isMasterTest()) {
+                pluginsToRun.add(plugin);
+            } else {
+                logger.warn("Not running plugin {}", plugin.getClass().getSimpleName());
             }
-
         }
+        return pluginsToRun;
     }
 
     /**

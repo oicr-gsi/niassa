@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 SeqWare
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.sourceforge.seqware.pipeline.plugins;
 
 import com.google.common.io.Files;
@@ -30,27 +46,20 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import static org.junit.Assert.fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
- * Copyright (C) 2013 SeqWare
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 /**
- * 
+ * PluginRunner Extended Tests.
+ * <p>
+ * This test class requires whitestar to be enabled in the ${HOME}/.seqware/settings
+ * <p>
+ * SW_DEFAULT_WORKFLOW_ENGINE=whitestar
+ * OOZIE_WORK_DIR=/tmp
+ * OOZIE_SGE_THREADS_PARAM_FORMAT=-pe serial ${threads}
+ * OOZIE_SGE_MAX_MEMORY_PARAM_FORMAT=-l h_vmem=${maxMemory}M
+ *
  * @author dyuen
  */
 public class PluginRunnerET {
@@ -109,7 +118,7 @@ public class PluginRunnerET {
         // starting with the 1.0.x series we are deprecating the FTL workflows and the Pegasus backend so skip testing them
         // we are now only testing Java workflows on the Oozie-* backends
         String[] archetypes = { "java-workflow" };
-        buildAndInstallArchetypes(archetypes, SEQWARE_VERSION, true, true);
+        buildAndInstallArchetypes(archetypes, SEQWARE_VERSION);
         Assert.assertTrue("could not locate installed workflows", installedWorkflows.size() == archetypes.length);
         Assert.assertTrue("could not locate installed workflow paths", installedWorkflows.size() == bundleLocations.size());
 
@@ -120,8 +129,6 @@ public class PluginRunnerET {
             Files.write(bundleLocationsBinary, bundleFile);
             Files.write(installedWorkflowsBinary, installedWorkflowsFile);
         }
-        // SEQWARE-1684 - Try to keep workflow bundle size under 8G limit
-        LOGGER.info(PluginRunnerET.class.getName() + " Cleaning up " + tempDir.getAbsolutePath());
     }
 
     @AfterClass
@@ -129,7 +136,7 @@ public class PluginRunnerET {
         monitorAndClean(true);
     }
 
-    public static void buildAndInstallArchetypes(String[] archetypes, String SEQWARE_VERSION, boolean testListing, boolean deleteBundles)
+    public static void buildAndInstallArchetypes(String[] archetypes, String SEQWARE_VERSION)
             throws IOException, NumberFormatException {
         for (String archetype : archetypes) {
             String workflow = "seqware-archetype-" + archetype;
@@ -137,6 +144,7 @@ public class PluginRunnerET {
             // generate and install archetypes to local maven repo
             String command = "mvn archetype:generate -DarchetypeCatalog=local -Dpackage=com.seqware.github -DgroupId=com.github.seqware -DarchetypeArtifactId="
                     + workflow
+                    + " -DarchetypeVersion=" + SEQWARE_VERSION
                     + " -Dversion=1.0-SNAPSHOT -DarchetypeGroupId=com.github.seqware -DartifactId="
                     + workflow
                     + " -Dworkflow-name=" + workflowName + " -B -Dgoals=install";
@@ -156,25 +164,13 @@ public class PluginRunnerET {
             String zipOutput = ITUtility.runSeqWareJar(zipCommand, ReturnValue.SUCCESS, null);
             LOGGER.info(zipOutput);
 
-            String installCommand = "-p net.sourceforge.seqware.pipeline.plugins.BundleManager -- -i -b " + tempDir.getAbsolutePath()
-                    + File.separatorChar + workflow_name + ".zip";
+            String installCommand = "-p net.sourceforge.seqware.pipeline.plugins.BundleManager -- --install-dir-only -b " + bundleDir.getAbsolutePath();
             String installOutput = ITUtility.runSeqWareJar(installCommand, ReturnValue.SUCCESS, null);
             LOGGER.info(installOutput);
 
-            int accession = ITUtility.extractSwid(installOutput);
-            installedWorkflows.put(workflow, accession);
-            LOGGER.info("Found workflow " + workflow + " with accession " + accession);
-
-            if (testListing) {
-                LOGGER.info("Attempting to list " + workflow);
-                String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.BundleManager -- -l -b " + bundleDir.getAbsolutePath();
-                String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
-                LOGGER.info(listOutput);
-            }
-            if (deleteBundles) {
-                LOGGER.info("Attempting to delete bundle after install " + workflow);
-                FileUtils.deleteDirectory(bundleDir);
-            }
+            int workflowSwid = ITUtility.extractSwid(installOutput);
+            installedWorkflows.put(workflow, workflowSwid);
+            LOGGER.info("Found workflow " + workflow + " with accession " + workflowSwid);
         }
     }
 
@@ -199,6 +195,14 @@ public class PluginRunnerET {
         if (!DEBUG_SKIP) {
             FileUtils.deleteDirectory(tempDir);
         }
+        
+        //delete the workflow bundle directories created by buildAndInstallArchetypes
+        for (Entry<String, File> e : bundleLocations.entrySet()) {
+            String workflow = e.getKey();
+            File bundleDir = e.getValue();
+            LOGGER.info("Attempting to delete bundle after test " + workflow);
+            FileUtils.deleteDirectory(bundleDir);
+        }
 
         clearStaticVariables();
     }
@@ -209,6 +213,51 @@ public class PluginRunnerET {
         String parentDir = ConfigTools.getSettings().get(SqwKeys.OOZIE_WORK_DIR.getSettingKey());
         tempDir = new File(parentDir, String.valueOf(Math.abs(new Random().nextInt())));
         tempDir.mkdir();
+    }
+
+    @Test
+    public void testBundleListing() throws IOException {
+        for (Entry<String, File> e : bundleLocations.entrySet()) {
+            String workflow = e.getKey();
+            File bundleDir = e.getValue();
+            LOGGER.info("Attempting to list " + workflow);
+            String listCommand = "-p net.sourceforge.seqware.pipeline.plugins.BundleManager -- -l -b " + bundleDir.getAbsolutePath();
+            String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
+            LOGGER.info(listOutput);
+        }
+    }
+
+    @Test
+    public void testGetWorkflowIniParameters() throws IOException {
+        // this assumes all installed workflows have the same ini - which is true as the only archetype being tested is "java-workflow"
+        String expectedIni = "#key=cat:type=text:display=F\n"
+                + "cat=${workflow_bundle_dir}/Workflow_Bundle_seqwarearchetypejavaworkflow/1.0-SNAPSHOT/bin/gnu-coreutils-5.67/cat\n"
+                + "#key=echo:type=text:display=F\n"
+                + "echo=${workflow_bundle_dir}/Workflow_Bundle_seqwarearchetypejavaworkflow/1.0-SNAPSHOT/bin/gnu-coreutils-5.67/echo\n"
+                + "#key=greeting:type=text:display=F\n"
+                + "greeting=Testing\n"
+                + "#key=input_file:type=text:display=F\n"
+                + "input_file=${workflow_bundle_dir}/Workflow_Bundle_seqwarearchetypejavaworkflow/1.0-SNAPSHOT/data/input.txt\n"
+                + "#key=manual_output:type=text:display=F\n"
+                + "manual_output=false\n"
+                + "#key=output_dir:type=text:display=F\n"
+                + "output_dir=seqware-results\n"
+                + "#key=output_prefix:type=text:display=F\n"
+                + "output_prefix=./\n"
+                + "#key=queue:type=text:display=F\n"
+                + "queue=\n"
+                + "#key=seqware-output-lines-number:type=text:display=F\n"
+                + "seqware-output-lines-number=20\n";
+
+        for (Entry<String, Integer> e : installedWorkflows.entrySet()) {
+            String workflow = e.getKey();
+            Integer workflowSwid = e.getValue();
+
+            File actualIniFile = exportINIFile(workflow, workflowSwid, false);
+            String actualIni = Files.asCharSource(actualIniFile, StandardCharsets.UTF_8).read();
+
+            Assert.assertEquals(expectedIni, actualIni);
+        }
     }
 
     @Test
@@ -266,14 +315,13 @@ public class PluginRunnerET {
         Map<String, File> iniParams = exportWorkflowInis();
         String localhost = ITUtility.getLocalhost();
         LOGGER.info("Attempting to launch without wait on host: " + localhost);
-        Map<String, Integer> wr_accessions = new HashMap<>();
 
         for (Entry<String, Integer> e : installedWorkflows.entrySet()) {
             LOGGER.info("Attempting to launch " + e.getKey());
-            String workflowPath = iniParams.get(e.getKey()).getAbsolutePath();
+            String workflowIniPath = iniParams.get(e.getKey()).getAbsolutePath();
             String accession = Integer.toString(installedWorkflows.get(e.getKey()));
 
-            String listCommand = "-p io.seqware.pipeline.plugins.WorkflowLifecycle -- --ini-files " + workflowPath
+            String listCommand = "-p io.seqware.pipeline.plugins.WorkflowLifecycle -- --ini-files " + workflowIniPath
                     + " --workflow-accession " + accession + " --parent-accessions " + PARENT;
             String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
             LOGGER.info(listOutput);
@@ -285,7 +333,6 @@ public class PluginRunnerET {
         Map<String, File> iniParams = exportWorkflowInis();
         String localhost = ITUtility.getLocalhost();
         LOGGER.info("Attempting to launch with wait on host: " + localhost);
-        Map<String, Integer> wr_accessions = new HashMap<>();
 
         for (Entry<String, Integer> e : installedWorkflows.entrySet()) {
             LOGGER.info("Attempting to launch " + e.getKey());
@@ -304,7 +351,6 @@ public class PluginRunnerET {
         Map<String, File> iniParams = exportWorkflowInis();
         String localhost = ITUtility.getLocalhost();
         LOGGER.info("Attempting to launch with wait on host: " + localhost);
-        Map<String, Integer> wr_accessions = new HashMap<>();
 
         for (Entry<String, Integer> e : installedWorkflows.entrySet()) {
             LOGGER.info("Attempting to launch " + e.getKey());
@@ -316,20 +362,6 @@ public class PluginRunnerET {
             String listOutput = ITUtility.runSeqWareJar(listCommand, ReturnValue.SUCCESS, null);
             LOGGER.info(listOutput);
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        PluginRunnerET it = new PluginRunnerET();
-        List<Integer> list = new ArrayList<>();
-        for (String acc : args) {
-            try {
-                Integer accInt = Integer.valueOf(acc);
-                list.add(accInt);
-            } catch (NumberFormatException e) {
-                LOGGER.error("NumberFormatException, skipped acc",e);
-            }
-        }
-        it.testLatestWorkflowsInternal(list);
     }
 
     @Test
@@ -413,6 +445,7 @@ public class PluginRunnerET {
                 pool.take().get();
             } catch (InterruptedException | ExecutionException ex) {
                 LOGGER.error("PluginRunnerET.testLatestWorkflowInternal",ex);
+                fail("TestingThread testLatestWorkflowInternal failed");
             }
         }
         threadPool.shutdown();
@@ -475,17 +508,12 @@ public class PluginRunnerET {
         }
 
         @Override
-        public String call() {
-            try {
-                String tOutput = ITUtility.runSeqWareJar("-p io.seqware.pipeline.plugins.WorkflowLifecycle -- " + command,
-                        ReturnValue.SUCCESS, null);
-                LOGGER.error(command + " completed, writing output to " + output.getAbsolutePath());
-                FileUtils.write(output, tOutput, StandardCharsets.UTF_8);
-                return tOutput;
-            } catch (IOException ex) {
-                LOGGER.error("IOException while running " + command, ex);
-                return null;
-            }
+        public String call() throws IOException {
+            String tOutput = ITUtility.runSeqWareJar("-p io.seqware.pipeline.plugins.WorkflowLifecycle -- " + command,
+                    ReturnValue.SUCCESS, null);
+            LOGGER.error(command + " completed, writing output to " + output.getAbsolutePath());
+            FileUtils.write(output, tOutput, StandardCharsets.UTF_8);
+            return tOutput;
         }
 
     }
