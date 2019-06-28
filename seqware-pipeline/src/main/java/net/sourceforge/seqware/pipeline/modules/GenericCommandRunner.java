@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -372,11 +373,20 @@ public class GenericCommandRunner extends Module {
         theCommand.add(cmdBuff.toString());
         stdout.append("Command run: \nbash -lc ").append(cmdBuff.toString()).append("\n");
         ReturnValue result;
+        Map<String, String> env = new HashMap<>();
+        env.put("PROCESSING_ACCESSION", String.valueOf(getProcessingAccession()));
+        if (options.hasArgument("metadata-workflow-run-accession")) {
+            env.put("WORKFLOW_RUN_ACCESSION", options.valueOf("metadata-workflow-run-accession").toString());
+        } else if (options.hasArgument("metadata-workflow-run-ancestor-accession")) {
+            env.put("WORKFLOW_RUN_ACCESSION", options.valueOf("metadata-workflow-run-ancestor-accession").toString());
+        } else {
+            // GCR is not being run from within a workflow run
+        }
         if (options.has(permanentPrefixSpec)) {
-            result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength,
+            result = RunTools.runCommand(env, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength,
                     options.valueOf(permanentPrefixSpec));
         } else {
-            result = RunTools.runCommand(null, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength);
+            result = RunTools.runCommand(env, theCommand.toArray(new String[theCommand.size()]), stdoutQueueLength, stderrQueueLength);
         }
 
         stdout.append("Command exit code: ").append(result.getExitStatus()).append("\n");
