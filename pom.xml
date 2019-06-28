@@ -58,7 +58,7 @@
         <maven-build-helper-plugin.version>1.10</maven-build-helper-plugin.version>
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>1.6.5</powermock.version>
-        <findbugs.version>3.0.3</findbugs.version>
+        <findbugs.version>3.0.5</findbugs.version>
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <slf4j.version>1.7.25</slf4j.version>
         <old-jersey.version>1.19.1</old-jersey.version>
