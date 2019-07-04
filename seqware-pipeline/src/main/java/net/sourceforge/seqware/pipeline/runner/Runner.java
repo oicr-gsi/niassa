@@ -72,6 +72,8 @@ public class Runner {
 	private ArrayList<File> processingAccessionFiles;
 	private File processingAccessionFileCheck = null;
 	private int processingAccession = 0;
+        private Integer workflowRunAccession;
+        private Integer ancestorWorkflowRunAccession;
 	private final NonOptionArgumentSpec<String> nonOptionSpec;
 
 	private static final OptionParser PARSER = new OptionParser();
@@ -291,6 +293,15 @@ public class Runner {
 
 		try {
 			app.setProcessingAccession(this.processingAccession);
+
+                        if(ancestorWorkflowRunAccession != null) {
+                            app.setWorkflowRunAccession(this.ancestorWorkflowRunAccession);
+                        } else if(workflowRunAccession != null) {
+                            app.setWorkflowRunAccession(this.workflowRunAccession);
+                        } else {
+                            // no workflow run accession provided, command is not being run from within a workflow run
+                        }
+
 			if (meta != null) {
 				app.setMetadata(meta);
 			}
@@ -878,11 +889,13 @@ public class Runner {
 
 			// now associate processing event ancestor_workflow_run_id
 			if (ancestorWorkflowRunAccession > 0 && processingID > 0) {
+                                this.ancestorWorkflowRunAccession = ancestorWorkflowRunAccession;
 				meta.add_workflow_run_ancestor(ancestorWorkflowRunAccession, processingID);
 			}
 
 			// associate with the workflow_run
 			if (workflowRunAccession > 0 && processingID > 0) {
+                                this.workflowRunAccession = workflowRunAccession;
 				meta.update_processing_workflow_run(processingID, workflowRunAccession);
 			}
 		}

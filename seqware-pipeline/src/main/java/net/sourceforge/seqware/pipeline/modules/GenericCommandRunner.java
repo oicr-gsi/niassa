@@ -375,10 +375,8 @@ public class GenericCommandRunner extends Module {
         ReturnValue result;
         Map<String, String> env = new HashMap<>();
         env.put("PROCESSING_ACCESSION", String.valueOf(getProcessingAccession()));
-        if (options.hasArgument("metadata-workflow-run-accession")) {
-            env.put("WORKFLOW_RUN_ACCESSION", options.valueOf("metadata-workflow-run-accession").toString());
-        } else if (options.hasArgument("metadata-workflow-run-ancestor-accession")) {
-            env.put("WORKFLOW_RUN_ACCESSION", options.valueOf("metadata-workflow-run-ancestor-accession").toString());
+        if (getWorkflowRunAccession() != null) {
+            env.put("WORKFLOW_RUN_ACCESSION", getWorkflowRunAccession().toString());
         } else {
             // GCR is not being run from within a workflow run
         }
