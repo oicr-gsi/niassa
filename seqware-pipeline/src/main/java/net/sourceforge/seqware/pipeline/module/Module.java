@@ -44,6 +44,7 @@ public abstract class Module implements ModuleInterface {
     File stdoutFile;
     File stderrFile;
     protected int processingAccession;
+    private Integer workflowRunAccession;
 
     List<String> parameters = new ArrayList<>();
     /**
@@ -361,4 +362,13 @@ public abstract class Module implements ModuleInterface {
     public void setProcessingAccession(int accession) {
         this.processingAccession = accession;
     }
+
+    public Integer getWorkflowRunAccession() {
+        return workflowRunAccession;
+    }
+
+    public void setWorkflowRunAccession(Integer workflowRunAccession) {
+        this.workflowRunAccession = workflowRunAccession;
+    }
+
 }
