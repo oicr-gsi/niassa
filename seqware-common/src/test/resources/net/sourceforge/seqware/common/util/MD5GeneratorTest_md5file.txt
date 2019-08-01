@@ -1,5 +1,0 @@
-Test
-file
-for
-checking
-md5sum.
