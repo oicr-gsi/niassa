@@ -318,4 +318,8 @@ private static final Logger LOGGER = LoggerFactory.getLogger(JaxbObject.class);
 		}
 		return object;
 	}
+
+        public Marshaller getMarshaller() throws JAXBException {
+            return context.createMarshaller();
+        }
 }

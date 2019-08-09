@@ -40,7 +40,7 @@ import net.sourceforge.seqware.common.model.adapters.SortedMapOfSortedSetAdapter
  *
  * @author mlaszloffy
  */
-@XmlRootElement
+@XmlRootElement(name="dto")
 public class AnalysisProvenanceDto implements AnalysisProvenance {
 
     protected String workflowName;
