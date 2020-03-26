@@ -2711,6 +2711,9 @@ public class MetadataWS implements Metadata {
 	 * 
 	 * }
 	 */
+	public void setSocketTimeout(int seconds) {
+		ll.resource.getContext().getParameters().add("socketTimeout", Integer.toString(seconds * 1000));
+	}
 	protected class LowLevel {
 
 		private ClientResource resource;
