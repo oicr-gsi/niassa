@@ -35,14 +35,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import org.apache.commons.lang3.StringUtils;
 import org.restlet.Client;
 import org.restlet.Context;
@@ -2640,6 +2645,33 @@ public class MetadataWS implements Metadata {
 			if (clientResource != null) {
 				clientResource.release();
 			}
+		}
+	}
+	public Stream<AnalysisProvenanceDto> streamAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+		try {
+			// request
+			ClientResource clientResource;
+			Representation representation;
+			ObjectMapper mapper = new ObjectMapper();
+			clientResource = ll.getResource().getChild(version + "/reports/analysis-provenance");
+			logger.info("MetadataWS.streamAnalysisProvenance: getObjectViaPost: " + clientResource);
+			representation = clientResource.post(mapper.writeValueAsString(filters.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().name(), Entry::getValue))));
+			final PartialUnmarshaller unmarshaller = new PartialUnmarshaller(representation.getReader());
+			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(unmarshaller, 0), false).onClose(() -> {
+				try {
+					unmarshaller.close();
+					representation.release();
+					if (clientResource.getResponseEntity() != null) {
+						clientResource.getResponseEntity().release();
+					}
+					clientResource.release();
+				} catch (XMLStreamException ex) {
+					logger.error("MetadataWS.getAnalysisProvenance: ",ex);
+					throw Rethrow.rethrow(ex);
+				}			});
+		} catch (JAXBException | XMLStreamException | IOException ex) {
+			logger.error("MetadataWS.getAnalysisProvenance: ",ex);
+			throw Rethrow.rethrow(ex);
 		}
 	}
 

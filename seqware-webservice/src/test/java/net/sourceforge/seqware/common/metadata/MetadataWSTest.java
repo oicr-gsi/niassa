@@ -27,12 +27,16 @@ import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import net.sourceforge.seqware.common.dto.AnalysisProvenanceDto;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.junit.After;
 import org.junit.Assert;
@@ -913,6 +917,16 @@ public class MetadataWSTest {
     public void getLimsKeyFromMissingIUS() {
         LimsKey limsKey = instance.getLimsKeyFrom(-1);
         assertNull(limsKey);
+    }
+
+    @Test
+    public void analysisProvenanceSame() {
+        if (instance instanceof MetadataWS) {
+            final List<AnalysisProvenance> chunked = instance.getAnalysisProvenance();
+            final List<AnalysisProvenanceDto> streamed = ((MetadataWS) instance).streamAnalysisProvenance(Collections.emptyMap()).collect(Collectors.toList());
+            assertEquals(chunked.size(), streamed.size());
+            assertEquals(chunked, streamed);
+        }
     }
 
 }
