@@ -519,7 +519,11 @@
                 <exclusion>
                     <groupId>com.google.inject</groupId>
                     <artifactId>guice</artifactId>
-                </exclusion>
+	        </exclusion>
+	        <exclusion>
+		    <groupId>com.google.code.guice</groupId>
+		    <artifactId>guice</artifactId>
+	        </exclusion>
                 <exclusion>
                     <artifactId>google-collections</artifactId>
                     <groupId>com.google.collections</groupId>
