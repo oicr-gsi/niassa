@@ -152,24 +152,6 @@
     </build>
 
 
-    <repositories>
-        <repository>
-            <id>maven-restlet</id>
-            <name>Public online Restlet repository</name>
-            <url>http://maven.restlet.org</url>
-        </repository>
-        <repository>
-            <url>https://maven.java.net/content/groups/public/</url>
-            <id>restapi</id>
-            <layout>default</layout>
-            <name>Repository for library Library[restapi]</name>
-        </repository>
-        <repository>
-            <id>jboss</id>
-            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
            <groupId>io.prometheus</groupId>
@@ -533,10 +515,6 @@
                 <exclusion>
                     <groupId>commons-pool</groupId>
                     <artifactId>commons-pool</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.thoughtworks.xstream</groupId>
-                    <artifactId>xstream</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.inject</groupId>

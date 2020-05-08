@@ -3351,7 +3351,20 @@ public class MetadataWS implements Metadata {
 				}
 				if (cResource != null) {
 					if (cResource.getResponseEntity() != null) {
+						try {
+							cResource.getResponseEntity().exhaust();
+						} catch (Exception e) {
+							logger.info("exhaustion", e);
+						}
 						cResource.getResponseEntity().release();
+					}
+					if (cResource.getNext() instanceof Client) {
+						Client c = (Client) cResource.getNext();
+						try {
+							c.stop();
+						} catch (Exception e) {
+							logger.info("stopping client", e);
+						}
 					}
 					cResource.release();
 				}
