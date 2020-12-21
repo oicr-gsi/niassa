@@ -53,6 +53,10 @@ public abstract class CachedDocumentAutoUpdate {
             //no other writer or readers accessing the cached document, update the document
 
             try {
+                // release previous cached data for GC
+                cachedDocument = null;
+                lastModified = null;
+
                 updateCachedData();
                 Representation r = XmlTools.getRepresentation(cachedDocument);
                 r.setModificationDate(Date.from(lastModified));
